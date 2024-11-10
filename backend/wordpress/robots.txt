@@ -1,0 +1,53 @@
+User-agent: Googlebot
+
+# Allow files critical for rendering
+Allow: *.js
+Allow: *.css
+
+# Allow AJAX - Do Not Remove
+Allow: /wp-admin/admin-ajax.php
+
+
+# Prevent crawl-budget waste on search pages
+Disallow: /?s=
+Disallow: /search
+Disallow: /*/?s=
+Disallow: /*/search
+# Prevent private admin areas from being crawled
+Disallow: /wp-admin
+# Prevent duplicate /feed/ pages from being crawled
+#Disallow: /feed
+#Disallow: /*/feed
+# Prevent login page crawls etc
+Disallow: /wp-login.php
+# Prevent register page crawls etc
+Disallow: /wp-register.php
+# Prevent Trackback Neg SEO
+Disallow: /trackback/
+Disallow: /thank-you-brochure-all
+Disallow: /thank-you-contact
+Disallow: /fr/thank-you-brochure-all-french
+
+
+
+User-agent: *
+
+# Allow AJAX - Do Not Remove
+Allow: /wp-admin/admin-ajax.php
+
+Disallow: /wp-admin
+Disallow: /wp-login.php
+Disallow: /trackback/
+Disallow: /wp-register.php
+Disallow: /thank-you-brochure-all
+Disallow: /thank-you-contact
+Disallow: /fr/thank-you-brochure-all-french
+
+
+# Add all sitemaps
+Sitemap: https://www.glion.edu/post-sitemap.xml
+Sitemap: https://www.glion.edu/page-sitemap.xml
+Sitemap: https://www.glion.edu/alumni-sitemap.xml
+Sitemap: https://www.glion.edu/faculty-sitemap.xml
+Sitemap: https://www.glion.edu/category-sitemap.xml
+Sitemap: https://www.glion.edu/author-sitemap.xml
