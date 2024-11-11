@@ -1,0 +1,13 @@
+[
+  {
+    "id": "featured_posts",
+    "type": "relationship",
+    "filters": [ "search", "post_type", "taxonomy" ],
+    "return_format": "ids"
+  },
+  {
+    "id": "select_theme",
+    "type": "select",
+    "default_value": "default-blocks"
+  }
+]

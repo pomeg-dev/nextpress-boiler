@@ -1,0 +1,120 @@
+[
+  {
+    "id": "post_type_rest",
+    "type": "select",
+    "default_value": "posts",
+    "instructions": "Select the post type you want to show in the feed"
+  },
+  {
+    "id": "number_of_posts",
+    "type": "number",
+    "default_value": 6,
+    "instructions": "Number of posts to show in the feed"
+  },
+  {
+    "id": "show_search",
+    "type": "true_false",
+    "ui": 1,
+    "instructions": "Show search field"
+  },
+  {
+    "id": "search_field_label",
+    "type": "text",
+    "conditional_logic": [
+      [
+        {
+          "field": "show_search",
+          "operator": "==",
+          "value": 1
+        }
+      ]
+    ]
+  },
+  {
+    "id": "search_field_placeholder",
+    "type": "text",
+    "default_value": "Search...",
+    "conditional_logic": [
+      [
+        {
+          "field": "show_search",
+          "operator": "==",
+          "value": 1
+        }
+      ]
+    ]
+  },
+  {
+    "id": "taxonomy_filters",
+    "type": "repeater",
+    "layout": "block",
+    "button_label": "Add Filter",
+    "fields": [
+      {
+        "id": "label",
+        "type": "text"
+      },
+      {
+        "id": "placeholder",
+        "type": "text"
+      },
+      {
+        "id": "taxonomy",
+        "type": "select"
+      },
+      {
+        "id": "type",
+        "type": "select",
+        "default_value": "select",
+        "choices": [
+          { "select": "Dropdown" },
+          { "button": "Button" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "load_more",
+    "type": "radio",
+    "label": "Select pagination type",
+    "default_value": "pagination",
+    "choices": [
+      { "none": "None" },
+      { "pagination": "Pagination" },
+      { "load_more": "Load More Button" }
+    ],
+    "instructions": "Show paginated results or a load more button"
+  },
+  {
+    "id": "load_more_text",
+    "type": "text",
+    "default_value": "Load More",
+    "conditional_logic": [
+      [
+        {
+          "field": "load_more",
+          "operator": "==",
+          "value": "load_more"
+        }
+      ]
+    ]
+  },
+  {
+    "id": "show_post_count",
+    "type": "true_false",
+    "ui": 1
+  },
+  {
+    "id": "show_reset",
+    "type": "true_false",
+    "label": "Show Reset Button",
+    "ui": 1
+  },
+  {
+    "id": "update_url",
+    "type": "true_false",
+    "label": "Update URL on filter/search",
+    "instructions": "Allows the use of dynamic URL parameters",
+    "ui": 1
+  }
+]
