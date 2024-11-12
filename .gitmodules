@@ -1,6 +1,6 @@
 [submodule "backend/wordpress/wp-content/plugins/nextpress"]
 	path = backend/wordpress/wp-content/plugins/nextpress
-	url = https://github.com/astrolabe-agency/nextpress
+	url = https://github.com/pomeg-dev/nextpress
 [submodule "frontend/src"]
 	path = frontend/src
-	url = https://github.com/astrolabe-agency/nextpress-frontend-src
+	url = https://github.com/pomeg-dev/nextpress-frontend-src
