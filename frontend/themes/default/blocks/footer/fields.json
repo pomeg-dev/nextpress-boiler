@@ -1,0 +1,49 @@
+[
+  {
+    "id": "logo",
+    "type": "image",
+    "instructions": "if empty, site logo will be used"
+  },
+  {
+    "id": "text",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "phone",
+    "type": "group",
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      },
+      {
+        "id": "cta",
+        "type": "link"
+      }
+    ]
+  },
+  {
+    "id": "social",
+    "type": "group",
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      },
+      {
+        "id": "ctas",
+        "type": "repeater",
+        "fields": [
+          {
+            "id": "cta",
+            "type": "link"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "copyright",
+    "type": "text"
+  }
+]

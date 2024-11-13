@@ -38,6 +38,7 @@
     "next": "^14.2.15",
     "node-html-parser": "^6.1.5",
     "null-loader": "^4.0.1",
+    "pluralize": "^8.0.0",
     "polished": "^4.3.1",
     "probe-image-size": "^7.2.3",
     "random-gradient": "^0.0.2",

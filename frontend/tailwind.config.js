@@ -21,6 +21,18 @@ module.exports = {
       secondary: "var(--color-secondary)",
       tertiary: "var(--color-tertiary)",
     },
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "20px",
+        sm: "20px",
+        lg: "40px",
+        xl: "70px",
+      },
+      screens: {
+        DEFAULT: "1340px",
+      },
+    },
     screens: {
       xs: "440px",
       sm: "640px",
@@ -36,11 +48,17 @@ module.exports = {
       merriweather: ["Cal Sans", "Inter", "sans-serif"],
     },
     extend: {
+      // borderRadius: {
+      //   xl: "var(--border-radius-xlarge)",
+      //   lg: "var(--border-radius-large)",
+      //   md: "var(--border-radius-medium)",
+      //   sm: "var(--border-radius-small)",
+      // },
       borderRadius: {
-        xl: "var(--border-radius-xlarge)",
-        lg: "var(--border-radius-large)",
-        md: "var(--border-radius-medium)",
-        sm: "var(--border-radius-small)",
+        xl: "60px",
+        lg: "50px",
+        md: "20px",
+        sm: "10px",
       },
     },
   },

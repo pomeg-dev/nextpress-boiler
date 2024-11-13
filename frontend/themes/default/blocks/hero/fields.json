@@ -1,0 +1,14 @@
+[
+  {
+    "id": "pre_heading",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "heading",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "cta",
+    "type": "link"
+  }
+]

@@ -1,6 +1,5 @@
 "use client";
 
-import { getPosts } from "lib/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SearchBox } from "./SearchBox";
@@ -9,6 +8,7 @@ import { PostsList } from "./PostsList";
 import { Pagination } from "./Pagination";
 import { PostCount } from "./PostCount";
 import Link from "next/link";
+import { getPosts } from "@/lib/wp/posts";
 
 type Props = {
   data: {
@@ -32,7 +32,7 @@ export function Feed({ data, firstPosts }: Props) {
   const [totalPages, setTotalPages] = useState(1);
   const [posts, setPosts] = useState(firstPosts);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [taxFilters, setTaxFilters] = useState([]);
   const [loadMore, setLoadMore] = useState(false);
   const router = useRouter();
@@ -44,17 +44,19 @@ export function Feed({ data, firstPosts }: Props) {
     if (params.page === 1 || loadMore) {
       delete params.page;
     }
-    const searchParams = params ? '?' + new URLSearchParams(params).toString() : '';
+    const searchParams = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
     router.push(searchParams, { scroll: false });
   };
-  
+
   useEffect(() => {
     interface ParamsType {
-      is_archive: boolean,
-      search?: string,
-      page: number,
-      per_page: number|string,
-      [key: string]: any,
+      is_archive: boolean;
+      search?: string;
+      page: number;
+      per_page: number | string;
+      [key: string]: any;
     }
     const params: ParamsType = {
       is_archive: true,
@@ -63,9 +65,9 @@ export function Feed({ data, firstPosts }: Props) {
     };
 
     if (searchTerm) {
-      params.search = searchTerm.replace(/-|  /g, '+');
+      params.search = searchTerm.replace(/-|  /g, "+");
     }
-    
+
     taxFilters.forEach((filter: any) => {
       if (filter.taxonomy !== undefined && filter.terms) {
         params[`filter_${filter.taxonomy}`] = filter.terms;
@@ -78,21 +80,25 @@ export function Feed({ data, firstPosts }: Props) {
 
     getPosts(data.post_type_rest, params, true)
       .then((response) => {
-        const totalPosts = response.headers.get('X-WP-Total') ?? data.number_of_posts;
-        const totalPages = response.headers.get('X-WP-TotalPages') ?? 1;
-        const postsArray = data.load_more && loadMore ? posts?.concat(response.data) : response.data;
+        const totalPosts =
+          response.headers.get("X-WP-Total") ?? data.number_of_posts;
+        const totalPages = response.headers.get("X-WP-TotalPages") ?? 1;
+        const postsArray =
+          data.load_more && loadMore
+            ? posts?.concat(response.data)
+            : response.data;
         setTotalPosts(totalPosts);
         setTotalPages(totalPages);
         setPosts(postsArray);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }, [currentPage, taxFilters, searchTerm]);
 
   return (
-    <div className="archive-feed py-[40px] px-[20px]">
+    <div className="archive-feed container py-[40px]">
       <div className="archive-container relative">
         <div className="archive-filters flex flex-col gap-4">
-          {data.show_search &&
+          {data.show_search && (
             <SearchBox
               label={data.search_field_label}
               placeholder={data.search_field_placeholder}
@@ -101,7 +107,7 @@ export function Feed({ data, firstPosts }: Props) {
               setCurrentPage={setCurrentPage}
               setLoadMore={setLoadMore}
             />
-          }
+          )}
           {data.taxonomy_filters &&
             data.taxonomy_filters.map((item: any, index: number) => (
               <TaxonomyFilter
@@ -116,44 +122,43 @@ export function Feed({ data, firstPosts }: Props) {
                 setCurrentPage={setCurrentPage}
                 setLoadMore={setLoadMore}
               />
-            ))
-          }
-          {data.show_reset &&
+            ))}
+          {data.show_reset && (
             <div className="filter-reset">
               <Link
                 href=""
                 className="button"
                 onClick={() => {
                   setCurrentPage(1);
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setTaxFilters([]);
                   setLoadMore(false);
                 }}
-              >Reset</Link>
+              >
+                Reset
+              </Link>
             </div>
-          }
+          )}
         </div>
-        {data.show_post_count &&
+        {data.show_post_count && (
           <PostCount
             postType={data.post_type_rest}
             totalPosts={totalPosts}
             totalPages={totalPages}
             perPage={data.number_of_posts}
             currentPage={currentPage}
-            isLoadMore={data.load_more === 'load_more'}
+            isLoadMore={data.load_more === "load_more"}
           />
-        }
-        {posts &&
-          <PostsList posts={posts} />
-        }
-        {data.load_more === 'pagination' &&
+        )}
+        {posts && <PostsList posts={posts} />}
+        {data.load_more === "pagination" && (
           <Pagination
             totalPages={totalPages}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
           />
-        }
-        {(data.load_more === 'load_more' && currentPage != totalPages) &&
+        )}
+        {data.load_more === "load_more" && currentPage != totalPages && (
           <div className="archive-load-more">
             <Link
               href=""
@@ -161,9 +166,11 @@ export function Feed({ data, firstPosts }: Props) {
                 setCurrentPage(currentPage + 1);
                 setLoadMore(true);
               }}
-            >{data.load_more_text}</Link>
+            >
+              {data.load_more_text}
+            </Link>
           </div>
-        }
+        )}
       </div>
     </div>
   );

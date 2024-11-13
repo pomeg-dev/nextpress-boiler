@@ -1,0 +1,24 @@
+[
+  {
+    "id": "testimonials",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "person",
+        "type": "image"
+      },
+      {
+        "id": "quote",
+        "type": "textarea"
+      },
+      {
+        "id": "quotee",
+        "type": "text"
+      },
+      {
+        "id": "quotee_position",
+        "type": "text"
+      }
+    ]
+  }
+]
