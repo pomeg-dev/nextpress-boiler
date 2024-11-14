@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-ASTROBASE_HOST="astrobase"  # Replace with your actual astrobase hostname
-SERVER_NAME="astro87" # Replace with your actual server name
+POMEG_HOST="pometree"  # Replace with your actual pometree hostname
+SERVER_NAME="pomepress" # Replace with your actual server name
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -20,9 +20,9 @@ print_error() {
     exit 1
 }
 
-# Check if we can connect to astrobase
-print_status "Attempting to connect to astrobase..."
-ssh -q -T $ASTROBASE_HOST exit || print_error "Failed to connect to astrobase. Check your SSH connection."
+# Check if we can connect to pometree
+print_status "Attempting to connect to pometree..."
+ssh -q -T $POMEG_HOST exit || print_error "Failed to connect to pometree. Check your SSH connection."
 
 # Define the functions that will be used in remote sessions
 REMOTE_FUNCTIONS='
@@ -36,7 +36,7 @@ print_error() {
 
 # Main deployment through nested SSH
 print_status "Starting WordPress deployment process..."
-ssh -T $ASTROBASE_HOST << OUTER_EOF
+ssh -T $POMEG_HOST << OUTER_EOF
     # Define functions for first SSH session
     $REMOTE_FUNCTIONS
     

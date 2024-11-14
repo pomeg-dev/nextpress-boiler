@@ -2,7 +2,7 @@
 # This script can be used when you want to change the name of a frontend/ui/blocks/theme/ folder but want to preserve the blocks and options that were registered with the previous name.
 
 prev_theme_name="nextpress"
-new_theme_name="astrolabe"
+new_theme_name="pome"
 
 # wp db edits
 

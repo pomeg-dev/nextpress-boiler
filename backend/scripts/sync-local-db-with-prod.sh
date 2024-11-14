@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Set variables
-SERVER="astro87"
+SERVER="pomepress"
 DB_UN="bn_wordpress"
 DB_PW="494aac1614398b92bab5935fa50c5b473deac97f1624ea7011df61f8b774d170"
-ADMIN_EMAIL="ryan@astrolabe.agency"
+ADMIN_EMAIL="developer@pomegranate.co.uk"
 ADMIN_USER="ryan"
-SITE_URL="wp.$SERVER.astlb.dev"
+SITE_URL="wp.$SERVER.pomeg.dev"
 
 # Create a heredoc with the site mappings that we'll pass to the remote server
 cat > /tmp/site_mappings.txt << 'EOF'
@@ -18,12 +18,12 @@ EOF
 echo "1. Zipping up DB DUMP from local..."
 docker exec -i wordpress_mysql mysqldump -uroot -ppassword wordpress | gzip -9 > /tmp/${SERVER}_dump.sql.gz
 
-echo "2. Copying DB DUMP to astrobase..."
-scp /tmp/${SERVER}_dump.sql.gz astrobase:/tmp/
-scp /tmp/site_mappings.txt astrobase:/tmp/
+echo "2. Copying DB DUMP to pometree..."
+scp /tmp/${SERVER}_dump.sql.gz pometree:/tmp/
+scp /tmp/site_mappings.txt pometree:/tmp/
 
-# SSH into astrobase and create the remote script
-ssh astrobase "cat > /tmp/remote_update.sh" << 'EOT'
+# SSH into pometree and create the remote script
+ssh pometree "cat > /tmp/remote_update.sh" << 'EOT'
 #!/bin/bash
 
 SERVER=$1
@@ -33,7 +33,7 @@ DB_PW=$4
 ADMIN_USER=$5
 ADMIN_EMAIL=$6
 
-echo "3. Copying DB DUMP from astrobase to $SERVER..."
+echo "3. Copying DB DUMP from pometree to $SERVER..."
 sudo scp /tmp/${SERVER}_dump.sql.gz "$SERVER:/tmp/"
 sudo scp /tmp/site_mappings.txt "$SERVER:/tmp/"
 
@@ -111,7 +111,7 @@ sudo ssh "$SERVER" "chmod +x /tmp/server_update.sh && /tmp/server_update.sh '$DB
 EOT
 
 # Make the remote script executable and run it
-ssh astrobase "chmod +x /tmp/remote_update.sh && /tmp/remote_update.sh '$SERVER' '$SITE_URL' '$DB_UN' '$DB_PW' '$ADMIN_USER' '$ADMIN_EMAIL'"
+ssh pometree "chmod +x /tmp/remote_update.sh && /tmp/remote_update.sh '$SERVER' '$SITE_URL' '$DB_UN' '$DB_PW' '$ADMIN_USER' '$ADMIN_EMAIL'"
 
 # Cleanup local files
 rm /tmp/${SERVER}_dump.sql.gz /tmp/site_mappings.txt
