@@ -8,7 +8,7 @@ import { PostsList } from "./PostsList";
 import { Pagination } from "./Pagination";
 import { PostCount } from "./PostCount";
 import Link from "next/link";
-import { getPosts } from "@/lib/wp/posts";
+import { getRestPosts } from "@/lib/wp/posts";
 
 type Props = {
   data: {
@@ -78,7 +78,7 @@ export function Feed({ data, firstPosts }: Props) {
       updateUrl(JSON.parse(JSON.stringify(params)));
     }
 
-    getPosts(data.post_type_rest, params, true)
+    getRestPosts(data.post_type_rest, params, true)
       .then((response) => {
         const totalPosts =
           response.headers.get("X-WP-Total") ?? data.number_of_posts;
@@ -112,7 +112,7 @@ export function Feed({ data, firstPosts }: Props) {
             data.taxonomy_filters.map((item: any, index: number) => (
               <TaxonomyFilter
                 key={index}
-                taxonomy={item.taxonomy}
+                taxonomy={item.taxonomy_rest}
                 terms={item.terms}
                 label={item.label}
                 placeholder={item.placeholder}

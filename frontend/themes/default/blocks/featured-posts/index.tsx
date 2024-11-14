@@ -1,22 +1,56 @@
-import React, { Suspense } from "react";
+import { getPosts, getRestPosts } from "@/lib/wp/posts";
+import React from "react";
 import { FeaturedPosts } from "./components/FeaturedPosts";
-import { getPosts } from "@/lib/wp/posts";
-import { loadComponent } from "@/utils/component-loader";
+
+interface ParamsType {
+  is_archive: boolean,
+  per_page: number|string,
+  categories?: any,
+  tags?: any,
+}
 
 export async function featured_posts(props: any) {
-  if (!props.data.featured_posts) {
-    return <div>Posts not found</div>;
+  const {
+    heading,
+    block_type,
+    post_type_rest,
+    category,
+    tag,
+    number_posts,
+    featured_posts,
+    slides_to_show,
+    theme
+  } = props.data;
+
+  let posts = [];
+  if (block_type === "automatic") {
+    const params: ParamsType = {
+      is_archive: true,
+      per_page: number_posts == 0 ? 100 : number_posts,
+    };
+
+    if (category) {
+      params.categories = category;
+    }
+
+    if (tag) {
+      params.tags = tag;
+    }
+
+    posts = await getRestPosts(post_type_rest, params);
+  } else {
+    posts = await getPosts({"post__in": featured_posts});
   }
-  const posts = await getPosts({ post__in: props.data.featured_posts });
-  const Component = await loadComponent(
-    props.data?.select_theme,
-    "featured-posts",
-    <FeaturedPosts posts={posts} />
-  );
+
+  if (!posts || posts.length < 0) {
+    return (<div>Posts not found</div>);
+  }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Component posts={posts} />
-    </Suspense>
+    <FeaturedPosts
+      posts={posts}
+      heading={heading}
+      slidesToShow={parseInt(slides_to_show)}
+    />
   );
 }

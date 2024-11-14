@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { linkFilter } from "utils/url";
 import moment from "moment";
 
 const API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
@@ -21,7 +20,6 @@ export function PostsList({ posts, settings }: {
       >
         {posts &&
           posts.map((post: any, index: number) => {
-            // console.log(post);
             return (
               <div className="archive-post-item flex flex-col" key={index}>
                 <Link
