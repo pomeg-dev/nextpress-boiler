@@ -61,6 +61,7 @@ ssh -T $POMEG_HOST << OUTER_EOF
             git fetch
             git checkout main
             git pull
+            git submodule update --init --recursive
             
             # Rsync files
             print_status "Syncing files to WordPress directory..."

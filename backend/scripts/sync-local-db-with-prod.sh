@@ -5,7 +5,7 @@ SERVER="pomepress"
 DB_UN="bn_wordpress"
 DB_PW="494aac1614398b92bab5935fa50c5b473deac97f1624ea7011df61f8b774d170"
 ADMIN_EMAIL="developer@pomegranate.co.uk"
-ADMIN_USER="ryan"
+ADMIN_USER="developer"
 SITE_URL="wp.$SERVER.pomeg.dev"
 
 # Create a heredoc with the site mappings that we'll pass to the remote server
@@ -16,7 +16,7 @@ cat > /tmp/site_mappings.txt << 'EOF'
 EOF
 
 echo "1. Zipping up DB DUMP from local..."
-docker exec -i wordpress_mysql mysqldump -uroot -ppassword wordpress | gzip -9 > /tmp/${SERVER}_dump.sql.gz
+docker exec -i wordpress_mysql mariadb-dump -uroot -ppassword wordpress | gzip -9 > /tmp/${SERVER}_dump.sql.gz
 
 echo "2. Copying DB DUMP to pometree..."
 scp /tmp/${SERVER}_dump.sql.gz pometree:/tmp/
