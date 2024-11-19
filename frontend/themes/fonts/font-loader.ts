@@ -31,7 +31,7 @@ const playfairDisplay = Playfair_Display({
 const paralex = localFont({
   src: [
     {
-      path: "../public/fonts/Paralex.ttf",
+      path: "../../public/fonts/Paralex.ttf",
       weight: "400",
       style: "normal",
     },
