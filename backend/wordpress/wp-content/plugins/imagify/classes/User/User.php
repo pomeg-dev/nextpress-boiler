@@ -1,7 +1,6 @@
 <?php
 namespace Imagify\User;
 
-use Date;
 use Imagify_Data;
 use WP_Error;
 
@@ -88,7 +87,7 @@ class User {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @var Date
+	 * @var string
 	 */
 	public $next_date_update;
 
@@ -102,22 +101,38 @@ class User {
 	public $is_active;
 
 	/**
+	 * If the account is monthly or yearly.
+	 *
+	 * @var bool
+	 */
+	public $is_monthly;
+
+	/**
 	 * Store a \WP_Error object if the request to fetch the user data failed.
 	 * False overwise.
 	 *
 	 * @var bool|WP_Error
 	 * @since 1.9.9
 	 */
-	private $error;
+	private $error = false;
 
 	/**
-	 * The constructor.
+	 * Initialisation.
 	 *
-	 * @since 1.0
+	 * @var bool
+	 */
+	protected $initialized = false;
+
+	/**
+	 * Initialise the user data by fetching the api data
 	 *
 	 * @return void
 	 */
-	public function __construct() {
+	public function init_user() {
+		if ( $this->initialized ) {
+			return;
+		}
+
 		$user = get_imagify_user();
 
 		if ( is_wp_error( $user ) ) {
@@ -125,6 +140,18 @@ class User {
 			return;
 		}
 
+		$this->set_user_properties( $user );
+		$this->initialized = true;
+	}
+
+	/**
+	 * Set user properties
+	 *
+	 * @param object $user User object data.
+	 *
+	 * @return void
+	 */
+	private function set_user_properties( $user ) {
 		$this->id                           = $user->id;
 		$this->email                        = $user->email;
 		$this->plan_id                      = (int) $user->plan_id;
@@ -135,7 +162,7 @@ class User {
 		$this->consumed_current_month_quota = $user->consumed_current_month_quota;
 		$this->next_date_update             = $user->next_date_update;
 		$this->is_active                    = $user->is_active;
-		$this->error                        = false;
+		$this->is_monthly                   = $user->is_monthly;
 	}
 
 	/**
@@ -145,6 +172,8 @@ class User {
 	 * @since 1.9.9
 	 */
 	public function get_error() {
+		$this->init_user();
+
 		return $this->error;
 	}
 
@@ -230,6 +259,7 @@ class User {
 	 * @return float|int
 	 */
 	public function get_percent_unconsumed_quota() {
+		$this->init_user();
 		return 100 - $this->get_percent_consumed_quota();
 	}
 
@@ -241,7 +271,28 @@ class User {
 	 * @return bool
 	 */
 	public function is_free() {
+		$this->init_user();
 		return 1 === $this->plan_id;
+	}
+
+	/**
+	 * Check if the user is a growth account
+	 *
+	 * @return bool
+	 */
+	public function is_growth() {
+		$this->init_user();
+		return ( 16 === $this->plan_id || 18 === $this->plan_id );
+	}
+
+	/**
+	 * Check if the user is an infinite account
+	 *
+	 * @return bool
+	 */
+	public function is_infinite() {
+		$this->init_user();
+		return ( 15 === $this->plan_id || 17 === $this->plan_id );
 	}
 
 	/**
@@ -262,5 +313,49 @@ class User {
 			&&
 			floatval( 100 ) === round( $this->get_percent_consumed_quota() )
 		);
+	}
+
+	/**
+	 * Get user Id
+	 *
+	 * @return string
+	 */
+	public function get_id() {
+		$this->init_user();
+
+		return $this->id;
+	}
+
+	/**
+	 * Get user email.
+	 *
+	 * @return string
+	 */
+	public function get_email() {
+		$this->init_user();
+
+		return $this->email;
+	}
+
+	/**
+	 * Get plan id.
+	 *
+	 * @return int
+	 */
+	public function get_plan_id() {
+		$this->init_user();
+
+		return $this->plan_id;
+	}
+
+	/**
+	 * Get user quota.
+	 *
+	 * @return int
+	 */
+	public function get_quota() {
+		$this->init_user();
+
+		return $this->quota;
 	}
 }

@@ -1,24 +1,23 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'name' => 'wpserveur/wps-menu-exporter',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '6817b79eb2fb4b38e4bf81d3e484998ef5b2bc4f',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
     ),
-    'reference' => '1b15548f17471ed24121c4a226edd7c238c1dfe3',
-    'name' => 'wpserveur/wps-menu-exporter',
-  ),
-  'versions' => 
-  array (
-    'wpserveur/wps-menu-exporter' => 
-    array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '1b15548f17471ed24121c4a226edd7c238c1dfe3',
+    'versions' => array(
+        'wpserveur/wps-menu-exporter' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '6817b79eb2fb4b38e4bf81d3e484998ef5b2bc4f',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
     ),
-  ),
 );

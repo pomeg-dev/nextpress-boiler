@@ -7,9 +7,13 @@ namespace Composer\Autoload;
 use Composer\AutoloadWPMediaImagifyWordPressPlugin\ClassLoader as ClassLoaderWPMediaImagifyWordPressPlugin;
 
 
-class ComposerStaticInit799f24bb49776382616b035efaf242fe
+class ComposerStaticInit91650977b1d625b62f414430e2316982
 {
     public static $prefixLengthsPsr4 = array (
+        'W' => 
+        array (
+            'WPMedia\\PluginFamily\\' => 21,
+        ),
         'I' => 
         array (
             'Imagify\\ThirdParty\\WPRocket\\' => 28,
@@ -32,6 +36,10 @@ class ComposerStaticInit799f24bb49776382616b035efaf242fe
     );
 
     public static $prefixDirsPsr4 = array (
+        'WPMedia\\PluginFamily\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/wp-media/plugin-family/src',
+        ),
         'Imagify\\ThirdParty\\WPRocket\\' => 
         array (
             0 => __DIR__ . '/../..' . '/inc/3rd-party/wp-rocket/classes',
@@ -77,6 +85,9 @@ class ComposerStaticInit799f24bb49776382616b035efaf242fe
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Imagify' => __DIR__ . '/../..' . '/inc/classes/class-imagify.php',
+        'Imagify\\EventManagement\\EventManager' => __DIR__ . '/../..' . '/inc/classes/Dependencies/wp-media/event-manager/EventManager.php',
+        'Imagify\\EventManagement\\EventManagerAwareSubscriberInterface' => __DIR__ . '/../..' . '/inc/classes/Dependencies/wp-media/event-manager/EventManagerAwareSubscriberInterface.php',
+        'Imagify\\EventManagement\\SubscriberInterface' => __DIR__ . '/../..' . '/inc/classes/Dependencies/wp-media/event-manager/SubscriberInterface.php',
         'Imagify_AS3CF_Attachment' => __DIR__ . '/../..' . '/inc/deprecated/classes/class-imagify-as3cf-attachment.php',
         'Imagify_AS3CF_Deprecated' => __DIR__ . '/../..' . '/inc/deprecated/classes/class-imagify-as3cf-deprecated.php',
         'Imagify_Abstract_Attachment' => __DIR__ . '/../..' . '/inc/deprecated/classes/class-imagify-abstract-attachment.php',
@@ -124,9 +135,9 @@ class ComposerStaticInit799f24bb49776382616b035efaf242fe
     public static function getInitializer(ClassLoaderWPMediaImagifyWordPressPlugin $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit799f24bb49776382616b035efaf242fe::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit799f24bb49776382616b035efaf242fe::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit799f24bb49776382616b035efaf242fe::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit91650977b1d625b62f414430e2316982::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit91650977b1d625b62f414430e2316982::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit91650977b1d625b62f414430e2316982::$classMap;
 
         }, null, ClassLoaderWPMediaImagifyWordPressPlugin::class);
     }

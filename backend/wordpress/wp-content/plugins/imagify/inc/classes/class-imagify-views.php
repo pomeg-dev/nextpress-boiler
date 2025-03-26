@@ -1,6 +1,7 @@
 <?php
 
 use Imagify\User\User;
+use Imagify\Dependencies\WPMedia\PluginFamily\Model\PluginFamily;
 
 defined( 'ABSPATH' ) || die( 'Cheatin’ uh?' );
 
@@ -75,6 +76,13 @@ class Imagify_Views {
 	 */
 	protected static $_instance;
 
+	/**
+	 * Imagify admin bar menu.
+	 *
+	 * @var bool
+	 */
+	private $admin_menu_is_present = false;
+
 
 	/** ----------------------------------------------------------------------------------------- */
 	/** INSTANCE/INIT =========================================================================== */
@@ -120,16 +128,13 @@ class Imagify_Views {
 			add_action( 'network_admin_menu', [ $this, 'add_network_menus' ] );
 		}
 
-		// Action links in plugins list.
-		$basename = plugin_basename( IMAGIFY_FILE );
-		add_filter( 'plugin_action_links_' . $basename,               [ $this, 'plugin_action_links' ] );
-		add_filter( 'network_admin_plugin_action_links_' . $basename, [ $this, 'plugin_action_links' ] );
-
 		// Save the "per page" option value from the files list screen.
 		add_filter( 'set-screen-option', [ 'Imagify_Files_List_Table', 'save_screen_options' ], 10, 3 );
 
 		// JS templates in footer.
 		add_action( 'admin_print_footer_scripts', [ $this, 'print_js_templates' ] );
+		add_action( 'admin_footer', [ $this, 'print_modal_payment' ] );
+		add_action( 'wp_before_admin_bar_render', [ $this, 'maybe_print_modal_payment' ] );
 	}
 
 
@@ -208,27 +213,6 @@ class Imagify_Views {
 		}
 	}
 
-
-	/** ----------------------------------------------------------------------------------------- */
-	/** PLUGIN ACTION LINKS ===================================================================== */
-	/** ----------------------------------------------------------------------------------------- */
-
-	/**
-	 * Add links to the plugin row in the plugins list.
-	 *
-	 * @since 1.7
-	 *
-	 * @param  array $actions An array of action links.
-	 * @return array
-	 */
-	public function plugin_action_links( $actions ) {
-		array_unshift( $actions, sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( imagify_get_external_url( 'documentation' ) ), __( 'Documentation', 'imagify' ) ) );
-		array_unshift( $actions, sprintf( '<a href="%s">%s</a>', esc_url( get_imagify_admin_url( 'bulk-optimization' ) ), __( 'Bulk Optimization', 'imagify' ) ) );
-		array_unshift( $actions, sprintf( '<a href="%s">%s</a>', esc_url( get_imagify_admin_url() ), __( 'Settings', 'imagify' ) ) );
-		return $actions;
-	}
-
-
 	/** ----------------------------------------------------------------------------------------- */
 	/** MAIN PAGE TEMPLATES ===================================================================== */
 	/** ----------------------------------------------------------------------------------------- */
@@ -239,7 +223,14 @@ class Imagify_Views {
 	 * @since 1.7
 	 */
 	public function display_settings_page() {
-		$this->print_template( 'page-settings' );
+		$plugin_family = new PluginFamily();
+		$plugins_array = $plugin_family->get_filtered_plugins( 'imagify/imagify' );
+
+		$data = [
+			'plugin_family' => $plugins_array['uncategorized'],
+		];
+
+		$this->print_template( 'page-settings', $data );
 	}
 
 	/**
@@ -554,7 +545,7 @@ class Imagify_Views {
 		$quota = $this->get_quota_percent();
 
 		if ( $quota <= 20 ) {
-			$icon = '<img src="' . IMAGIFY_ASSETS_IMG_URL . 'stormy.svg" width="64" height="63" alt="" />';
+			$icon = '<img src="' . IMAGIFY_ASSETS_IMG_URL . 'stormy.svg" width="40" height="63" alt="" />';
 		} elseif ( $quota <= 50 ) {
 			$icon = '<img src="' . IMAGIFY_ASSETS_IMG_URL . 'cloudy-sun.svg" width="63" height="64" alt="" />';
 		} else {
@@ -651,6 +642,67 @@ class Imagify_Views {
 		}
 	}
 
+	/**
+	 * Get imagify user info
+	 *
+	 * @return bool
+	 */
+	private function get_user_info(): bool {
+		$user  = new User();
+		$unconsumed_quota = $user->get_percent_unconsumed_quota();
+
+		return ( ! $user->is_infinite() && $unconsumed_quota <= 20 )
+			|| ( $user->is_free() && $unconsumed_quota > 20 );
+	}
+
+	/**
+	 * Start print the payment modal process.
+	 */
+	public function maybe_print_modal_payment() {
+		if ( $this->get_user_info() ) {
+			global $wp_admin_bar;
+			$this->admin_menu_is_present = $wp_admin_bar && $wp_admin_bar->get_node( 'imagify' );
+
+			return;
+		}
+
+		$this->admin_menu_is_present = false;
+	}
+
+	/**
+	 * Print the payment modal.
+	 *
+	 * @return void
+	 */
+	public function print_modal_payment() {
+		if ( is_admin_bar_showing() && $this->admin_menu_is_present ) {
+			$this->print_template(
+				'modal-payment',
+				[
+					'attachments_number' => $this->get_attachments_number_modal(),
+				]
+			);
+		}
+	}
+
+	/**
+	 * Get the number of attachments to display in the payment modal.
+	 *
+	 * @return int
+	 */
+	private function get_attachments_number_modal() {
+		$transient = get_transient( 'imagify_attachments_number_modal' );
+
+		if ( false !== $transient ) {
+			return $transient;
+		}
+
+		$attachments_number = imagify_count_attachments() + Imagify_Files_Stats::count_all_files();
+
+		set_transient( 'imagify_attachments_number_modal', $attachments_number, 1 * DAY_IN_SECONDS );
+
+		return $attachments_number;
+	}
 
 	/** ----------------------------------------------------------------------------------------- */
 	/** TOOLS =================================================================================== */

@@ -10,6 +10,14 @@ class Plugin {
 		add_action( 'load-export.php', array( __CLASS__, 'wps_menu_exporter_show_menu_post_type_in_export_options' ) );
 		add_action( 'load-export.php', array( __CLASS__, 'wps_menu_exporter_menu_export' ), 1 );
 		add_filter( 'plugin_action_links_' . WPS_MENU_EXPORTER_BASENAME, array( __CLASS__, 'wps_menu_exporter_plugin_action_links' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'admin_notices' ) );
+	}
+
+	public static function admin_notices() {
+		$screen = get_current_screen();
+		if ( $screen && 'export' === $screen->id ) {
+			include( WPS_MENU_EXPORTER_DIR . '/blocks/pub_wpboutik.php' );
+		}
 	}
 
 	/**

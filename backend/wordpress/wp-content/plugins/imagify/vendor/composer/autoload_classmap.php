@@ -8,6 +8,9 @@ $baseDir = dirname($vendorDir);
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'Imagify' => $baseDir . '/inc/classes/class-imagify.php',
+    'Imagify\\EventManagement\\EventManager' => $baseDir . '/inc/classes/Dependencies/wp-media/event-manager/EventManager.php',
+    'Imagify\\EventManagement\\EventManagerAwareSubscriberInterface' => $baseDir . '/inc/classes/Dependencies/wp-media/event-manager/EventManagerAwareSubscriberInterface.php',
+    'Imagify\\EventManagement\\SubscriberInterface' => $baseDir . '/inc/classes/Dependencies/wp-media/event-manager/SubscriberInterface.php',
     'Imagify_AS3CF_Attachment' => $baseDir . '/inc/deprecated/classes/class-imagify-as3cf-attachment.php',
     'Imagify_AS3CF_Deprecated' => $baseDir . '/inc/deprecated/classes/class-imagify-as3cf-deprecated.php',
     'Imagify_Abstract_Attachment' => $baseDir . '/inc/deprecated/classes/class-imagify-abstract-attachment.php',
