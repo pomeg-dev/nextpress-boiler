@@ -14,6 +14,7 @@
     "@fontsource/merriweather": "^4.5.14",
     "@fontsource/open-sans": "^4.5.14",
     "@googlemaps/react-wrapper": "^1.1.35",
+    "@next/third-parties": "^15.2.4",
     "@react-three/drei": "^9.114.4",
     "@react-three/fiber": "^8.17.10",
     "@svgr/webpack": "^8.1.0",
