@@ -12,7 +12,7 @@ export async function footer(props: any) {
     <footer className="footer container mx-auto mb-[50px]">
       <div className="footer__container flex w-full flex-col gap-[20px] rounded-lg bg-tertiary p-[40px] text-white md:flex-row md:p-[60px]">
         <div className="flex w-full flex-col gap-[20px]">
-          {props.data.logo && (
+          {props?.data?.logo && (
             <div className="footer__logo relative h-[80px] w-[80px]">
               <Image
                 src={props.data.logo.url}
@@ -22,24 +22,30 @@ export async function footer(props: any) {
               />
             </div>
           )}
-          <div className="footer__text">
-            <div dangerouslySetInnerHTML={{ __html: props.data.text }} />
-          </div>
-          <div className="footer__contacts flex flex-col gap-[20px] md:flex-row md:gap-[80px]">
-            <div className="footer__phone">
-              <h6 className="icon-phone uppercase">{props.data.phone.text}</h6>
-              <a
-                href={props.data.phone.cta.url}
-                target={props.data.phone.cta.target}
-              >
-                {props.data.phone.cta.title}
-              </a>
+          {props?.data?.text &&
+            <div className="footer__text">
+              <div dangerouslySetInnerHTML={{ __html: props.data.text }} />
             </div>
-          </div>
+          }
+          {props?.data?.phone &&
+            <div className="footer__contacts flex flex-col gap-[20px] md:flex-row md:gap-[80px]">
+              <div className="footer__phone">
+                <h6 className="icon-phone uppercase">{props.data.phone.text}</h6>
+                <a
+                  href={props.data.phone.cta.url}
+                  target={props.data.phone.cta.target}
+                >
+                  {props.data.phone.cta.title}
+                </a>
+              </div>
+            </div>
+          }
           <div className="footer__bottom_nav">{/* <HeaderNav /> */}</div>
-          <div className="footer__copyright hidden text-[12px] md:flex">
-            <div>{props.data.copyright}</div>
-          </div>
+          {props?.data?.copyright &&
+            <div className="footer__copyright hidden text-[12px] md:flex">
+              <div>{props.data.copyright}</div>
+            </div>
+          }
         </div>
       </div>
     </footer>
