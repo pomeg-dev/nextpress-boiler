@@ -13,19 +13,21 @@ export function Header(props: any) {
       <header
         className={cn(
           // styles.header,
-          "header animation-fade-down block-reverse-animation animation-delay-200 z-[60] mx-auto flex w-full container items-center justify-between px-[20px] py-[20px]"
+          "header z-[60] mx-auto flex w-full container items-center justify-between px-[20px] py-[20px]"
         )}
       >
         <Link
           href="/"
           className="logo flex items-start justify-start text-[20px] font-[600] tracking-[1px]"
         >
-          {/* <Image
-            src={props.data.logo.url}
-            width={200}
-            height={80}
-            alt={props.data.logo.alt}
-          /> */}
+          {props?.data?.logo &&
+            <Image
+              src={props.data.logo.url}
+              width={200}
+              height={80}
+              alt={props.data.logo.alt}
+            />
+          }
           LOGO
         </Link>
         <nav className="header__nav hidden select-none items-center justify-center gap-[20px] font-[500] uppercase tracking-[.02em] antialiased md:flex">

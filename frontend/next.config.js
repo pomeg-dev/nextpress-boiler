@@ -3,6 +3,31 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: [
+        {
+          loader: "@svgr/webpack",
+          options: {
+            svgo: true,
+            svgoConfig: {
+              plugins: [
+                {
+                  name: "removeAttrs",
+                  params: {
+                    attrs: "(stroke|fill)",
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    });
+
+    return config;
+  },
   reactStrictMode: true,
   sassOptions: {
     includePaths: ["./src"], // Adjust this path to match your project structure
@@ -23,7 +48,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "wp.*.astlb.dev",
+        hostname: "wp.*.pomeg.dev",
       },
       {
         protocol: "http",

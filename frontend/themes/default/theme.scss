@@ -1,91 +1,258 @@
+html {
+  scroll-behavior: smooth;
+}
+
 [data-theme="default"] {
   // ---------------------------------------------------
-  // COLORS
+  // VARIABLES
   // ---------------------------------------------------
-  --color-primary: #1668ff;
-  --color-secondary: #fff;
-  --color-tertiary: #0d1821;
-  --color-quaternary: #f0f5ff;
-  --color-quinary: #e3170a;
-
-  --color-black: #0d1821;
-  --color-white: #f7faff;
-  --color-red: #e3170a;
+  
+  // Provide rbg values only i.e. --color-primary: 0 0 0;
+  // --color-primary: var();
+  // --color-secondary: var();
+  // --color-tertiary: var();
+  // --color-quaternary: var();
 
   // ---------------------------------------------------
   // BODY
   // ---------------------------------------------------
 
-  body {
-    background-color: #f7faff;
-    color: var(--color-black);
-    font-family: var(--font-dmsans);
+  body,
+  .wp-preview {
+    @apply overflow-x-hidden text-primary text-base leading-[normal];
+    font-family: var(--font-general-sans);
+
+    &.light {
+      @apply text-primary bg-white;
+    }
+    
+    &.dark {
+      @apply text-white bg-dark;
+    }
+
+    &.image {
+      @apply bg-cover bg-center bg-no-repeat;
+    }
+  }
+  
+  .container {
+    @apply relative max-w-[var(--pagewidth)] mx-auto px-[var(--margin)];
+  }
+
+  p {
+    @apply mb-4;
   }
 
   // ---------------------------------------------------
   // FONTS
   // ---------------------------------------------------
   .font-primary {
-    font-family: var(--font-dmsans);
-  }
-
-  .font-secondary {
-    font-family: var(--font-dmsans);
-    font-weight: 600;
+    font-family: var(--font-general-sans);
   }
 
   // ---------------------------------------------------
   // HEADINGS
   // ---------------------------------------------------
-  h1 {
-    @apply lg:text-[60px] md:text-[50px] sm:text-[40px] text-[30px] leading-none;
-    @apply lg:mb-[30px] md:mb-[25px] sm:mb-[20px] mb-[15px];
-    @apply font-[600] tracking-[.02em] antialiased;
-    font-family: var(--font-dmsans);
+  h1, .has-h1 {
+    @apply text-heading-2xl mb-6 font-[500] antialiased;
   }
-  h2 {
-    @apply lg:text-[50px] md:text-[40px] sm:text-[30px] text-[20px] leading-none;
-    @apply lg:mb-[25px] md:mb-[20px] sm:mb-[15px] mb-[10px];
-    @apply font-[600] tracking-[.02em] antialiased;
-    font-family: var(--font-dmsans);
+  h2, .has-h2 {
+    @apply text-heading-lg mb-4 font-[500] antialiased;
   }
-  h3 {
-    @apply lg:text-[40px] md:text-[30px] sm:text-[20px] text-[18px] leading-none;
-    @apply lg:mb-[20px] md:mb-[15px] sm:mb-[10px] mb-[5px];
-    @apply font-[600] tracking-[.02em] antialiased;
-    font-family: var(--font-dmsans);
+  h3, .has-h3 {
+    @apply text-heading-sm mb-[10px] font-[500] antialiased;
   }
-  h4 {
-    @apply lg:text-[30px] md:text-[20px] sm:text-[15px] text-[16px] leading-none;
-    @apply lg:mb-[15px] md:mb-[10px] sm:mb-[5px] mb-[5px];
-    @apply font-[600] tracking-[.02em] antialiased;
-    font-family: var(--font-dmsans);
+  h4, .has-h4 {
+    @apply text-lg leading-none mb-[10px] font-[500] antialiased;
   }
-  h5 {
-    @apply lg:text-[20px] md:text-[15px] sm:text-[10px] text-[15px] leading-none;
-    @apply lg:mb-[10px] md:mb-[5px] sm:mb-[5px] mb-[5px];
-    @apply font-[600] tracking-[.02em] antialiased;
-    font-family: var(--font-dmsans);
+  h5, .has-h5 {
+    @apply text-heading-xs mb-[10px] font-[500] antialiased;
   }
-  h6 {
-    @apply lg:text-[14px] md:text-[14px] sm:text-[13px] text-[13px] leading-none;
-    @apply lg:mb-[20px] md:mb-[18px] sm:mb-[14px] mb-[12px];
-    @apply text-[#A3A3A3];
+  h6, .has-h6 {
+    @apply text-base leading-none mb-[10px] text-quaternary font-[500] antialiased;
   }
 
   // ---------------------------------------------------
   // BUTTONS
   // ---------------------------------------------------
-  button {
-    @apply px-6 py-3 font-[500] rounded-full bg-[var(--color-primary)]   tracking-[.02em] antialiased text-white;
-    @apply lg:text-[16px] md:text-[14px] sm:text-[12px] text-[12px];
+  button, .button {
+    @apply font-[500] backdrop-blur-[25px];
+
+    &:before {
+      @apply content-[''] hidden absolute w-full h-full top-0 left-0 bg-white z-[-2] antialiased;
+    }
+
+    &:after {
+      @apply content-[''] hidden absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors antialiased;
+    }
+
+    &.primary {
+      @apply bg-primary text-white;
+      @apply hover:bg-primary-dark hover:text-white;
+      
+      &.special {
+        @apply hover:bg-primary/5 hover:text-primary;
+      }
+
+      .icon-wrapper {
+        @apply bg-white text-primary;
+      }
+
+      &:hover {
+        &:before {
+          display: none !important;
+        }
+      }
+    }
+
+    &.secondary {
+      @apply bg-primary/5 text-primary;
+      @apply hover:bg-primary/10 hover:text-primary;
+
+      &.special {
+        @apply hover:bg-primary hover:text-white;
+      }
+
+      .icon-wrapper {
+        @apply bg-primary text-white;
+      }
+    }
+
+    &.card {
+      @apply bg-primary/10 text-primary;
+      @apply hover:bg-primary/20 hover:text-primary;
+
+      &.special {
+        @apply hover:bg-primary hover:text-white;
+      }
+
+      .icon-wrapper {
+        @apply bg-primary text-white;
+      }
+    }
+
+    &.high-contrast {
+      @apply bg-white text-primary;
+      @apply hover:bg-primary hover:text-white;
+
+      &.special {
+        @apply hover:bg-white hover:text-primary;
+      }
+
+      .icon-wrapper {
+        @apply bg-primary text-white;
+      }
+
+      &:hover {
+        .icon-wrapper {
+          @apply text-primary;
+        }
+
+        &:before {
+          display: none !important;
+        }
+      }
+    }
+
+    &.no-fill {
+      @apply bg-none backdrop-blur-0 hover:!bg-none;
+
+      &:before,
+      &:after {
+        display: none !important;
+      }
+    }
+
+    &.disabled {
+      @apply bg-primary/5 text-primary;
+
+      .icon-wrapper {
+        @apply bg-white text-primary;
+      }
+
+      &:before,
+      &:after {
+        @apply block;
+      }
+    }
+    
+    &:hover {
+      .icon-wrapper {
+        @apply bg-transparent;
+      }
+      
+      &:before,
+      &:after {
+        @apply block;
+      }
+    }
   }
-  .is-style-primary {
-    @apply bg-[var(--color-primary)];
+
+  .pill {
+    @apply text-primary font-[500];
+
+    &:not(.no-fill) {
+      &:before {
+        @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors;
+      }
+    }
+
+    &:not(.no-fill):not(.accent) {
+      &:after {
+        @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors;
+      }
+    }
+
+    &.primary {
+      @apply bg-primary/5;
+    }
+
+    &.card {
+      @apply bg-primary/10;
+    }
+
+    &.accent {
+      @apply bg-white shadow-primary;
+
+      &:before {
+        @apply w-[calc(100%-2px)] h-[calc(100%-2px)] top-[1px] left-[1px] rounded-[inherit];
+      }
+
+      &:after {
+        @apply content-[''] absolute w-full h-full top-0 left-0 rounded-[inherit] z-[-2];
+        @apply bg-gradient-to-r from-primary to-secondary;
+      }
+    }
+
+    &.high-contrast {
+      @apply bg-white;
+    }
+
+    &.inverted {
+      @apply bg-primary text-white;
+    }
   }
-  .is-style-secondary {
-    @apply bg-[var(--color-quaternary)] text-[var(--color-primary)];
+
+  .toggle-control {
+    @apply bg-primary/5;
+
+    &:before {
+      @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors rounded-[inherit];
+    }
+
+    &:after {
+      @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors rounded-[inherit];
+    }
   }
+
+  .toggle-control-item {
+    @apply font-[500] bg-transparent opacity-50 hover:opacity-100;
+
+    &.active {
+      @apply bg-white text-primary opacity-100;
+    }
+  }
+
   // ---------------------------------------------------
   // FORMS
   // ---------------------------------------------------
@@ -101,4 +268,55 @@
   // ---------------------------------------------------
   // ICONS
   // ---------------------------------------------------
+
+  // ---------------------------------------------------
+  // Utlity classes
+  // ---------------------------------------------------
+
+  .terminal {
+    @apply bg-[#F8F6F3] p-[8px] rounded-[3px] inline-flex items-center text-[12px];
+    &::before {
+      //chevron right
+      content: "";
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      background-color: currentColor;
+      mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>');
+      mask-position: center;
+      mask-repeat: no-repeat;
+      mask-size: contain;
+    }
+  }
+
+  .break-out {
+    position: relative;
+    left: 50%;
+    width: 100%;
+    margin-left: -50%;
+  
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+      max-width: calc(100vw - 9px) !important;
+    }
+  }
+
+  // ---------------------------------------------------
+  // CUSTOM
+  // ---------------------------------------------------
+
+  .before-white {
+    @apply relative z-[1];
+
+    &:before {
+      @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors rounded-[inherit];
+    }
+  }
+
+  .after-inherit {
+    @apply relative z-[1];
+
+    &:after {
+      @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors antialiased;
+    }
+  }
 }
