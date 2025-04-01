@@ -1,28 +1,30 @@
-import { Suspense } from "react";
 import { Feed } from "./components/Feed";
-import { getRestPosts, getTaxTerms } from "@/lib/wp/posts";
+import { getPosts, getTaxTerms } from "@/lib/wp/posts";
+import { WPQuery } from "@/lib/types";
 
-export async function archive_feed(props: any) {
-  type ParamsType = {
-    is_archive: boolean;
-    page: number;
-    per_page: number | string;
-  };
-  const params: ParamsType = {
-    is_archive: true,
+export async function ArchiveFeedBlock(props: any) {
+  const {
+    post_type,
+    number_of_posts,
+    taxonomy_filters
+  } = props.data;
+
+  const params: WPQuery = {
     page: 1,
-    per_page: props.data.number_of_posts,
+    post_type: post_type,
+    per_page: number_of_posts,
+    include_content: true,
   };
-  const firstPosts = await getRestPosts(props.data.post_type_rest, params).catch(() => ({
+  const firstPosts = await getPosts(params).catch(() => ({
     default: () => <div>Posts not found</div>,
   }));
 
-  if (props.data.taxonomy_filters) {
+  if (taxonomy_filters) {
     await Promise.all(
-      props.data.taxonomy_filters.map(
-        async (taxItem: { taxonomy_rest: string }, i: string | number) => {
+      taxonomy_filters.map(
+        async (taxItem: { taxonomy: string }, i: string | number) => {
           props.data.taxonomy_filters[i].terms = await getTaxTerms(
-            taxItem.taxonomy_rest
+            taxItem.taxonomy
           );
         }
       )
@@ -30,8 +32,6 @@ export async function archive_feed(props: any) {
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Feed data={props.data} firstPosts={firstPosts} />
-    </Suspense>
+    <Feed data={props.data} firstPosts={firstPosts} />
   );
 }

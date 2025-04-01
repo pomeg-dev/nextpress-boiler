@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import cn from "classnames";
-import Link from "next/link";
+import Button from "@ui/components/atoms/Button";
 
 export function Pagination({ totalPages, currentPage, setCurrentPage }: {
   totalPages: number,
@@ -22,17 +22,19 @@ export function Pagination({ totalPages, currentPage, setCurrentPage }: {
   for (let i = 1; i <= totalPages; i++) {
     const button = (page: any) => {
       return (
-        <Link
-          href=""
+        <Button
+          type="button"
           key={page}
           onClick={() => {
             setCurrentPage(page);
           }}
-          className={cn(
-            "button curspor-pointer w-auto",
-            currentPage == page ? "is-active" : ""
-          )}
-        >{page}</Link>
+          size="md"
+          style={
+            currentPage == page
+              ? 'primary'
+              : 'secondary'
+          }
+        >{page}</Button>
       );
     };
     paginationButtons.push(button(i));
@@ -48,23 +50,23 @@ export function Pagination({ totalPages, currentPage, setCurrentPage }: {
       {totalPages > 1 &&
         <>
           {currentPage !== 1 &&
-            <Link
-              href=""
+            <Button
+              type="button"
+              size="md"
               onClick={() => {
                 setCurrentPage(currentPage - 1);
               }}
-              className="button cursor-pointer"
-            >Previous</Link>
+            >Previous</Button>
           }
           {paginationButtons}
           {currentPage !== totalPages &&
-            <Link
-              href=""
+            <Button
+              type="button"
+              size="md"
               onClick={() => {
                 setCurrentPage(currentPage + 1);
               }}
-              className="button cursor-pointer"
-            >Next</Link>
+            >Next</Button>
           }
         </>
       }

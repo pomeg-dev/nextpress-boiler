@@ -1,17 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import PostCard from "../../molecules/PostCard";
 import { useEffect, useState } from "react";
-import { getRestPosts } from "@/lib/wp/posts";
+import { getPosts } from "@/lib/wp/posts";
 import { mockPost } from "@ui/utils/placeholders";
 
 const fetchPosts = async () => {
   const params = {
-    is_archive: true,
+    post_type: 'post',
     per_page: 1,
   };
 
   try {
-    const response = await getRestPosts('posts', params);
+    const response = await getPosts(params);
     if (!response) throw new Error("Failed to fetch posts");
     return response;
   } catch (error) {

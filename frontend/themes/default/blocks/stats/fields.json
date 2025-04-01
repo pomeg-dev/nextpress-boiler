@@ -1,0 +1,42 @@
+[
+  {
+    "id": "stats",
+    "type": "repeater",
+    "layout": "block",
+    "fields": [
+      {
+        "id": "content",
+        "type": "wysiwyg"
+      }
+    ]
+  },
+  {
+    "id": "columns",
+    "type": "number",
+    "min": 1,
+    "max": 8,
+    "default_value": 4
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  }
+]

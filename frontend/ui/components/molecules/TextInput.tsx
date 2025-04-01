@@ -26,10 +26,18 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     required = false, 
     className,
     disabled = false,
+    onChange,
+    value,
     ...rest 
   }, ref) => {
     const isError = (helper_type === "validation error" || helper_type === "guidance red")
       ? true : false;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange(e);
+      }
+    };
 
     return (
       <div className={classNames("flex flex-col space-y-2 w-full min-w-[300px]", className)}>
@@ -70,6 +78,8 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             }
             required={required}
             disabled={disabled}
+            onChange={handleChange}
+            value={value}
             {...rest}
           />
         </div>

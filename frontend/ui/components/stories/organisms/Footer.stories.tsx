@@ -42,11 +42,10 @@ const meta: Meta<typeof Footer> = {
   component: Footer,
   tags: ["autodocs"],
   args: {
-    style: "gradient",
+    style: "solid",
     logo: logoPlaceholder,
     menu_items: menuPlaceholder,
     copyright: "© Copyright 2025",
-    enable_safety_modal: false,
   },
 };
 
@@ -61,20 +60,6 @@ export const Solid: Story = {
     background_colour: "#00203D",
     menu_items: menuPlaceholder,
     copyright: "© Copyright 2025",
-    enable_safety_modal: false,
-  },
-  globals: {
-    viewportWidth: "100%",
-  },
-};
-
-export const Gradient: Story = {
-  args: {
-    style: "gradient",
-    logo: logoPlaceholder,
-    menu_items: menuPlaceholder,
-    copyright: "© Copyright 2025",
-    enable_safety_modal: false,
   },
   globals: {
     viewportWidth: "100%",
@@ -88,22 +73,6 @@ export const Image: Story = {
     background_image: imagePlaceholder,
     menu_items: menuPlaceholder,
     copyright: "© Copyright 2025",
-    enable_safety_modal: false,
-  },
-  globals: {
-    viewportWidth: "100%",
-  },
-};
-
-export const Modal: Story = {
-  args: {
-    style: "image",
-    logo: logoPlaceholder,
-    background_image: imagePlaceholder,
-    menu_items: menuPlaceholder,
-    copyright: "© Copyright 2025",
-    enable_safety_modal: true,
-    safety_modal: "Test",
   },
   globals: {
     viewportWidth: "100%",

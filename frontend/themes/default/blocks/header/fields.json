@@ -1,59 +1,10 @@
 [
   {
     "id": "logo",
-    "type": "image",
-    "instructions": "if empty, site logo will be used"
+    "type": "image"
   },
   {
-    "id": "services",
-    "type": "repeater",
-    "layout": "block",
-    "fields": [
-      {
-        "id": "service_type",
-        "type": "text"
-      },
-      {
-        "id": "service_description",
-        "type": "text"
-      },
-      {
-        "id": "service_image",
-        "type": "image"
-      },
-      {
-        "id": "sub_service_categories",
-        "type": "repeater",
-        "layout": "block",
-        "fields": [
-          {
-            "id": "name",
-            "type": "text"
-          },
-          {
-            "id": "description",
-            "type": "text"
-          },
-          {
-            "id": "services",
-            "type": "repeater",
-            "fields": [
-              {
-                "id": "name",
-                "type": "text"
-              },
-              {
-                "id": "icon",
-                "type": "image"
-              },
-              {
-                "id": "link",
-                "type": "link"
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    "id": "header_nav",
+    "type": "nav"
   }
 ]

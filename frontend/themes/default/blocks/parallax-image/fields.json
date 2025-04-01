@@ -1,0 +1,47 @@
+[
+  {
+    "id": "style",
+    "type": "select",
+    "choices": [
+      { "container": "Boxed" },
+      { "break-out": "Full Bleed" }
+    ],
+    "default_value": "break-out"
+  },
+  {
+    "id": "image",
+    "type": "image"
+  },
+  {
+    "id": "links",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "link",
+        "type": "link"
+      }
+    ]
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "id": "style",
+    "type": "select",
+    "choices": [
+      { "narrative": "Narrative" },
+      { "card": "Card" },
+      { "centered-card": "Centered Card" },
+      { "standard": "Standard" },
+      { "wide": "Wide" }
+    ],
+    "default_value": "narrative"
+  },
+  {
+    "id": "flipped",
+    "type": "true_false",
+    "ui": 1
+  },
+  {
+    "id": "page_margin",
+    "type": "true_false",
+    "ui": 1,
+    "default_value": 1,
+    "conditional_logic": [
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "card"
+        }
+      ],
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "centered-card"
+        }
+      ],
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "standard"
+        }
+      ]
+    ]
+  },
+  {
+    "id": "image",
+    "type": "image"
+  },
+  {
+    "id": "image_tags",
+    "type": "repeater",
+    "max": 3,
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      }
+    ],
+    "conditional_logic": [
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "wide"
+        }
+      ]
+    ]
+  },
+  {
+    "id": "label",
+    "type": "text"
+  },
+  {
+    "id": "content",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "buttons",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "link",
+        "type": "link"
+      }
+    ]
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  }
+]

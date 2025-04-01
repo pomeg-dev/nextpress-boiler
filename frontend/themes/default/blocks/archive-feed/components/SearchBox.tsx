@@ -1,5 +1,6 @@
 "use client";
 
+import TextInput from "@ui/components/molecules/TextInput";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -29,12 +30,9 @@ export const SearchBox = ({
 
   return (
     <div className="filter-search max-w-lg transition-[opacity,transform]">
-      {label &&
-        <label className="inline-block mb-2" htmlFor="search-box">{label}</label>
-      }
-      <input
-        className="block w-full h-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-        id="search-box"
+      <TextInput
+        label={label}
+        name="search-box"
         value={searchTerm}
         placeholder={placeholder}
         onChange={event => {

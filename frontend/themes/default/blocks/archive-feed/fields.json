@@ -1,7 +1,7 @@
 [
   {
-    "id": "post_type_rest",
-    "type": "select",
+    "id": "post_type",
+    "type": "post_type",
     "label": "Post type",
     "default_value": "posts",
     "instructions": "Select the post type you want to show in the feed"
@@ -60,8 +60,8 @@
         "type": "text"
       },
       {
-        "id": "taxonomy_rest",
-        "type": "select",
+        "id": "taxonomy",
+        "type": "tax_list",
         "label": "Taxonomy"
       },
       {

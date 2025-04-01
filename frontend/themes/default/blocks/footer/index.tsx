@@ -1,53 +1,43 @@
-import cn from "classnames";
-import Image from "next/image";
+"use client";
 
-export async function footer(props: any) {
-  // Function to generate Google Maps URL
-  const getGoogleMapsUrl = (address: string) => {
-    const encodedAddress = encodeURIComponent(address);
-    return `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-  };
+import { getNavItems } from "@/utils/menus";
+import Footer from "@ui/components/organisms/Footer";
+
+export function FooterBlock(props: any) {
+  const {
+    logo,
+    style,
+    background_image,
+    background_colour,
+    footer_nav,
+    menus,
+    copyright
+  } = props.data;
+
+  let navItems = null;
+  if (footer_nav && menus) {
+    navItems = getNavItems(footer_nav, menus);
+  }
+
+  if (logo) {
+    logo.src = logo.url;
+    logo.className = "w-full pt-8";
+  }
+
+  if (background_image) {
+    background_image.src = background_image.url;
+    background_image.className = "absolute h-full w-full object-cover";
+    background_image.blurDataURL = background_image.sizes?.thumbnail ?? background_image.url;
+  }
 
   return (
-    <footer className="footer container mx-auto mb-[50px]">
-      <div className="footer__container flex w-full flex-col gap-[20px] rounded-lg bg-tertiary p-[40px] text-white md:flex-row md:p-[60px]">
-        <div className="flex w-full flex-col gap-[20px]">
-          {props?.data?.logo && (
-            <div className="footer__logo relative h-[80px] w-[80px]">
-              <Image
-                src={props.data.logo.url}
-                alt={props.data.logo.alt}
-                fill
-                className="mix-blend-multiply"
-              />
-            </div>
-          )}
-          {props?.data?.text &&
-            <div className="footer__text">
-              <div dangerouslySetInnerHTML={{ __html: props.data.text }} />
-            </div>
-          }
-          {props?.data?.phone &&
-            <div className="footer__contacts flex flex-col gap-[20px] md:flex-row md:gap-[80px]">
-              <div className="footer__phone">
-                <h6 className="icon-phone uppercase">{props.data.phone.text}</h6>
-                <a
-                  href={props.data.phone.cta.url}
-                  target={props.data.phone.cta.target}
-                >
-                  {props.data.phone.cta.title}
-                </a>
-              </div>
-            </div>
-          }
-          <div className="footer__bottom_nav">{/* <HeaderNav /> */}</div>
-          {props?.data?.copyright &&
-            <div className="footer__copyright hidden text-[12px] md:flex">
-              <div>{props.data.copyright}</div>
-            </div>
-          }
-        </div>
-      </div>
-    </footer>
+    <Footer
+      style={style}
+      logo={logo}
+      background_image={background_image}
+      background_colour={background_colour}
+      menu_items={navItems}
+      copyright={copyright}
+    />
   );
 }

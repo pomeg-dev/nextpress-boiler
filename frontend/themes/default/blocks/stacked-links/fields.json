@@ -1,0 +1,43 @@
+[
+  {
+    "id": "label",
+    "type": "text"
+  },
+  {
+    "id": "rows",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "link",
+        "type": "link"
+      },
+      {
+        "id": "description",
+        "type": "textarea"
+      }
+    ],
+    "layout": "block"
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  }
+]

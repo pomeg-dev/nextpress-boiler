@@ -3,7 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import cn from "classnames";
-import Link from "next/link";
+import SelectInput from "@ui/components/molecules/SelectInput";
+import Button from "@ui/components/atoms/Button";
 
 export const TaxonomyFilter = ({
   taxonomy,
@@ -41,6 +42,7 @@ export const TaxonomyFilter = ({
     }
     tempTax.push(filter);
     setTaxFilters(tempTax);
+    console.log('tx', taxFilters);
   };
 
   const findTerm = (filtersArray: any[]) => {
@@ -68,6 +70,15 @@ export const TaxonomyFilter = ({
     setTaxFilters(tempTax);
   }, []);
 
+  const taxTerms = terms.map((term: { term_id: any; slug: any; name: any; }) => {
+    const { term_id, slug, name } = term;
+    return {
+      term_id,
+      value: slug,
+      label: name
+    };
+  });
+
   return (
     <div
       className={cn(
@@ -76,65 +87,66 @@ export const TaxonomyFilter = ({
         type === 'select' ? "max-w-lg" : "max-w-full"
       )}
     >
-      {label &&
-        <label className="mb-2 inline-block" htmlFor={taxonomy}>{label}</label>
-      }
       {(() => {
           switch (type) {
             case "select":
               return (
-                <select
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  value={findTerm(taxFilters)}
+                <SelectInput
+                  defaultValue={findTerm(taxFilters)}
+                  name={taxonomy}
                   onChange={event => {
                     handleFilterChange(event.target.value);
                   }}
-                  id={taxonomy}
-                >
-                  <option value="">{placeholder ?? 'Show all'}</option>
-                  {terms &&
-                    terms.map((term: any) => (
-                      <option key={term.id} value={term.slug}>{term.name}</option>
-                    ))
-                  }
-                </select>
+                  placeholder={placeholder ?? 'Show all'}
+                  options={taxTerms}
+                  label={label}
+                />
               );
             case "button":
               return (
-                <div
-                  className="flex flex-row gap-2"
-                  id={taxonomy}
-                >
-                  <Link
-                    href=""
-                    className={cn(
-                      "button",
-                      findTerm(taxFilters) === ''
-                        ? "is-active"
-                        : ""
-                    )}
-                    onClick={() => {
-                      handleFilterChange("");
-                    }}
-                  >Show All</Link>
-                  {terms &&
-                    terms.map((term: any) => (
-                      <Link
-                        href=""
-                        className={cn(
-                          "button",
-                          findTerm(taxFilters) === term.slug
-                            ? "is-active"
-                            : ""
-                        )}
-                        key={term.id}
-                        onClick={() => {
-                          handleFilterChange(term.slug);
-                        }}
-                      >{term.name}</Link>
-                    ))
+                <>
+                  {label &&
+                    <label className="mb-2 block font-[500]" htmlFor={taxonomy}>{label}</label>
                   }
-                </div>
+                  <div
+                    className="flex flex-row gap-2"
+                    id={taxonomy}
+                  >
+                    <Button
+                      type="button"
+                      size="md"
+                      style={
+                        findTerm(taxFilters) === ''
+                          ? 'primary'
+                          : 'secondary'
+                      }
+                      onClick={() => {
+                        handleFilterChange("");
+                      }}
+                    >
+                      Show All
+                    </Button>
+                    {terms &&
+                      terms.map((term: any) => (
+                        <Button
+                          type="button"
+                          size="md"
+                          style={
+                            findTerm(taxFilters) === term.slug
+                              ? 'primary'
+                              : 'secondary'
+                          }
+                          key={term.term_id}
+                          onClick={() => {
+                            handleFilterChange(term.slug);
+                          }}
+                        >
+                          {term.name}
+                        </Button>
+                      ))
+                    }
+                  </div>
+                </>
               );
           }
       })()}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "content_a",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "content_b",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "alignment",
+    "type": "select",
+    "choices": [
+      { "row": "Row" },
+      { "row-reverse": "Row Reversed" },
+      { "col": "Column" }
+    ],
+    "default_value": "row"
+  }
+]

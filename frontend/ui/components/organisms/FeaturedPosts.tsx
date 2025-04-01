@@ -9,6 +9,7 @@ import SliderNavigation from "../molecules/SliderNavigation";
 import Parser from "html-react-parser";
 import PostCard from "../molecules/PostCard";
 import Button from "../atoms/Button";
+import "swiper/css";
 
 type FeaturedPostsProps = {
   posts: Post[],
@@ -124,8 +125,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
               disableOnInteraction: false,
             }}
             loop={posts.length > 4}
-            className="slider mt-4"
-            style={{ overflow: 'visible' }}
+            className="mt-4"
             modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
             ref={sliderRef}
           >

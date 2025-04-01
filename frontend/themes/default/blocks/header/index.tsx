@@ -1,54 +1,38 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import cn from "classnames";
-import { MobileNav } from "./components/MobileNav";
+import { ImageProps } from "@/lib/types";
+import { getNavItems } from "@/utils/menus";
+import Header from "@ui/components/organisms/Header";
+import { useEffect, useState } from "react";
 
-export function Header(props: any) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+export function HeaderBlock(props: any) {
+  const {
+    logo,
+    header_nav,
+    menus
+  } = props.data;
+
+  let navItems = null;
+  if (header_nav && menus) {
+    navItems = getNavItems(header_nav, menus);
+  }
+
+  let logoAtts: ImageProps = {src: "", alt: ""};
+  let logoAltAtts: ImageProps = {src: "", alt: ""};
+  if (logo) {
+    logoAtts.src = logo.url;
+    logoAtts.alt = logo.alt;
+    logoAtts.width = logo.width;
+    logoAtts.height = logo.height;
+    logoAtts.className = "my-xs w-[160px]";
+    logoAtts.blurImage = logo.sizes?.thumbnail ?? undefined;
+  }
+
   return (
-    <>
-      <header
-        className={cn(
-          // styles.header,
-          "header z-[60] mx-auto flex w-full container items-center justify-between px-[20px] py-[20px]"
-        )}
-      >
-        <Link
-          href="/"
-          className="logo flex items-start justify-start text-[20px] font-[600] tracking-[1px]"
-        >
-          {props?.data?.logo &&
-            <Image
-              src={props.data.logo.url}
-              width={200}
-              height={80}
-              alt={props.data.logo.alt}
-            />
-          }
-          LOGO
-        </Link>
-        <nav className="header__nav hidden select-none items-center justify-center gap-[20px] font-[500] uppercase tracking-[.02em] antialiased md:flex">
-          <button className="">Nav CTA</button>
-        </nav>
-        <button
-          className={cn("md:hidden flex", mobileNavOpen && "open")}
-          id="nav-icon3"
-          onClick={() => setMobileNavOpen(!mobileNavOpen)}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          MENU
-        </button>
-      </header>
-      <MobileNav
-        mobileNavOpen={mobileNavOpen}
-        setMobileNavOpen={setMobileNavOpen}
-      />
-    </>
+    <Header
+      logo={logoAtts}
+      menu_items={navItems}
+      className="fixed top-[16px] z-[9999] w-full"
+    />
   );
 }

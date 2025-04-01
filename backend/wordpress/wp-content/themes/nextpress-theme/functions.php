@@ -39,7 +39,7 @@ function create_work_post_type()
         )
     );
 }
-add_action('init', 'create_work_post_type');
+// add_action('init', 'create_work_post_type');
 
 // Add custom post type 'testimonials'
 function create_testimonials_post_type()
@@ -61,7 +61,7 @@ function create_testimonials_post_type()
         )
     );
 }
-add_action('init', 'create_testimonials_post_type');
+// add_action('init', 'create_testimonials_post_type');
 
 //------------------------------------------------
 // ** NAVS **

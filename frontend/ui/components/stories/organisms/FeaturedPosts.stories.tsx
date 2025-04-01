@@ -2,17 +2,17 @@ import "swiper/css";
 import type { Decorator, Meta, StoryObj } from "@storybook/react";
 import FeaturedPosts from "../../organisms/FeaturedPosts";
 import { useEffect, useState } from "react";
-import { getRestPosts } from "@/lib/wp/posts";
+import { getPosts } from "@/lib/wp/posts";
 import { mockPost } from "@ui/utils/placeholders";
 
 const fetchPosts = async (postType: string) => {
   const params = {
-    is_archive: true,
+    post_type: postType,
     per_page: 4,
   };
 
   try {
-    const response = await getRestPosts(postType, params);
+    const response = await getPosts(params);
     if (!response) throw new Error("Failed to fetch posts");
     return response;
   } catch (error) {
@@ -65,32 +65,6 @@ export const Resources: Story = {
   render: (args, context) => <FeaturedPostsStoryWrapper postType={context.globals.postType} {...args} />,
   globals: {
     viewportWidth: '100%',
-    postType: "posts"
-  }
-};
-
-export const Products: Story = {
-  args: {
-    card: "ProductCard",
-    heading: "<h2>Products</h2>",
-    slides_to_show: 3,
-  },
-  render: (args, context) => <FeaturedPostsStoryWrapper postType={context.globals.postType} {...args} />,
-  globals: {
-    viewportWidth: '100%',
-    postType: "product"
-  }
-};
-
-export const Courses: Story = {
-  args: {
-    card: "CourseCard",
-    heading: "<h2>Courses</h2>",
-    slides_to_show: 3,
-  },
-  render: (args, context) => <FeaturedPostsStoryWrapper postType={context.globals.postType} {...args} />,
-  globals: {
-    viewportWidth: '100%',
-    postType: "course"
+    postType: "post"
   }
 };

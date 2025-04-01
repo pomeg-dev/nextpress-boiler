@@ -12,8 +12,8 @@
     ]
   },
   {
-    "id": "post_type_rest",
-    "type": "select",
+    "id": "post_type",
+    "type": "post_type",
     "label": "Post Type",
     "conditional_logic": [
       [
@@ -86,10 +86,37 @@
     ]
   },
   {
+    "id": "button",
+    "type": "link"
+  },
+  {
     "id": "slides_to_show",
     "type": "number",
     "default_value": 1,
     "min": 1,
-    "max": 5
+    "max": 5,
+    "step": 0.1
+  },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
   }
 ]

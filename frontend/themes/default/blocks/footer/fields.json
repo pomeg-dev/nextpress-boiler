@@ -1,49 +1,50 @@
 [
   {
     "id": "logo",
+    "type": "image"
+  },
+  {
+    "id": "style",
+    "type": "select",
+    "choices": [
+      { "solid": "Solid" },
+      { "image": "Image" }
+    ],
+    "default_value": "image"
+  },
+  {
+    "id": "background_image",
     "type": "image",
-    "instructions": "if empty, site logo will be used"
-  },
-  {
-    "id": "text",
-    "type": "wysiwyg"
-  },
-  {
-    "id": "phone",
-    "type": "group",
-    "fields": [
-      {
-        "id": "text",
-        "type": "text"
-      },
-      {
-        "id": "cta",
-        "type": "link"
-      }
+    "conditional_logic": [
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "image"
+        }
+      ]
     ]
   },
   {
-    "id": "social",
-    "type": "group",
-    "fields": [
-      {
-        "id": "text",
-        "type": "text"
-      },
-      {
-        "id": "ctas",
-        "type": "repeater",
-        "fields": [
-          {
-            "id": "cta",
-            "type": "link"
-          }
-        ]
-      }
+    "id": "background_colour",
+    "type": "color_picker",
+    "conditional_logic": [
+      [
+        {
+          "field": "style",
+          "operator": "==",
+          "value": "solid"
+        }
+      ]
     ]
+  },
+  {
+    "id": "footer_nav",
+    "type": "nav"
   },
   {
     "id": "copyright",
-    "type": "text"
+    "type": "textarea",
+    "new_line": "wpautop"
   }
 ]

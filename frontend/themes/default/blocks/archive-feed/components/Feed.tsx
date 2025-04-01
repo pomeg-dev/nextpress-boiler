@@ -7,12 +7,13 @@ import { TaxonomyFilter } from "./TaxonomyFilter";
 import { PostsList } from "./PostsList";
 import { Pagination } from "./Pagination";
 import { PostCount } from "./PostCount";
-import Link from "next/link";
-import { getRestPosts } from "@/lib/wp/posts";
+import { getPosts } from "@/lib/wp/posts";
+import { WPQuery } from "@/lib/types";
+import Button from "@ui/components/atoms/Button";
 
 type Props = {
   data: {
-    post_type_rest: string;
+    post_type: string;
     number_of_posts: string;
     show_search: boolean;
     search_field_label: string;
@@ -24,7 +25,7 @@ type Props = {
     show_reset: boolean;
     update_url: boolean;
   };
-  firstPosts?: [];
+  firstPosts?: any[];
 };
 
 export function Feed({ data, firstPosts }: Props) {
@@ -38,9 +39,10 @@ export function Feed({ data, firstPosts }: Props) {
   const router = useRouter();
 
   const updateUrl = (params: any) => {
-    delete params.is_archive;
+    delete params.post_type;
     delete params.per_page;
     delete params.exclude;
+    delete params.include_content;
     if (params.page === 1 || loadMore) {
       delete params.page;
     }
@@ -51,17 +53,11 @@ export function Feed({ data, firstPosts }: Props) {
   };
 
   useEffect(() => {
-    interface ParamsType {
-      is_archive: boolean;
-      search?: string;
-      page: number;
-      per_page: number | string;
-      [key: string]: any;
-    }
-    const params: ParamsType = {
-      is_archive: true,
+    const params: WPQuery = {
+      post_type: data.post_type,
       page: currentPage,
-      per_page: data.number_of_posts,
+      per_page: parseInt(data.number_of_posts),
+      include_content: true,
     };
 
     if (searchTerm) {
@@ -78,15 +74,15 @@ export function Feed({ data, firstPosts }: Props) {
       updateUrl(JSON.parse(JSON.stringify(params)));
     }
 
-    getRestPosts(data.post_type_rest, params, true)
+    getPosts(params, true)
       .then((response) => {
         const totalPosts =
           response.headers.get("X-WP-Total") ?? data.number_of_posts;
         const totalPages = response.headers.get("X-WP-TotalPages") ?? 1;
         const postsArray =
           data.load_more && loadMore
-            ? posts?.concat(response.data)
-            : response.data;
+            ? posts?.concat(response.posts)
+            : response.posts;
         setTotalPosts(totalPosts);
         setTotalPages(totalPages);
         setPosts(postsArray);
@@ -95,7 +91,7 @@ export function Feed({ data, firstPosts }: Props) {
   }, [currentPage, taxFilters, searchTerm]);
 
   return (
-    <div className="archive-feed container py-[40px]">
+    <div className="archive-feed container pb-8 pt-24">
       <div className="archive-container relative">
         <div className="archive-filters flex flex-col gap-4">
           {data.show_search && (
@@ -112,7 +108,7 @@ export function Feed({ data, firstPosts }: Props) {
             data.taxonomy_filters.map((item: any, index: number) => (
               <TaxonomyFilter
                 key={index}
-                taxonomy={item.taxonomy_rest}
+                taxonomy={item.taxonomy}
                 terms={item.terms}
                 label={item.label}
                 placeholder={item.placeholder}
@@ -125,9 +121,10 @@ export function Feed({ data, firstPosts }: Props) {
             ))}
           {data.show_reset && (
             <div className="filter-reset">
-              <Link
-                href=""
-                className="button"
+              <Button
+                type="button"
+                style="primary"
+                size="md"
                 onClick={() => {
                   setCurrentPage(1);
                   setSearchTerm("");
@@ -136,13 +133,13 @@ export function Feed({ data, firstPosts }: Props) {
                 }}
               >
                 Reset
-              </Link>
+              </Button>
             </div>
           )}
         </div>
         {data.show_post_count && (
           <PostCount
-            postType={data.post_type_rest}
+            postType={data.post_type}
             totalPosts={totalPosts}
             totalPages={totalPages}
             perPage={data.number_of_posts}
@@ -160,15 +157,17 @@ export function Feed({ data, firstPosts }: Props) {
         )}
         {data.load_more === "load_more" && currentPage != totalPages && (
           <div className="archive-load-more">
-            <Link
-              href=""
+            <Button
+              type="button"
+              size="md"
+              style="primary"
               onClick={() => {
                 setCurrentPage(currentPage + 1);
                 setLoadMore(true);
               }}
             >
               {data.load_more_text}
-            </Link>
+            </Button>
           </div>
         )}
       </div>

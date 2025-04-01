@@ -1,0 +1,52 @@
+[
+  {
+    "id": "image",
+    "type": "image"
+  },
+  {
+    "id": "label",
+    "type": "text"
+  },
+  {
+    "id": "heading",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "content",
+    "type": "textarea"
+  },
+  {
+    "id": "buttons",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "link",
+        "type": "link"
+      }
+    ]
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [
+      { "xl": "Large" },
+      { "lg": "Medium" },
+      { "md": "Small" },
+      { "0": "None" }
+    ],
+    "default_value": "xl"
+  },
+  {
+    "id": "background_colour",
+    "type": "color_picker"
+  },
+  {
+    "id": "text_colour",
+    "type": "color_picker"
+  },
+  {
+    "id": "background_tint",
+    "type": "true_false",
+    "ui": 1
+  }
+]

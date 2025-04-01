@@ -1,46 +1,57 @@
-import { getPosts, getRestPosts } from "@/lib/wp/posts";
+import { getPosts } from "@/lib/wp/posts";
 import React from "react";
-import { FeaturedPosts } from "./components/FeaturedPosts";
+import classNames from "classnames";
+import FeaturedPosts from "@ui/components/organisms/FeaturedPosts";
+import { Cards, Post, WPQuery } from "@/lib/types";
 
-interface ParamsType {
-  is_archive: boolean,
-  per_page: number|string,
-  categories?: any,
-  tags?: any,
-}
-
-export async function featured_posts(props: any) {
+export async function FeaturedPostsBlock(props: any) {
   const {
     heading,
     block_type,
-    post_type_rest,
+    post_type,
+    button,
     category,
     tag,
     number_posts,
     featured_posts,
     slides_to_show,
-    theme
+    top_spacer,
+    bottom_spacer
   } = props.data;
 
   let posts = [];
   if (block_type === "automatic") {
-    const params: ParamsType = {
-      is_archive: true,
-      per_page: number_posts == 0 ? 100 : number_posts,
+    const params: WPQuery = {
+      post_type: post_type ?? 'post',
+      per_page: number_posts == 0 ? -1 : parseInt(number_posts),
     };
 
     if (category) {
-      params.categories = category;
+      params.category_name = category;
     }
 
     if (tag) {
-      params.tags = tag;
+      params.tag_name = tag;
     }
 
-    posts = await getRestPosts(post_type_rest, params);
+    posts = await getPosts(params);
   } else {
-    posts = await getPosts({"post__in": featured_posts});
+    posts = await getPosts({
+      "post__in": featured_posts,
+      "orderby": "post__in"
+    });
+
+    if (posts) {
+      posts.map((post: Post) => {
+        switch (post.type.id) {
+          default:
+            post.card = "PostCard";
+        }
+      });
+    }
   }
+
+  let card: Cards = "PostCard";
 
   if (!posts || posts.length < 0) {
     return (<div>Posts not found</div>);
@@ -50,7 +61,16 @@ export async function featured_posts(props: any) {
     <FeaturedPosts
       posts={posts}
       heading={heading}
-      slidesToShow={parseInt(slides_to_show)}
+      button={button}
+      slides_to_show={slides_to_show}
+      top_spacer={top_spacer}
+      bottom_spacer={bottom_spacer}
+      card={card}
+      className={classNames(
+        "custom-block featured-posts",
+        props.className
+      )}
+      id={props.id}
     />
   );
 }
