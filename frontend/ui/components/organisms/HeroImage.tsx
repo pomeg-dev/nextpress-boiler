@@ -60,7 +60,7 @@ const HeroImage: React.FC<HeroImageProps> = ({
         <div className="tint pointer-events-none absolute left-0 top-0 h-full w-full bg-secondary opacity-10"></div>
       }
       <div className={classNames(
-        "container h-[98vh] flex flex-col items-stretch justify-end gap-md pt-[96px] relative",
+        "container h-[98vh] flex flex-col items-stretch justify-end gap-md pt-8 relative",
         `pb-${bottom_spacer}`
       )}>
         <section className="flex flex-col justify-end">

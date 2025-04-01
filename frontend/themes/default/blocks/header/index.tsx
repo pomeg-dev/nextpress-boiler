@@ -18,7 +18,6 @@ export function HeaderBlock(props: any) {
   }
 
   let logoAtts: ImageProps = {src: "", alt: ""};
-  let logoAltAtts: ImageProps = {src: "", alt: ""};
   if (logo) {
     logoAtts.src = logo.url;
     logoAtts.alt = logo.alt;
@@ -32,7 +31,7 @@ export function HeaderBlock(props: any) {
     <Header
       logo={logoAtts}
       menu_items={navItems}
-      className="fixed top-[16px] z-[9999] w-full"
+      className="w-full"
     />
   );
 }
