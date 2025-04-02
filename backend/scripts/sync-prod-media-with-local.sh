@@ -1,20 +1,28 @@
-PROD_SERVER="missionwp"
-DIR="$( cd "$( dirname "$0" )" && pwd )"
+#!/bin/bash
 
-echo "1. Zipping up UPLOADS DUMP from prod...\n"
-ssh $PROD_SERVER rm -rf /tmp/mission_uploads_dump.zip
-ssh $PROD_SERVER tar -zcvf /tmp/mission_uploads_dump.tar.gz /opt/bitnami/wordpress/wp-content/uploads/sites/9
+set -e  # Exit on error
+set -x  # Print commands as they're executed
 
-echo "2. copying tar down to local...\n"
-scp -3 $PROD_SERVER:/tmp/mission_uploads_dump.tar.gz /tmp/mission_uploads_dump.tar.gz
+SERVER="pomepress" # Change to pometree server name
+DUMP_FILE="/tmp/${SERVER}_remote_uploads_dump.tar.gz"
 
-echo "3. unzipping on local...\n"
-tar -xvpf /tmp/mission_uploads_dump.tar.gz -C /tmp #unzip it first
+echo "1. Zipping up UPLOADS DUMP from prod via pometree..."
+ssh pometree "
+  sudo rm -rf ${DUMP_FILE} &&
+  sudo ssh ${SERVER} '
+    sudo rm -rf ${DUMP_FILE} && 
+    tar -zcvf ${DUMP_FILE} /opt/bitnami/wordpress/wp-content/uploads
+  ' &&
+  sudo scp ${SERVER}:${DUMP_FILE} /tmp/
+"
 
-echo "3. rsyncing uplaods folders to local wp...\n"
-rsync -avz /tmp/opt/bitnami/wordpress/wp-content/uploads/sites/9/* ../wordpress/wp-content/uploads/sites/9
+echo "2. Copying tar down to local..."
+scp pometree:${DUMP_FILE} /tmp
 
+echo "3. Unzipping on local..."
+mkdir -p /tmp/${SERVER}_uploads_dump && tar -xvpf ${DUMP_FILE} -C /tmp/${SERVER}_uploads_dump
+rm -rf ${DUMP_FILE}
 
-# echo "4. correcting permissions... THIS PART IS UNTESTED\n"
-# ssh $PROD_SERVER cd /opt/bitnami/wordpress && chown bitnami:daemon  -R * && find . -type f -exec chmod 644 {} \;  # Change file permissions rw-r--r--
-
+echo "4. rsyncing uplaods folders to local wp..."
+rsync -avz /tmp/${SERVER}_uploads_dump/opt/bitnami/wordpress/wp-content/uploads/* ../wordpress/wp-content/uploads
+rm -rf /tmp/${SERVER}_uploads_dump
