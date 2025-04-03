@@ -2,7 +2,7 @@
 
 import React, { FormEvent, ReactNode } from 'react';
 import classNames from 'classnames';
-import Button from '../atoms/Button';
+import Button from '../../atoms/Button';
 
 export interface FormProps {
   id: string;

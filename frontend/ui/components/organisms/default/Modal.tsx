@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { ReactNode } from "react";
-import Button from "../atoms/Button";
+import Button from "../../atoms/Button";
 
 type ModalProps = {
   children: ReactNode;

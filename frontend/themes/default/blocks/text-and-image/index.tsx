@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageProps } from "@/lib/types";
-import TextAndImage from "ui/components/organisms/TextAndImage";
+import TextAndImage from "@ui/components/organisms/default/TextAndImage";
 import classNames from "classnames";
 
 export function TextAndImageBlock(props: any) {

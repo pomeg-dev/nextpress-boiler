@@ -2,8 +2,8 @@ import React, { ReactNode } from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
 import { ButtonProps, ImageProps } from "@/lib/types";
-import Button from "../atoms/Button";
-import Pill from "../atoms/Pill";
+import Button from "../../atoms/Button";
+import Pill from "../../atoms/Pill";
 import Image from "next/image";
 
 type HeroImageProps = {

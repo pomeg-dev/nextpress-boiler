@@ -2,10 +2,10 @@ import React, { ReactNode } from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
 import { ImageProps, LinkItemProps } from "@/lib/types";
-import Button from "../atoms/Button";
-import Pill from "../atoms/Pill";
+import Button from "../../atoms/Button";
+import Pill from "../../atoms/Pill";
 import Image from "next/image";
-import FloatingTag from "../atoms/FloatingTag";
+import FloatingTag from "../../atoms/FloatingTag";
 
 type ButtonProps = {
   link: LinkItemProps;

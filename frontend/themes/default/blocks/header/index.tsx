@@ -2,7 +2,7 @@
 
 import { ImageProps } from "@/lib/types";
 import { getNavItems } from "@/utils/menus";
-import Header from "@ui/components/organisms/Header";
+import Header from "@ui/components/organisms/default/Header";
 import { useEffect, useState } from "react";
 
 export function HeaderBlock(props: any) {

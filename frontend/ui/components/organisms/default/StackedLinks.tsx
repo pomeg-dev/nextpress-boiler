@@ -2,9 +2,9 @@ import React, { ReactNode } from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
 import { LinkItemProps } from "@/lib/types";
-import Pill from "../atoms/Pill";
+import Pill from "../../atoms/Pill";
 import Link from "next/link";
-import { ArrowRight } from "../../icons/icon-loader";
+import { ArrowRight } from "../../../icons/icon-loader";
 
 type StackedLinksProps = {
   label?: string;

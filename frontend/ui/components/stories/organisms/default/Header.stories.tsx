@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Header from "../../organisms/Header";
+import Header from "@ui/components/organisms/default/Header";
 
 const logoPlaceholder = {
   src: "https://fakeimg.pl/160x20",
@@ -30,7 +30,7 @@ const menuPlaceholder = [
 ];
 
 const meta: Meta<typeof Header> = {
-  title: "Components/Organisms/Header",
+  title: "Components/Organisms/Default/Header",
   component: Header,
   tags: ["autodocs"],
   args: {

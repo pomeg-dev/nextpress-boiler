@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageProps } from "@/lib/types";
-import ParallaxImage from "@ui/components/organisms/ParallaxImage";
+import ParallaxImage from "@ui/components/organisms/default/ParallaxImage";
 import classNames from "classnames";
 
 export function ParallaxImageBlock(props: any) {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ParallaxImage from "../../organisms/ParallaxImage";
+import ParallaxImage from "@ui/components/organisms/default/ParallaxImage";
 
 const imagePlaceholder = {
   src: "https://picsum.photos/800/600",
@@ -26,7 +26,7 @@ const placeholderButtons = [
 ];
 
 const meta: Meta<typeof ParallaxImage> = {
-  title: "Components/Organisms/ParallaxImage",
+  title: "Components/Organisms/Default/ParallaxImage",
   component: ParallaxImage,
   tags: ["autodocs"],
   args: {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import TextAndImage from "../../organisms/TextAndImage";
+import TextAndImage from "@ui/components/organisms/default/TextAndImage";
 
 const contentPlaceholder = `<h2><span class="text-heading-xl">This is a heading <span class="text-gradient-primary">with highlighted text</span></span></h2>
 <p>Et ex nostrud in inani commodo inimicus omnium novum volumus officiis oportere liber. Et ex nostrud in inani commodo inimicus omnium novum volumus officiis.</p>`;
@@ -29,7 +29,7 @@ const placeholderButtons = [
 ];
 
 const meta: Meta<typeof TextAndImage> = {
-  title: "Components/Organisms/TextAndImage",
+  title: "Components/Organisms/Default/TextAndImage",
   component: TextAndImage,
   tags: ["autodocs"],
   args: {

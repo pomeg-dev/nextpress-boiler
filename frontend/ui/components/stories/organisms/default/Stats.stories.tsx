@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Stats from "../../organisms/Stats";
+import Stats from "@ui/components/organisms/default/Stats";
 
 const statPlaceholder = `<h2>100+</h2><p>Et ex nostrud in inani commodo inimicus omnium novum</p>`;
 
 const meta: Meta<typeof Stats> = {
-  title: "Components/Organisms/Stats",
+  title: "Components/Organisms/Default/Stats",
   component: Stats,
   tags: ["autodocs"],
   args: {

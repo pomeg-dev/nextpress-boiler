@@ -1,9 +1,9 @@
 import "swiper/css";
 import type { Decorator, Meta, StoryObj } from "@storybook/react";
-import FeaturedPosts from "../../organisms/FeaturedPosts";
 import { useEffect, useState } from "react";
 import { getPosts } from "@/lib/wp/posts";
 import { mockPost } from "@ui/utils/placeholders";
+import FeaturedPosts from "@ui/components/organisms/default/FeaturedPosts";
 
 const fetchPosts = async (postType: string) => {
   const params = {
@@ -42,7 +42,7 @@ const withGlobals: Decorator = (Story, context) => {
 };
 
 const meta: Meta<typeof FeaturedPosts> = {
-  title: "Components/Organisms/FeaturedPosts",
+  title: "Components/Organisms/Default/FeaturedPosts",
   component: FeaturedPosts,
   decorators: [withGlobals],
   tags: ["autodocs"],

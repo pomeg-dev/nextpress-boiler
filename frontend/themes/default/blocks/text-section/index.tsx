@@ -1,6 +1,6 @@
 "use client";
 
-import TextSection from "ui/components/organisms/TextSection";
+import TextSection from "@ui/components/organisms/default/TextSection";
 import classNames from "classnames";
 
 export function TextSectionBlock(props: any) {

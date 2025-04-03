@@ -1,6 +1,6 @@
 "use client";
 
-import Stats from "ui/components/organisms/Stats";
+import Stats from "@ui/components/organisms/default/Stats";
 import classNames from "classnames";
 
 export function StatsBlock(props: any) {

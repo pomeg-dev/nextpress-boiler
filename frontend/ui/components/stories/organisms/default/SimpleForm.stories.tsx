@@ -2,15 +2,15 @@
 
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import SimpleForm from '../../organisms/SimpleForm';
-import TextInput from '../../molecules/TextInput';
-import TextAreaInput from '../../molecules/TextAreaInput';
-import SelectInput from '../../molecules/SelectInput';
-import RadioGroup from '../../molecules/RadioGroup';
-import CheckboxGroup from '../../molecules/CheckboxGroup';
+import SimpleForm from '@ui/components/organisms/default/SimpleForm';
+import TextInput from '@ui/components/molecules/TextInput';
+import SelectInput from '@ui/components/molecules/SelectInput';
+import TextAreaInput from '@ui/components/molecules/TextAreaInput';
+import RadioGroup from '@ui/components/molecules/RadioGroup';
+import CheckboxGroup from '@ui/components/molecules/CheckboxGroup';
 
 const meta: Meta<typeof SimpleForm> = {
-  title: 'Components/Organisms/SimpleForm',
+  title: 'Components/Organisms/Default/SimpleForm',
   component: SimpleForm,
   parameters: {
     layout: 'centered',

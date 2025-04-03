@@ -5,10 +5,10 @@ import classNames from "classnames";
 import { Cards, LinkItemProps, Post } from "@/lib/types";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from "swiper";
-import SliderNavigation from "../molecules/SliderNavigation";
+import SliderNavigation from "../../molecules/SliderNavigation";
 import Parser from "html-react-parser";
-import PostCard from "../molecules/PostCard";
-import Button from "../atoms/Button";
+import PostCard from "../../molecules/PostCard";
+import Button from "../../atoms/Button";
 import "swiper/css";
 
 type FeaturedPostsProps = {

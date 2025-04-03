@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Modal from "../../organisms/Modal";
-import Button from "../../atoms/Button";
+import Button from "@ui/components/atoms/Button";
+import Modal from "@ui/components/organisms/default/Modal";
 
 const ContentPlaceholder: React.ReactNode = (
   <div className="flex h-full flex-col gap-sm rounded-lg bg-white p-[20px] pt-8 text-primary">
@@ -20,7 +20,7 @@ const ContentPlaceholder: React.ReactNode = (
 );
 
 const meta: Meta<typeof Modal> = {
-  title: "Components/Organisms/Modal",
+  title: "Components/Organisms/Default/Modal",
   component: Modal,
   tags: ["autodocs"],
   args: {

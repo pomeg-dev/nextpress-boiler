@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Footer from "../../organisms/Footer";
+import Footer from "@ui/components/organisms/default/Footer";
 
 const logoPlaceholder = {
   src: "https://fakeimg.pl/1680x200",
@@ -38,7 +38,7 @@ const menuPlaceholder = [
 ];
 
 const meta: Meta<typeof Footer> = {
-  title: "Components/Organisms/Footer",
+  title: "Components/Organisms/Default/Footer",
   component: Footer,
   tags: ["autodocs"],
   args: {

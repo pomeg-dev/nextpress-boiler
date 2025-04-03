@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import StackedLinks from "../../organisms/StackedLinks";
+import StackedLinks from "@ui/components/organisms/default/StackedLinks";
 
 const meta: Meta<typeof StackedLinks> = {
-  title: "Components/Organisms/StackedLinks",
+  title: "Components/Organisms/Default/StackedLinks",
   component: StackedLinks,
   tags: ["autodocs"],
   args: {

@@ -1,7 +1,7 @@
 import { getPosts } from "@/lib/wp/posts";
 import React from "react";
 import classNames from "classnames";
-import FeaturedPosts from "@ui/components/organisms/FeaturedPosts";
+import FeaturedPosts from "@ui/components/organisms/default/FeaturedPosts";
 import { Cards, Post, WPQuery } from "@/lib/types";
 
 export async function FeaturedPostsBlock(props: any) {

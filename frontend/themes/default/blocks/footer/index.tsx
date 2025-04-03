@@ -1,7 +1,7 @@
 "use client";
 
 import { getNavItems } from "@/utils/menus";
-import Footer from "@ui/components/organisms/Footer";
+import Footer from "@ui/components/organisms/default/Footer";
 
 export function FooterBlock(props: any) {
   const {

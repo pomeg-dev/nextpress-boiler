@@ -1,6 +1,6 @@
 "use client";
 
-import StackedLinks from "ui/components/organisms/StackedLinks";
+import StackedLinks from "@ui/components/organisms/default/StackedLinks";
 import classNames from "classnames";
 
 export function StackedLinksBlock(props: any) {
