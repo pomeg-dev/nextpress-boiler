@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "fetch-figma-vars": "ts-node scripts/fetch-figma-variables.js",
+    "fetch-figma-vars": "ts-node scripts/fetch-figma-variables.js && node scripts/compile-figma-css.js",
+    "compile-figma-css": "node scripts/compile-figma-css.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
