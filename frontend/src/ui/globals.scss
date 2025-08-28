@@ -1,0 +1,12 @@
+@use "../../ui/styles/figma-variables.scss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.no-transition * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

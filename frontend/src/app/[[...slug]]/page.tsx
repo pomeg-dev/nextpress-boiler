@@ -1,0 +1,269 @@
+import { notFound, permanentRedirect } from 'next/navigation';
+import { BlockParser } from "@/ui/block-parser";
+import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
+import { PostWithContent } from "@/lib/types";
+import { getSettings } from "@/lib/wp/settings";
+import { decode } from "html-entities";
+import { Metadata } from 'next';
+import { getFrontEndUrl } from '@/utils/url';
+import CategoryArchive from '@/ui/category-archive';
+import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
+
+type NextProps = {
+  params: Promise<{ slug: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+};
+
+export default async function Post({ params, searchParams }: NextProps) {
+  const { slug } = await params;
+
+  // Dont run for favicon, api, status requests
+  if (slug && slug[0] === "favicon.ico") return null;
+  if (slug && slug[0] === "api") return null;
+  if (slug && slug[0] === "status") return null;
+
+  // Get settings.
+  const settings = await getSettings(
+    [
+      'page_for_posts_slug',
+      'frontend_url',
+      'before_content',
+      'after_content',
+    ]
+  );
+
+  // Handle category pages.
+  let isTaxPage = false;
+  let taxonomy;
+  let term;
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    isTaxPage = true;
+    taxonomy = slug[1];
+    term = slug[2];
+  }
+
+  const path = slug ? slug.join("/") : "";
+  let post;
+  if (slug && slug[0] === "draft") {
+    post = await getPostByPath(slug[1], true, true);
+  } else {
+    post = await getPostByPath(path);
+  }
+
+  // Do yoast redirect
+  if (post?.yoastHeadJSON?.redirect) {
+    const redirectUrl = post.yoastHeadJSON.redirect.endsWith('/') 
+      ? post.yoastHeadJSON.redirect
+      : post.yoastHeadJSON.redirect + '/';
+    if (post.yoastHeadJSON.redirect.includes('http')) {
+      permanentRedirect(redirectUrl);
+    } else {
+      const frontendDomainURL = getFrontEndUrl(settings);
+      permanentRedirect(`${frontendDomainURL}/${redirectUrl}`);
+    }
+  }
+
+  // Handle 404.
+  if (!post && !isTaxPage || (!isTaxPage && post?.['404'] && post['404'] === true)) {
+    notFound();
+  }
+
+  // Set up schema.
+  let updatedSchema = null;
+  if (post?.yoastHeadJSON?.schema) {
+    updatedSchema = process.env.NEXT_PUBLIC_API_URL 
+      ? JSON.parse(
+          JSON.stringify(post.yoastHeadJSON.schema).replace(
+            new RegExp(process.env.NEXT_PUBLIC_API_URL || '', 'g'),
+            getFrontEndUrl(settings)
+          )
+        ) 
+      : post.yoastHeadJSON.schema;
+  }
+
+  // Wrap acf_data into before/after/sidebar content.
+  let beforeContent = parseTemplateBlocks(
+    post?.template?.before_content && post?.template?.before_content.length > 0 
+      ? post.template.before_content
+      : [],
+    settings?.before_content || [],
+    post,
+    true
+  );
+
+  let afterContent = parseTemplateBlocks(
+    post?.template?.after_content && post?.template?.after_content.length > 0 
+      ? post.template.after_content
+      : [],
+    settings?.after_content || [],
+    post,
+  );
+
+  const disableSidebar = post?.acf_data?.disable_sidebar || false;
+  let sidebarContent = null;
+  if (post?.template?.sidebar_content && !disableSidebar) {
+    sidebarContent = additionalPostData(post.template.sidebar_content, post);
+  }
+
+  return (
+    <>
+      {updatedSchema &&
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(updatedSchema) }}
+        />
+      }
+      {beforeContent &&
+        <BlockParser blocks={beforeContent} />
+      }
+      {isTaxPage && taxonomy && term ? (
+        <CategoryArchive taxonomy={taxonomy} term={term} />
+      ) : (
+        sidebarContent ? (
+          <section className="content-sidebar container">
+            <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+              {post.content && 
+                <BlockParser blocks={post.content} />
+              }
+            </main>
+            <aside className="sidebar">
+              <BlockParser blocks={sidebarContent} />
+            </aside>
+          </section>
+        ) : (
+          <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+            {post.content && 
+              <BlockParser blocks={post.content} />
+            }
+          </main>
+        )
+      )}
+      {afterContent &&
+        <BlockParser blocks={afterContent} />
+      }
+    </>
+  );
+}
+
+export async function generateStaticParams() {
+  try {
+    const allPosts = await getPosts({ 
+      per_page: -1,
+      include_metadata: false,
+      slug_only: true
+    });
+    
+    return allPosts
+      .filter((post: PostWithContent) => post.slug?.full_path)
+      .map((post: PostWithContent) => ({
+        slug: Array.isArray(post.slug.full_path) 
+          ? post.slug.full_path 
+          : post.slug.full_path.split('/').filter(Boolean),
+      }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
+export async function generateMetadata(
+  { params }: NextProps,
+): Promise<Metadata> {
+  const { slug } = await params;
+
+  const notFound = {
+    title: "Not found",
+    description: "Not found",
+  };
+
+  // Dont run for favicon, api, status, draft requests
+  if (slug && slug[0] === "favicon.ico") return notFound;
+  if (slug && slug[0] === "api") return notFound;
+  if (slug && slug[0] === "status") return notFound;
+  if (slug && slug[0] === "draft") return notFound;
+
+  const path = slug ? slug.join("/") : "";
+  const settings = await getSettings([
+    'page_for_posts_slug',
+    'frontend_url'
+  ]);
+  const frontendDomainURL = getFrontEndUrl(settings);
+  let post = await getPostByPath(path, false);
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    post = await getTaxTerm(slug[1], slug[2]);
+  }
+
+  if (!post) return notFound;
+
+  if (post.yoastHeadJSON) {
+    post.yoastHeadJSON.title = decode(post?.yoastHeadJSON?.title);
+    post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
+    if (post.yoastHeadJSON.canonical) {
+      const canonical = post.yoastHeadJSON.canonical.replace(
+        process.env.NEXT_PUBLIC_API_URL,
+        frontendDomainURL
+      );
+      post.yoastHeadJSON.canonical = canonical;
+      post.yoastHeadJSON.alternates = { canonical: canonical };
+    } else if (!path || path == "") {
+      post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
+    } else {
+      post.yoastHeadJSON.alternates = {
+        canonical: `${frontendDomainURL}/${path}`,
+      };
+    }
+
+    const languages: {[key: string]: any} = {};
+    if (post.hreflang && post.hreflang.length > 0) {
+      languages["x-default"] = post.yoastHeadJSON?.canonical || '/';
+      post.hreflang.map((locale: { code: string; href: string }) => {
+        languages[locale.code] = locale.href;
+      });
+    }
+
+    return {
+      title: post.yoastHeadJSON.title,
+      description: post.yoastHeadJSON.description,
+      robots: post.yoastHeadJSON.robots,
+      metadataBase: post.yoastHeadJSON.metadataBase,
+      openGraph: {
+        locale: post.yoastHeadJSON.og_locale,
+        type: post.yoastHeadJSON.og_type,
+        title: post.yoastHeadJSON.og_title,
+        description: post.yoastHeadJSON.og_description,
+        url: post.yoastHeadJSON.og_url?.replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL || '', 'g'),
+          frontendDomainURL
+        ),
+        siteName: post.yoastHeadJSON.og_site_name,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => ({
+          url: image.url,
+          width: image.width,
+          height: image.height,
+          type: image.type,
+        })),
+        publishedTime: post.yoastHeadJSON.article_published_time,
+        modifiedTime: post.yoastHeadJSON.article_modified_time,
+      },
+      twitter: {
+        card: post.yoastHeadJSON.twitter_card,
+        creator: post.yoastHeadJSON.author,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => image.url),
+      },
+      alternates: {
+        canonical: post?.yoastHeadJSON?.canonical || post?.yoastHeadJSON?.alternates?.canonical || '/',
+        languages
+      },
+    };
+  } else return notFound;
+}
