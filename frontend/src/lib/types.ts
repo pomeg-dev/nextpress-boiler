@@ -1,3 +1,5 @@
+import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
+
 export interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
@@ -190,32 +192,3 @@ export type BlockOptions = {
   padding_top?: number | string; 
   padding_bottom?: number | string;
 };
-
-import { DefaultSession } from "next-auth";
-import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
-
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user?: {
-      accessToken?: string;
-      refreshToken?: string;
-      instanceUrl?: string;
-    } & DefaultSession["user"];
-  }
-}
-
-// app/api/auth/callback/salesforce/route.ts
-import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
-
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const code = searchParams.get("code");
-
-  if (!code) {
-    return new Response("No code provided", { status: 400 });
-  }
-
-  // Redirect to the NextAuth callback endpoint
-  return redirect(`/api/auth/callback/salesforce?code=${code}`);
-}
