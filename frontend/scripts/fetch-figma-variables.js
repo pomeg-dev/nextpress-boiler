@@ -2,9 +2,10 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
-const FIGMA_FILE_KEY = process.env.FIGMA_FILE_KEY;
 const FIGMA_ACCESS_TOKEN = process.env.FIGMA_ACCESS_TOKEN;
-const FIGMA_API_URL = `https://api.figma.com/v1/files/${FIGMA_FILE_KEY}/variables/local`;
+const FIGMA_DESIGN_SYSTEMS = process.env.FIGMA_DESIGN_SYSTEMS;
+const FIGMA_FILE_KEY = process.env.FIGMA_FILE_KEY;
+const FIGMA_DEFAULT_THEME = process.env.FIGMA_DEFAULT_THEME;
 
 const createRgba = (color, isRgb) => {
   if (!color.a || !color.b || !color.g || !color.r) {
@@ -34,14 +35,36 @@ const transformedStrings = (str) => {
   return str;
 };
 
-async function fetchFigmaVariables() {
-  if (!FIGMA_FILE_KEY || !FIGMA_ACCESS_TOKEN || !FIGMA_API_URL) {
+function runFigmaSync() {
+  if (!FIGMA_ACCESS_TOKEN) {
+    console.log("FIGMA_ACCESS_TOKEN not found, skipping variable fetch...");
+    return null;
+  }
+
+  if (FIGMA_DESIGN_SYSTEMS) {
+    FIGMA_DESIGN_SYSTEMS.split(' ').map(pair => {
+      const [theme, fileKey] = pair.split(':');
+      fetchFigmaVariables(theme, fileKey);
+    });
+  } else if (FIGMA_FILE_KEY && FIGMA_DEFAULT_THEME) {
+    fetchFigmaVariables(FIGMA_DEFAULT_THEME, FIGMA_FILE_KEY);
+  } else {
+    console.log("Figma ENV vars not found, skipping variable fetch...");
+    return null;
+  }
+}
+
+async function fetchFigmaVariables(theme, fileKey) {
+  if (!theme || !fileKey) {
     console.log("Figma ENV vars not found, skipping variable fetch...");
     return null;
   }
 
+  const figmaApiUrl = `https://api.figma.com/v1/files/${fileKey}/variables/local`;
+  const fileName = `figma-variables-${theme}`;
+
   try {
-    const response = await fetch(FIGMA_API_URL, {
+    const response = await fetch(figmaApiUrl, {
       headers: {
         "X-Figma-Token": FIGMA_ACCESS_TOKEN,
       },
@@ -58,8 +81,8 @@ async function fetchFigmaVariables() {
 
     // Write var list to json file.
     const jsonContent = JSON.stringify(data, null, 2);
-    fs.writeFileSync('scripts/figma-variables.json', jsonContent, 'utf-8');
-    console.log("✅ Raw Figma variables saved to figma-variables.json");
+    fs.writeFileSync(`scripts/${fileName}.json`, jsonContent, 'utf-8');
+    console.log(`✅ Raw Figma variables saved to scripts/${fileName}.json`);
 
     // Filter out colours.
     const colorVariables = Object.values(data.meta.variables)
@@ -90,7 +113,12 @@ async function fetchFigmaVariables() {
 
     // Filter out section spacers.
     const sectionSpacers = Object.values(data.meta.variables)
-      .filter((variable) => variable.name.includes('section-padding'));
+      .filter((variable) => {
+        return variable.name.includes('section-padding') ||
+          variable.name.includes('inner-padding') ||
+          variable.name.includes('card-width') ||
+          variable.name.includes('utilities/margin')
+      });
 
     // Filter out border radii.
     const borderRadii = Object.values(data.meta.variables)
@@ -257,7 +285,12 @@ async function fetchFigmaVariables() {
             scssContent += "\n/* SECTION SPACER VARIABLES */\n";
             sectionSpacers.forEach((variable) => {
               const variableName = variable.name.toLowerCase().replace(/[\s/]+/g, '-');
-              const variableValue = variable.valuesByMode[mode.modeId];
+              let variableValue = variable.valuesByMode[mode.modeId];
+              if (variableValue?.type && variableValue.type === "VARIABLE_ALIAS" && variableValue?.id) {
+                variableValue = data?.meta?.variables?.[variableValue.id]?.valuesByMode?.[mode.modeId]
+                  ? data.meta.variables[variableValue.id].valuesByMode[mode.modeId]
+                  : variableValue;
+              }
               if (!addedVariables.has(`${mode.handle}-${variableName}`)) {
                 scssContent += `--${variableName}: ${variableValue}px;\n`;
                 addedVariables.add(`${mode.handle}-${variableName}`);
@@ -298,7 +331,12 @@ async function fetchFigmaVariables() {
           if (sectionSpacers) {
             sectionSpacers.forEach((spacer) => {
               const spacerName = spacer.name.toLowerCase().replace(/[\s/]+/g, '-');
-              const spacerValue = spacer.valuesByMode[mode.modeId];
+              let spacerValue = spacer.valuesByMode[mode.modeId];
+              if (spacerValue?.type && spacerValue.type === "VARIABLE_ALIAS" && spacerValue?.id) {
+                spacerValue = data?.meta?.variables?.[spacerValue.id]?.valuesByMode?.[mode.modeId]
+                  ? data.meta.variables[spacerValue.id].valuesByMode[mode.modeId]
+                  : spacerValue;
+              }
               if (!addedVariables.has(`${mode.handle}-${spacerName}`)) {
                 spacerVars += `--${spacerName}: ${spacerValue}px;\n`;
                 addedVariables.add(`${mode.handle}-${spacerName}`);
@@ -327,18 +365,18 @@ async function fetchFigmaVariables() {
     scssContent += "}\n";
 
     // Make file.
-    const scssFilePath = path.join(__dirname, "../ui/styles/figma-variables.scss");
+    const scssFilePath = path.join(__dirname, `../ui/styles/${fileName}.css`);
     fs.mkdirSync(path.dirname(scssFilePath), { recursive: true });
     fs.writeFileSync(scssFilePath, scssContent, "utf-8");
 
-    const wpScssFilePath = path.join(__dirname, "../../backend/wordpress/wp-content/themes/nextpress-theme/admin/figma-variables.css");
-    fs.mkdirSync(path.dirname(wpScssFilePath), { recursive: true });
-    fs.writeFileSync(wpScssFilePath, scssContent, "utf-8");
+    // const wpScssFilePath = path.join(__dirname, "../../backend/wordpress/wp-content/themes/glion-2025-theme/admin/figma-variables.css");
+    // fs.mkdirSync(path.dirname(wpScssFilePath), { recursive: true });
+    // fs.writeFileSync(wpScssFilePath, scssContent, "utf-8");
 
-    console.log("✅ Figma variables updated in ui/styles/figma-variables.scss");
+    console.log(`✅ Figma variables updated in ui/styles/${fileName}.css`);
   } catch (error) {
     console.error("❌ Error fetching Figma variables:", error);
   }
 }
 
-fetchFigmaVariables();
+runFigmaSync();
