@@ -36,7 +36,7 @@ export function FooterBlock(props: any) {
       logo={logo}
       background_image={background_image}
       background_colour={background_colour}
-      menu_items={navItems}
+      menu_items={navItems || undefined}
       copyright={copyright}
     />
   );

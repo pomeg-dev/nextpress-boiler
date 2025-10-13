@@ -30,7 +30,7 @@ export function HeaderBlock(props: any) {
   return (
     <Header
       logo={logoAtts}
-      menu_items={navItems}
+      menu_items={navItems || undefined}
       className="w-full"
     />
   );
