@@ -132,7 +132,7 @@ class GF_Personal_Data {
 						'validation_callback' => function( $field, $value ) {
 
 							// If value is not numeric or less than one day, set error.
-							if ( ! is_numeric( $value ) || ( is_numeric( $value ) && floatval( $value ) < 1 ) ) {
+							if ( ! is_numeric( $value ) || ( is_numeric( $value ) && floatval( $value ) < 1 ) ) { // nosemgrep audit.php.lang.misc.flawed-logic-numeric
 								$field->set_error( esc_html__( 'Form entries must be retained for at least one day.', 'gravityforms' ) );
 							}
 
@@ -517,7 +517,7 @@ class GF_Personal_Data {
 
 		// Exporting and Erasing
 		$form['personalData']['exportingAndErasing']['enabled']             = (bool) rgars( $values, 'exportingAndErasing/enabled' );
-		$form['personalData']['exportingAndErasing']['identificationField'] = absint( rgars( $values, 'exportingAndErasing/identificationField' ) );
+		$form['personalData']['exportingAndErasing']['identificationField'] = sanitize_key( rgars( $values, 'exportingAndErasing/identificationField' ) );
 
 		// Exporting and Erasing: Columns
 		foreach ( self::get_columns() as $column => $label ) {
@@ -808,7 +808,7 @@ class GF_Personal_Data {
 			if ( $field && $field->get_input_type() == 'email' ) {
 
 				$conditions[] = new GF_Query_Condition(
-					new GF_Query_Column( $identification_field, $form['id'] ),
+					new GF_Query_Column( $identification_field, intval( $form['id'] ) ),
 					GF_Query_Condition::EQ,
 					new GF_Query_Literal( $email_address )
 				);
@@ -824,7 +824,7 @@ class GF_Personal_Data {
 				}
 
 				$conditions[] = new GF_Query_Condition(
-					new GF_Query_Column( $identification_field, $form['id'] ),
+					new GF_Query_Column( $identification_field, intval( $form['id'] ) ),
 					GF_Query_Condition::EQ,
 					new GF_Query_Literal( $user->ID )
 				);

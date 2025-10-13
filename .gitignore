@@ -7,3 +7,5 @@ debug.log
 storybook-static
 CLAUDE.md
 figma-variables.json
+.vscode
+ip-ranges.json

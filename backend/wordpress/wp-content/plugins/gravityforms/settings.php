@@ -2,6 +2,8 @@
 
 use Gravity_Forms\Gravity_Forms\Settings\Settings;
 use \Gravity_Forms\Gravity_Forms\License;
+use \Gravity_Forms\Gravity_Forms\Setup_Wizard\Endpoints\GF_Setup_Wizard_Endpoint_Save_Prefs;
+use Gravity_Forms\Gravity_Forms\TranslationsPress_Updater;
 
 class_exists( 'GFForms' ) || die();
 
@@ -45,12 +47,12 @@ class GFSettings {
 	 *
 	 * @since  Unknown
 	 * @access public
-	 *
+	 * @remove-in 3.0
 	 * @uses GFSettings::$addon_pages
 	 *
 	 * @param string|array $name      The settings page slug.
 	 * @param string|array $handler   The callback function to run for this settings page.
-	 * @param string       $icon_path The path to the icon for the settings tab. @deprecated
+	 * @param string       $icon_path The path to the icon for the settings tab. @deprecated.
 	 */
 	public static function add_settings_page( $name, $handler, $icon_path = '' ) {
 
@@ -61,10 +63,12 @@ class GFSettings {
 		$title = '';
 		$icon  = 'gform-icon--cog';
 
-		// if name is an array, assume that an array of args is passed
+		// if name is an array, assume that an array of args is passed.
 		if ( is_array( $name ) ) {
 
 			/**
+			 * Extracting args.
+			 *
 			 * @var string       $name
 			 * @var string       $title
 			 * @var string       $tab_label
@@ -169,18 +173,14 @@ class GFSettings {
 				die( esc_html__( "You don't have adequate permission to uninstall Gravity Forms.", 'gravityforms' ) );
 			}
 
-			// Removing background tasks.
-			$processors = array(
-				GFForms::$background_upgrader,
-				gf_feed_processor()
-			);
+			/**
+			 * Used to perform any cleanup tasks when the uninstall button has been clicked on the Forms > Settings > Uninstall page.
+			 *
+			 * @since 2.6.9
+			 */
+			do_action( 'gform_uninstalling' );
 
-			/** @var GF_Background_Process $processor The background task processor. */
-			foreach ( $processors as $processor ) {
-				$processor->clear_scheduled_events();
-				$processor->clear_queue( true );
-				$processor->unlock_process();
-			}
+			// Background tasks cleanup moved to \Gravity_Forms\Gravity_Forms\Async\GF_Background_Process_Service_Provider().
 
 			// Removing cron task
 			wp_clear_scheduled_hook( 'gravityforms_cron' );
@@ -211,9 +211,9 @@ class GFSettings {
 			delete_option( 'gform_api_count' );
 			delete_option( 'gform_email_count' );
 			delete_option( 'gform_enable_toolbar_menu' );
+			delete_option( 'gform_enable_dashboard_widget' );
 			delete_option( 'gform_enable_logging' );
 			delete_option( 'gform_pending_installation' );
-			delete_option( 'gform_version_info' );
 			delete_option( 'gform_enable_noconflict' );
 			delete_option( 'gform_enable_background_updates' );
 			delete_option( 'gform_sticky_admin_messages' );
@@ -225,6 +225,9 @@ class GFSettings {
 			delete_option( 'gravityformsaddon_gravityformswebapi_version' );
 			delete_option( 'gravityformsaddon_gravityformswebapi_settings' );
 
+			// Remove setup wizard data.
+			GFForms::get_service_container()->get( \Gravity_Forms\Gravity_Forms\Setup_Wizard\GF_Setup_Wizard_Service_Provider::SAVE_PREFS_ENDPOINT )->remove_setup_data();
+
 			// Removes license key
 			GFFormsModel::save_key( '' );
 
@@ -235,13 +238,29 @@ class GFSettings {
 			gf_logging()->delete_settings();
 			gf_logging()->delete_log_files();
 
+			delete_option( 'widget_gform_widget' );
+			delete_option( 'rg_gforms_default_theme' );
+			delete_option( 'rg_form_original_version' );
+			delete_option( 'gform_version_info' );
+
+			delete_option( 'gf_telemetry_data' );
+			delete_option( 'gf_last_telemetry_run' );
+
+			delete_transient( 'rg_gforms_license' );
+
+			if ( ! class_exists( 'TranslationsPress_Updater' ) ) {
+				require_once GF_PLUGIN_DIR_PATH . '/includes/class-translationspress-updater.php';
+			}
+
+			delete_site_transient( TranslationsPress_Updater::T15S_TRANSIENT_KEY );
+
 			// Deactivating plugin
 			$plugin = 'gravityforms/gravityforms.php';
 			deactivate_plugins( $plugin );
 			update_option( 'recently_activated', array( $plugin => time() ) + (array) get_option( 'recently_activated' ) );
 
 			?>
-			<div class="updated fade gf-notice notice-success"><?php echo sprintf( esc_html__( 'Gravity Forms has been successfully uninstalled. It can be re-activated from the %splugins page%s.', 'gravityforms' ), "<a href='plugins.php'>", '</a>' ) ?></div>
+			<div class="updated fade gf-notice notice-success" role="alert"><?php echo sprintf( esc_html__( 'Gravity Forms has been successfully uninstalled. It can be re-activated from the %splugins page%s.', 'gravityforms' ), "<a href='plugins.php'>", '</a>' ) ?></div>
 			<?php
 			return;
 		}
@@ -277,7 +296,7 @@ class GFSettings {
 							 *
 							 * @param string $uninstall_button The HTML of the uninstall button.
 							 */
-							echo apply_filters( 'gform_uninstall_button', $uninstall_button );
+							echo apply_filters( 'gform_uninstall_button', $uninstall_button ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 						}
 					?>
@@ -330,7 +349,7 @@ class GFSettings {
 	private static function uninstall_addon_message() {
 		if ( isset( self::$uninstalled_addon ) ) {
 			?>
-			<div class="alert success"><?php echo sprintf( esc_html__( '%s uninstalled. It can be re-activated from the %splugins page%s.', 'gravityforms' ), self::$uninstalled_addon ,"<a href='plugins.php'>", '</a>' ) ?></div>
+			<div class="alert success"><?php echo sprintf( esc_html__( '%s uninstalled. It can be re-activated from the %splugins page%s.', 'gravityforms' ), esc_html__( self::$uninstalled_addon ), "<a href='plugins.php'>", '</a>' ) ?></div>
 			<?php
 		}
 	}
@@ -368,6 +387,40 @@ class GFSettings {
 	}
 
 	/**
+	* Determine whether Orbital should be the default theme.
+	*
+ 	* @since 2.7.15
+	*
+	* @return bool
+	*/
+    public static function is_orbital_default() {
+		$theme_option = get_option( 'rg_gforms_default_theme' );
+
+		// Fallback if the option is not set
+		if ( ! $theme_option ) {
+			$versions = gf_upgrade()->get_versions();
+
+			// New install or upgrade from version that supports this feature
+			if ( version_compare( get_option( 'rg_form_original_version', $versions['version'] ), '2.7.14.2', '>=' ) ) {
+				return true;
+			}
+
+			// Upgrade from version prior to this feature
+			if ( version_compare( $versions['previous_db_version'], '2.7.14.2', '<' ) ) {
+				return false;
+			}
+		}
+
+		if ( 'orbital' == $theme_option ) {
+			return true;
+		}
+
+		return false;
+    }
+
+
+
+	/**
 	 * Prepare Plugin Settings fields.
 	 *
 	 * @since 2.5
@@ -375,23 +428,18 @@ class GFSettings {
 	 * @return array
 	 */
 	private static function plugin_settings_fields() {
-
-		// Prepare currency options.
-		$currency_options = array(
-			array(
-				'label' => esc_html__( 'Select a Currency', 'gravityforms' ),
-				'value' => '',
-			),
-		);
-		foreach ( RGCurrency::get_currencies() as $code => $currency ) {
-			$currency_options[] = array( 'label' => esc_html( $currency['name'] ), 'value' => $code );
+		$license_section_description = esc_html__( 'A valid license key is required for access to automatic plugin upgrades and product support.', 'gravityforms' );
+		$is_hidden                   = false;
+		if ( ! is_main_site() && GFCommon::is_network_active() ) {
+			$is_hidden                   = true;
+			$license_section_description = esc_html__( 'License key is managed by the administrator of this network', 'gravityforms' );
 		}
 
-		return array(
-			array(
+		$fields = array(
+			'license_key'         => array(
 				'title'       => esc_html__( 'Support License Key', 'gravityforms' ),
 				'class'       => 'gform-settings-panel--full',
-				'description' => esc_html__( 'A valid license key is required for access to automatic plugin upgrades and product support.', 'gravityforms' ),
+				'description' => $license_section_description,
 				'fields'      => array(
 					array(
 						'name'                => 'license_key',
@@ -401,6 +449,7 @@ class GFSettings {
 						'callback'            => array( 'GFSettings', 'license_key_render_callback' ),
 						'class'               => 'gform-admin-input',
 						'validation_callback' => array( 'GFSettings', 'license_key_validation_callback' ),
+						'hidden'              => $is_hidden,
 						'after_input'         => function () {
 							/**
 							 * @var License\GF_License_API_Connector $license_connector
@@ -421,14 +470,14 @@ class GFSettings {
 								'<div class="alert gforms_note_%s">%s %s</div>',
 								$usability,
 								$is_save_postback && ! $license_info->can_be_used() ? __( 'Your license key was not updated. ', 'gravityforms' ) : null,
-								License\GF_License_Statuses::get_message_for_code( $license_info->get_status() )
+								License\GF_License_Statuses::get_message_for_code( $license_info->get_status(), $license_info->get_error_message() )
 							);
 
 							delete_transient( 'rg_gforms_registration_error' );
 
 							return $license_key_alert;
 						},
-						'feedback_callback' => function () {
+						'feedback_callback'   => function () {
 							$license_key = GFCommon::get_key();
 
 							if ( empty( $license_key ) ) {
@@ -443,13 +492,22 @@ class GFSettings {
 
 							return $license_info->get_usability();
 						},
+						'save_callback'       => function( $field, $value ) {
+							// Remove non-alphanumeric characters.
+							$value = preg_replace( '/[^a-zA-Z0-9]/', '', $value );
+							if ( isset( $_POST['_gform_setting_license_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								GFFormsModel::save_key( $value );
+							}
+
+							return $value;
+						},
 					),
 				),
 			),
-			array(
+			'license_key_details' => array(
 				'id'     => 'section_license_key_details',
 				'title'  => __( 'Your License Details', 'gravityforms' ),
-				'class'       => 'gform-settings-panel--no-padding gform-settings-panel--license-details',
+				'class'  => 'gform-settings-panel--no-padding gform-settings-panel--license-details',
 				'fields' => array(
 					array(
 						'name' => 'license_key_details',
@@ -458,87 +516,165 @@ class GFSettings {
 					),
 				),
 			),
-			array(
-				'id'          => 'section_default_css',
-				'title'       => esc_html__( 'Output Default CSS', 'gravityforms' ),
-				'description' => esc_html__( 'Enable this option to output the default form CSS. Disable it if you plan to create your own CSS in a child theme.', 'gravityforms' ),
-				'class'       => 'gform-settings-panel--half',
-				'fields'      => array(
-					array(
-						'name'         => 'disable_css',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'Disable CSS', 'gravityforms' ),
-					),
-				),
-			),
-			array(
+			'currency'            => array(
 				'id'     => 'section_currency',
 				'title'  => esc_html__( 'Default Currency', 'gravityforms' ),
 				'class'  => 'gform-settings-panel--half',
 				'fields' => array(
 					array(
-						'name'         => 'currency',
-						'description'  => esc_html__( 'Select the default currency for your forms. This is used for product fields, credit card fields and others.', 'gravityforms' ),
-						'type'         => 'select',
-						'choices'      => $currency_options,
-						'enhanced_ui'  => true,
-						'after_select' => self::currency_message_callback(),
+						'name'          => 'currency',
+						'description'   => esc_html__( 'Select the default currency for your forms. This is used for product fields, credit card fields and others.', 'gravityforms' ),
+						'type'          => 'select',
+						'choices'       => RGCurrency::get_grouped_currency_options(),
+						'enhanced_ui'   => false,
+						'after_select'  => self::currency_message_callback(),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'rg_gforms_currency', $value );
+
+							return $value;
+						},
 					),
 				),
 			),
-			array(
+			'logging'             => array(
 				'id'          => 'section_enable_logging',
 				'title'       => esc_html__( 'Logging', 'gravityforms' ),
 				'description' => esc_html__( 'Enable if you would like logging within Gravity Forms. Logging allows you to easily debug the inner workings of Gravity Forms to solve any possible issues. ', 'gravityforms' ),
 				'class'       => 'gform-settings-panel--half',
 				'fields'      => array(
 					array(
-						'name'         => 'enable_logging',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'Enable Logging', 'gravityforms' ),
+						'name'          => 'enable_logging',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'Enable Logging', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							if ( (bool) $value ) {
+								GFSettings::enable_logging();
+							} else {
+								GFSettings::disable_logging();
+							}
+
+							return $value;
+						},
 					),
 				),
 			),
-			array(
+		);
+
+		$fields['default_theme'] = array(
+			'id'     => 'section_default_theme',
+			'title'  => esc_html__( 'Default Form Theme', 'gravityforms' ),
+			'class'  => 'gform-settings-panel--half',
+			'fields' => array(
+					array(
+					'name'          => 'default_theme',
+					'type'          => 'select',
+					'choices'       => array(
+						array(
+							'label'   => esc_html__( 'Gravity Forms 2.5 Theme', 'gravityforms' ),
+							'value'   => 'gravity-theme',
+							'default' => ! self::is_orbital_default(),
+						),
+						array(
+							'label'   => esc_html__( 'Orbital Theme (Recommended)', 'gravityforms' ),
+							'value'   => 'orbital',
+							'default' => self::is_orbital_default(),
+						),
+					),
+					'description'   => sprintf(
+						'%s&nbsp;<a href="%s" target="_blank">%s<span class="screen-reader-text">%s</span>&nbsp;<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a>',
+						esc_html__( 'This theme will be used by default everywhere forms are embedded on your site', 'gravityforms' ),
+						'https://docs.gravityforms.com/block-themes-and-style-settings/',
+						esc_html__( 'Learn more about form theme and style settings.', 'gravityforms' ),
+						esc_html__( '(opens in a new tab)', 'gravityforms' )
+					),
+					'save_callback' => function( $field, $value ) {
+						update_option( 'rg_gforms_default_theme', $value );
+
+						return $value;
+					},
+				),
+			),
+		);
+
+
+        $fields['toolbar'] = array(
 				'id'          => 'section_enable_toolbar',
 				'title'       => esc_html__( 'Toolbar Menu', 'gravityforms' ),
 				'description' => esc_html__( 'Enable to display the forms menu in the WordPress top toolbar. The forms menu will display the ten forms recently opened in the form editor.', 'gravityforms' ),
 				'class'       => 'gform-settings-panel--half',
 				'fields'      => array(
 					array(
-						'name'         => 'enable_toolbar',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'Enable Toolbar Menu', 'gravityforms' ),
+						'name'          => 'enable_toolbar',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'Enable Toolbar Menu', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'gform_enable_toolbar_menu', (bool) $value );
+
+							return $value;
+						},
 					),
 				),
-			),
-			array(
+        );
+
+		$fields['dashboard_widget'] = array(
+				'id'          => 'section_enable_dashboard_widget',
+				'title'       => esc_html__( 'Dashboard Widget', 'gravityforms' ),
+				'description' => esc_html__( 'Turn on to enable the Gravity Forms dashboard widget. The dashboard widget displays a list of forms and the number of entries each form has.', 'gravityforms' ),
+				'class'       => 'gform-settings-panel--half',
+				'fields'      => array(
+					array(
+						'name'          => 'enable_dashboard_widget',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'Enable Dashboard Widget', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'gform_enable_dashboard_widget', $value );
+
+							return $value;
+						},
+						'default_value' => self::get_dashboard_widget_default_value(),
+					),
+				),
+		);
+
+        $fields['background_updates'] = array(
 				'id'          => 'section_enable_background_updates',
 				'title'       => esc_html__( 'Automatic Background Updates', 'gravityforms' ),
 				'description' => esc_html__( 'Enable to allow Gravity Forms to download and install bug fixes and security updates automatically in the background. Requires a valid license key.', 'gravityforms' ),
 				'class'       => 'gform-settings-panel--half',
 				'fields'      => array(
 					array(
-						'name'         => 'enable_background_updates',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'Enable Automatic Background Updates', 'gravityforms' ),
+						'name'          => 'enable_background_updates',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'Enable Automatic Background Updates', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'gform_enable_background_updates', (bool) $value );
+
+							return $value;
+						},
 					),
 				),
-			),
-			array(
+			);
+
+        $fields['no_conflict_mode'] = array(
 				'id'          => 'section_conflict_mode',
 				'title'       => esc_html__( 'No Conflict Mode', 'gravityforms' ),
 				'description' => esc_html__( 'Enable to prevent extraneous scripts and styles from being printed on a Gravity Forms admin pages, reducing conflicts with other plugins and themes.', 'gravityforms' ),
 				'class'       => 'gform-settings-panel--half',
 				'fields'      => array(
 					array(
-						'name'         => 'enable_noconflict',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'No Conflict Mode', 'gravityforms' ),
+						'name'          => 'enable_noconflict',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'No Conflict Mode', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'gform_enable_noconflict', (bool) $value );
+
+							return $value;
+						},
 					),
 				),
-			),
-			array(
+			);
+
+        $fields['akismet'] = array(
 				'id'          => 'section_enable_akismet',
 				'title'       => esc_html__( 'Akismet Integration', 'gravityforms' ),
 				'description' => esc_html__( 'Protect your form entries from spam using Akismet.', 'gravityforms' ),
@@ -550,33 +686,116 @@ class GFSettings {
 						'type'          => 'toggle',
 						'toggle_label'  => esc_html__( 'Enable Akismet Integration', 'gravityforms' ),
 						'default_value' => true,
+						'save_callback' => function( $field, $value ) {
+							update_option( 'rg_gforms_enable_akismet', (bool) $value );
+
+							return $value;
+						},
 					),
 				),
-			),
-			array(
-				'id'            => 'section_enable_html5',
-				'title'         => esc_html__( 'Output HTML5', 'gravityforms' ),
-				'description'   => esc_html__( 'Gravity Forms outputs HTML5 form fields by default. Disable this option if you would like to prevent the plugin from outputting HTML5 form fields.', 'gravityforms' ),
+			);
+
+        $fields['telemetry'] = array(
+				'id'            => 'section_enable_telemetry_collection',
+				'title'         => esc_html__( 'Data Collection', 'gravityforms' ),
+				'description' => sprintf(
+					esc_html__( 'We love improving the form building experience for everyone in our community. By enabling data collection, you can help us learn more about how our customers use Gravity Forms. %1$sLearn more...%2$s','gravityforms'),
+					'<a target="_blank" href="https://docs.gravityforms.com/about-additional-data-collection/">',
+					'<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'gravityforms' ) . '</span>&nbsp;<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a>'
+				),
 				'class'         => 'gform-settings-panel--half',
-				'default_value' => true,
 				'fields'        => array(
 					array(
-						'name'         => 'enable_html5',
-						'type'         => 'toggle',
-						'toggle_label' => esc_html__( 'Output HTML5', 'gravityforms' ),
+						'name'          => 'rg_gforms_dataCollection',
+						'type'          => 'toggle',
+						'default_value' => get_option( 'rg_gforms_dataCollection', 0 ),
+						'toggle_label'  => esc_html__( 'Enable Data Collection', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'rg_gforms_dataCollection', (bool) $value ? 1 : 0 );
+
+							return $value;
+						},
 					),
 				),
-			),
-		);
+			);
 
+		/**
+		 * Allows forcing the display of the disable CSS setting.
+		 *
+		 * @since 2.8
+		 *
+		 * @param bool $gform_display_disable_css_setting Indicates if the disable CSS setting should be displayed or not.
+		 */
+		$gform_display_disable_css_setting = apply_filters( 'gform_display_disable_css_setting', (bool) get_option( 'rg_gforms_disable_css' ) );
+
+		if ( $gform_display_disable_css_setting ) {
+			$fields['css'] = array(
+				'id'          => 'section_default_css',
+				'title'       => esc_html__( 'Output Default CSS', 'gravityforms' ),
+				'description' => sprintf(
+						esc_html__( 'Enable this option to output the default form CSS. Disable it if you plan to create your own CSS in a child theme. Note: after Gravity Forms 2.8, this setting will no longer appear on the settings page. If you previously had it enabled, you will need to use the %sgform_disable_css%s filter to disable it.', 'gravityforms' ),
+						'<a href="https://docs.gravityforms.com/gform_disable_css/" target="_blank">',
+						'<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'gravityforms' ) . '</span>&nbsp;<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a>'
+						),
+
+				'class'       => 'gform-settings-panel--half',
+				'fields'      => array(
+					array(
+						'name'          => 'disable_css',
+						'type'          => 'toggle',
+						'toggle_label'  => esc_html__( 'Disable CSS', 'gravityforms' ),
+						'save_callback' => function( $field, $value ) {
+							update_option( 'rg_gforms_disable_css', ! (bool) $value );
+
+							return $value;
+						},
+					),
+				),
+			);
+		}
+
+		// Check if user has hidden license details in the installation wizard.
+		$hide_license_option = get_option( 'rg_gforms_' . GF_Setup_Wizard_Endpoint_Save_Prefs::PARAM_HIDE_LICENSE, false );
+
+		// Cast license option to bool.
+		if ( $hide_license_option === 'true' ) {
+			$hide_license_option = true;
+		}
+
+		if ( $hide_license_option === 'false' ) {
+			$hide_license_option = false;
+		}
+
+		$display_license_details = ! $hide_license_option;
+
+		/**
+		 * Allows display of the license details panel to be disabled.
+		 *
+		 * @since 2.5.17
+		 *
+		 * @param bool $display_license_details Indicates if the license details panel should be displayed.
+		 */
+		if ( ! apply_filters( 'gform_settings_display_license_details', $display_license_details ) ) {
+			unset( $fields['license_key_details'] );
+		}
+
+		/**
+		 * Allows the plugin settings fields to be overridden before they are displayed.
+		 *
+		 * @since 2.5.17
+		 *
+		 * @param array $fields The plugin settings fields.
+		 */
+		return array_values( apply_filters( 'gform_plugin_settings_fields', $fields ) );
 	}
 
 	public static function license_key_details_callback() {
-		$key          = GFCommon::get_key();
-		$empty_string = '<div class="gform-p-16">' . __( 'Please enter a valid license key to see details.', 'gravityforms' ) . '</div>';
+		$key             = GFCommon::get_key();
+		$empty_template  = '<div class="gform-p-16">%s</div>';
+		$invalid_message = sprintf( $empty_template, esc_html__( 'Please enter a valid license key to see details.', 'gravityforms' ) );
 
 		if ( empty( $key ) ) {
-			return $empty_string;
+			return $invalid_message;
 		}
 
 		/**
@@ -586,8 +805,13 @@ class GFSettings {
 		$license_info      = $license_connector->check_license( $key );
 
 		if ( ! $license_info->can_be_used() ) {
-			return $empty_string;
+			return $invalid_message;
+		} else if ( empty( $license_info->get_data_value( 'product_name' ) ) ) {
+			return sprintf( $empty_template, esc_html__( 'License details are not available at this time.', 'gravityforms' ) );
 		}
+
+		$cta              = $license_info->get_cta();
+		$days_left_header = $cta['type'] === 'text' ? __( 'Days Left', 'gravityforms' ) : '';
 
 		ob_start();
 		?>
@@ -598,14 +822,14 @@ class GFSettings {
 					<th scope="col"><?php esc_html_e( 'License Status', 'gravityforms' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Purchase Date', 'gravityforms' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'License Activations', 'gravityforms' ); ?></th>
-					<th scope="col"><?php esc_html_e( $license_info->renewal_text() ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Days Left', 'gravityforms' ); ?></th>
+					<th scope="col"><?php echo esc_html( $license_info->renewal_text() ); ?></th>
+					<th scope="col"><?php echo esc_html( $days_left_header ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td data-header="<?php esc_html_e( 'License Type', 'gravityforms' ); ?>">
-						<p><?php echo $license_info->get_data_value( 'product_name' ); ?></p>
+						<p><?php echo esc_html( trim( str_replace( 'Gravity Forms', '', $license_info->get_data_value( 'product_name' ) ) ) ); ?></p>
 					</td>
 					<td data-header="<?php esc_html_e( 'License Status', 'gravityforms' ); ?>">
 						<p>
@@ -613,46 +837,43 @@ class GFSettings {
 								$status_class = $license_info->display_as_valid() ? 'active' : 'error';
 								$status_label = $license_info->get_display_status();
 							?>
-							<span class="gform-status-indicator gform-status--<?php echo $status_class; ?> gform-status--static gform-status--no-icon">
-								<span class="gform-status-indicator-status"><?php echo esc_html( $status_label ); ?></span>
+							<span class="gform-status-indicator gform-status-indicator--size-sm gform-status-indicator--theme-cosmos gform-status--no-hover gform-status--static gform-status--no-icon gform-status--<?php echo esc_html( $status_class ); ?>">
+								<span class="gform-status-indicator-status gform-typography--weight-medium gform-typography--size-text-xs">
+									<?php echo esc_html( $status_label ); ?>
+								</span>
 							</span>
 						</p>
 					</td>
-					<td data-header="<?php _e( 'Purchase Date', 'gravityforms' ); ?>">
-						<p><?php echo gmdate( 'M d, Y', strtotime( $license_info->get_data_value('date_created' ) ) ); ?></p>
+					<td data-header="<?php esc_attr_e( 'Purchase Date', 'gravityforms' ); ?>">
+						<p><?php echo esc_html( gmdate( 'M d, Y', strtotime( $license_info->get_data_value( 'date_created' ) ) ) ); ?></p>
 					</td>
-					<td data-header="<?php _e( 'License Activations', 'gravityforms' ); ?>">
+					<td data-header="<?php esc_attr_e( 'License Activations', 'gravityforms' ); ?>">
 						<p>
 							<?php $activation_class = $license_info->max_seats_exceeded() ? 'gform-c-error-text' : ''; ?>
 							<span class="<?php echo esc_attr( $activation_class ); ?>">
-								<?php printf( '%s of %s', $license_info->get_data_value('active_sites' ), $license_info->get_data_value( 'max_sites' ) ); ?>
+								<?php echo esc_html( sprintf( '%s of %s', $license_info->get_data_value( 'active_sites' ), $license_info->get_data_value( 'max_sites' ) ) ); ?>
 							</span>
 						</p>
 					</td>
-					<td data-header="<?php esc_html_e( $license_info->renewal_text() ); ?>">
-						<p>
-							<?php if ( $license_info->has_expiration() ) : ?>
-								<?php echo gmdate( 'M d, Y', strtotime( $license_info->get_data_value('date_expires' ) ) ); ?>
-							<?php else: ?>
-								<?php _e( 'Does not expire', 'gravityforms' ); ?>
-							<?php endif; ?>
-						</p>
+					<td data-header="<?php echo esc_attr( $license_info->renewal_text() ); ?>">
+						<p><?php echo esc_html( $license_info->renewal_date() ); ?></p>
 					</td>
-					<td data-header="<?php _e( 'Days Left', 'gravityforms' ); ?>">
+					<td data-header="<?php echo esc_attr( $days_left_header ); ?>">
 						<p>
-							<?php $cta = $license_info->get_cta(); ?>
-							<?php if ( $license_info->cta_type() === 'button' ): ?>
+							<?php if ( $cta['type'] === 'button' ) : ?>
 								<a
 									class="gform-button gform-button--white gform-button--icon-leading gform-button--size-xs"
 									href="<?php echo esc_url( $cta['link'] ); ?>"
 									target="_blank"
 									rel="noopener"
 								>
-									<i class="gform-button__icon gform-icon gform-icon--<?php echo esc_attr( $cta['class'] ); ?>"></i>
+									<i class="gform-button__icon gform-icon gform-icon--<?php echo esc_attr( $cta['class'] ); ?>" aria-hidden="true"></i>
 									<?php echo esc_html( $cta['label'] ); ?>
+									<span class="screen-reader-text"><?php echo esc_html__( '(opens in a new tab)', 'gravityforms' ); ?></span>&nbsp;
+									<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span>
 								</a>
-							<?php else: ?>
-								<?php echo esc_html( $cta ); ?>
+							<?php elseif ( $cta['type'] === 'text' ) : ?>
+								<?php echo esc_html( $cta['content'] ); ?>
 							<?php endif; ?>
 						</p>
 					</td>
@@ -665,12 +886,12 @@ class GFSettings {
 	}
 
 	/**
-	* Callback to output any additional markup after the currency select markup.
-	*
-	* @since 2.5
-	*
-	* @return false|string
-	*/
+	 * Callback to output any additional markup after the currency select markup.
+	 *
+	 * @since 2.5
+	 *
+	 * @return false|string
+	 */
 	public static function currency_message_callback() {
 		// Start output buffer to capture any echoed output.
 		ob_start();
@@ -733,6 +954,27 @@ class GFSettings {
 	}
 
 	/**
+	 * Returns the default value for the dashboard widget setting.
+	 *
+	 * Sometimes we get a false positive as the default value, so we need to explicitly check if it is set to '1'.
+	 *
+	 * @since 2.9.8
+	 *
+	 * @return bool
+	 */
+	private static function get_dashboard_widget_default_value() {
+		$saved_value = get_option( 'gform_enable_dashboard_widget' );
+
+		// get_option() returns false if there is no value set
+		if ( false === $saved_value ) {
+			return true;
+		}
+
+		// the saved value will be either '1' or ''
+		return $saved_value;
+	}
+
+	/**
 	 * Initialize Plugin Settings fields renderer.
 	 *
 	 * @since 2.5
@@ -743,9 +985,9 @@ class GFSettings {
 
 		$initial_values = array(
 			'license_key'               => GFCommon::get_key(),
+			'default_theme'             => get_option( 'rg_gforms_default_theme', 'gravity-theme' ),
 			'currency'                  => GFCommon::get_currency(),
 			'disable_css'               => ! (bool) get_option( 'rg_gforms_disable_css' ),
-			'enable_html5'              => (bool) get_option( 'rg_gforms_enable_html5', false ),
 			'enable_noconflict'         => (bool) get_option( 'gform_enable_noconflict' ),
 			'enable_akismet'            => (bool) get_option( 'rg_gforms_enable_akismet', true ),
 			'enable_background_updates' => (bool) get_option( 'gform_enable_background_updates' ),
@@ -764,43 +1006,7 @@ class GFSettings {
 				'capability'        => 'gravityforms_edit_settings',
 				'initial_values'    => $initial_values,
 				'save_callback'     => function( $values ) {
-
-					// License key.
-					if ( isset( $_POST['_gform_setting_license_key'] ) ) {
-						GFFormsModel::save_key( rgar( $values, 'license_key' ) );
-					}
-
 					GFCommon::cache_remote_message();
-
-					// Disable CSS.
-					update_option( 'rg_gforms_disable_css', ! (bool) rgar( $values, 'disable_css' ) );
-
-					// Enable HTML5.
-					$html5_value = (bool) rgar( $values, 'enable_html5' ) ? 1 : 0;
-					update_option( 'rg_gforms_enable_html5', $html5_value );
-
-					// Enable No-Conflict.
-					update_option( 'gform_enable_noconflict', (bool) rgar( $values, 'enable_noconflict' ) );
-
-					// Enable Akismet.
-					update_option( 'rg_gforms_enable_akismet', (bool) rgar( $values, 'enable_akismet' ) );
-
-					// Currency.
-					update_option( 'rg_gforms_currency', rgar( $values, 'currency' ) );
-
-					// Background updates.
-					update_option( 'gform_enable_background_updates', (bool) rgar( $values, 'enable_background_updates' ) );
-
-					// Toolbar.
-					update_option( 'gform_enable_toolbar_menu', (bool) rgar( $values, 'enable_toolbar' ) );
-
-					// Logging.
-					if ( (bool) rgar( $values, 'enable_logging' ) ) {
-						GFSettings::enable_logging();
-					} else {
-						GFSettings::disable_logging();
-					}
-
 				},
 			)
 		);
@@ -863,11 +1069,12 @@ class GFSettings {
 						'id'          => 'recpatcha',
 						'title'       => esc_html__( 'reCAPTCHA Settings', 'gravityforms' ),
 						'description' => sprintf(
-							'%s <strong>%s</strong> %s <a href="http://www.google.com/recaptcha/" target="_blank">%s</a>',
+							'%s <strong>%s</strong> %s <a href="https://www.google.com/recaptcha/admin/create" target="_blank">%s<span class="screen-reader-text">%s</span>&nbsp;<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a>',
 							esc_html__( 'Gravity Forms integrates with reCAPTCHA, a free CAPTCHA service that uses an advanced risk analysis engine and adaptive challenges to keep automated software from engaging in abusive activities on your site. ', 'gravityforms' ),
 							esc_html__( 'Please note, only v2 keys are supported and checkbox keys are not compatible with invisible reCAPTCHA.', 'gravityforms' ),
 							esc_html__( 'These settings are required only if you decide to use the reCAPTCHA field.', 'gravityforms' ),
-							esc_html__( 'Read more about reCAPTCHA.', 'gravityforms' )
+							esc_html__( 'Get your reCAPTCHA Keys.', 'gravityforms' ),
+							esc_html__( '(opens in a new tab)', 'gravityforms' )
 						),
 						'class'       => 'gform-settings-panel--full',
 						'fields'      => array(
@@ -987,7 +1194,7 @@ class GFSettings {
 				},
 				'after_fields'      => function() {
 					echo '<script src="https://www.google.com/recaptcha/api.js" async defer></script>';
-					printf( '<script type="text/javascript" src="%s"></script>', GFCommon::get_base_url() . '/js/plugin_settings.js' );
+					printf( '<script type="text/javascript" src="%s"></script>', esc_url( GFCommon::get_base_url() . '/js/plugin_settings.js' ) );
 				},
 			)
 		);
@@ -1088,7 +1295,6 @@ class GFSettings {
 			'Content-Type'   => 'application/x-www-form-urlencoded; charset=' . get_option( 'blog_charset' ),
 			'Content-Length' => strlen( $body ),
 			'User-Agent'     => 'WordPress/' . get_bloginfo( 'version' ),
-			'Referer'        => get_bloginfo( 'url' ),
 		);
 
 		$raw_response = GFCommon::post_to_manager( 'api.php', 'op=upgrade_message&key=' . GFCommon::get_key(), $options );
@@ -1104,7 +1310,7 @@ class GFSettings {
 			$message = '';
 		}
 
-		echo $message;
+		echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		exit;
 	}
@@ -1143,20 +1349,25 @@ class GFSettings {
 		if ( rgpost( 'uninstall_addon' ) ) {
 			check_admin_referer( 'uninstall', 'gf_addon_uninstall' );
 			foreach ( self::$addon_pages as $key => $addon ) {
-				if ( $_POST['addon'] == $addon['tab_label'] ) {
+				if ( rgpost( 'addon' ) == $addon['tab_label'] ) {
 					unset( self::$addon_pages[ $key ] );
 					break;
 				}
 			}
 
 			// Set the uninstalled addon variable to display a success message.
-			self::$uninstalled_addon = $_POST['addon'];
+			self::$uninstalled_addon = rgpost( 'addon' );
 		}
 
 		if ( ! empty( self::$addon_pages ) ) {
 
 			$sorted_addons = self::$addon_pages;
-			asort( $sorted_addons );
+			usort(
+				$sorted_addons,
+				function ( $a, $b ) {
+					return strnatcasecmp( $a['tab_label'], $b['tab_label'] );
+				}
+			);
 
 			// Add add-ons to menu
 			foreach ( $sorted_addons as $sorted_addon ) {
@@ -1171,7 +1382,11 @@ class GFSettings {
 
 		// Prevent Uninstall tab from being added for users that don't have gravityforms_uninstall capability.
 		if ( GFCommon::current_user_can_uninstall() ) {
-			$setting_tabs[] = array( 'name' => 'uninstall', 'label' => __( 'Uninstall', 'gravityforms' ), 'icon' => 'gform-icon--trash' );
+			$setting_tabs[] = array(
+				'name'  => 'uninstall',
+				'label' => __( 'Uninstall', 'gravityforms' ),
+				'icon'  => 'gform-icon--trash',
+			);
 		}
 
 		/**
@@ -1184,7 +1399,7 @@ class GFSettings {
 		$setting_tabs = apply_filters( 'gform_settings_menu', $setting_tabs );
 		ksort( $setting_tabs, SORT_NUMERIC );
 
-		// Kind of boring having to pass the title, optionally get it from the settings tab
+		// Kind of boring having to pass the title, optionally get it from the settings tab.
 		if ( ! $title ) {
 			foreach ( $setting_tabs as $tab ) {
 				if ( $tab['name'] == urlencode( $current_tab ) ) {
@@ -1195,16 +1410,16 @@ class GFSettings {
 
 		?>
 
-		<div class="<?php echo GFCommon::get_browser_class() ?>">
+		<div class="<?php echo esc_attr( GFCommon::get_browser_class() ); ?>">
 
 			<?php
 			self::page_header_bar();
-			echo GFCommon::get_remote_message();
+			echo GFCommon::get_remote_message(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			GFCommon::notices_section();
 			?>
 
 			<?php if ( $message ) { ?>
-				<div id="message" class="updated"><p><?php echo $message; ?></p></div>
+				<div id="message" class="updated"><p><?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div>
 			<?php } ?>
 
 			<div class="gform-settings__wrapper">
@@ -1222,10 +1437,10 @@ class GFSettings {
 						$icon_markup = GFCommon::get_icon_markup( $tab, 'gform-icon--cog' );
 
 						printf(
-							'<a href="%s"%s><span class="icon">%s</span> <span class="label">%s</span></a>',
+							'<a href="%s" %s><span class="icon">%s</span> <span class="label">%s</span></a>',
 							esc_url( $url ),
 							$current_tab === $tab['name'] ? ' class="active"' : '',
-							$icon_markup,
+							$icon_markup, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							esc_html( $tab['label'] )
 						);
 					}
@@ -1234,7 +1449,7 @@ class GFSettings {
 
 				<div class="gform-settings__content" id="tab_<?php echo esc_attr( $current_tab ); ?>">
 
-	<?php
+		<?php
 	}
 
 	/**
@@ -1245,7 +1460,7 @@ class GFSettings {
 	public static function page_header_bar() {
 		?>
 
-		<div class="wrap <?php echo GFCommon::get_browser_class(); ?>">
+		<div class="wrap <?php echo esc_attr( GFCommon::get_browser_class() ); ?>">
 
 		<?php
 		GFCommon::gf_header();
@@ -1261,7 +1476,7 @@ class GFSettings {
 	 * @return void
 	 */
 	public static function page_footer() {
-					?>
+		?>
 				</div>
 				<!-- / gform-settings__content -->
 			</div>
@@ -1269,7 +1484,7 @@ class GFSettings {
 
 		</div> <!-- / wrap -->
 
-	<?php
+		<?php
 	}
 
 	/**
@@ -1282,7 +1497,7 @@ class GFSettings {
 	 */
 	public static function get_subview() {
 
-		// Default to subview, if no subview provided support
+		// Default to subview, if no subview provided support.
 		$subview = rgget( 'subview' ) ? rgget( 'subview' ) : rgget( 'addon' );
 
 		if ( ! $subview ) {
@@ -1308,9 +1523,9 @@ class GFSettings {
 
 		$akismet_setting = rgpost( 'gforms_enable_akismet' );
 
-		if( $akismet_setting ) {
+		if ( $akismet_setting ) {
 			$akismet_setting = '1';
-		} elseif( $akismet_setting === false ) {
+		} elseif ( $akismet_setting === false ) {
 			$akismet_setting = false;
 		} else {
 			$akismet_setting = '0';
@@ -1347,7 +1562,7 @@ class GFSettings {
 				null
 			);
 
-			// Enabling all loggers by default
+			// Enabling all loggers by default.
 			gf_logging()->enable_all_loggers();
 
 		}

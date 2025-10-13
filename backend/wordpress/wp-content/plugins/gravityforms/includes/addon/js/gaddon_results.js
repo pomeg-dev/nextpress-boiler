@@ -22,6 +22,15 @@ var gresults = {
             }
             chart.draw(data, options);
         });
+
+		// For RTL languages, set the text-anchor of bar chart labels to "start" to keep proper alignment.
+		const isRTL   = document.documentElement.dir === 'rtl';
+		const isResultsWrapper = document.querySelector('.gresults-chart-wrapper svg')
+		if (isResultsWrapper && isRTL) {
+			document.querySelectorAll('text[text-anchor="end"]').forEach(function(el) {
+				el.setAttribute('text-anchor', 'start');
+			})
+		}
     },
 
     renderStateData: function (state) {
@@ -50,7 +59,6 @@ var gresults = {
     sendRequest: function (gresultsData, serverStateObject, checkSum) {
         var results = jQuery("#gresults-results");
         var filterButtons = jQuery("#gresults-results-filter-buttons input");
-        var loading = jQuery(".gresults-filter-loading");
         var viewSlug = jQuery("#gresults-view-slug").val();
 		var nonce = jQuery("#_gf_results_nonce").val()
         var data_str = "action=gresults_get_results_" + viewSlug + "&" + gresultsData + '&_gf_results_nonce' + nonce ;
@@ -65,18 +73,18 @@ var gresults = {
             beforeSend: function (xhr, opts) {
                 results.fadeTo("slow", 0.33);
                 results.html('');
-                loading.show();
+                gform.utils.trigger( { event: 'gform/page_loader/show' } );
                 filterButtons.attr('disabled', 'disabled');
             }
         })
         .done(function (response) {
             if (!response || response === -1) {
-                loading.hide();
+                gform.utils.trigger( { event: 'gform/page_loader/hide' } );
                 results.html(gresultsStrings.ajaxError);
             } else {
                 if (response.status === "complete") {
                     filterButtons.removeAttr('disabled');
-                    loading.hide();
+                    gform.utils.trigger( { event: 'gform/page_loader/hide' } );
                     results.html(response.html);
                     jQuery("#gresults-results").data('searchcriteria', response.searchCriteria); //used in 'more' links
 
@@ -99,7 +107,7 @@ var gresults = {
                     gresults.sendRequest(gresultsData, serverStateObject, response.checkSum);
                     results.html(response.html);
                 } else {
-                    loading.hide();
+                    gform.utils.trigger( { event: 'gform/page_loader/hide' } );
                     results.html(gresultsStrings.ajaxError);
                 }
             }
@@ -108,7 +116,7 @@ var gresults = {
             filterButtons.removeAttr('disabled');
             results.fadeTo("fast", 1);
             var msg = error.statusText;
-            loading.hide();
+            gform.utils.trigger( { event: 'gform/page_loader/hide' } );
             if (msg == "abort") {
                 msg = "Request cancelled";
             } else {

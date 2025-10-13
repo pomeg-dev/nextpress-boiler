@@ -12,7 +12,7 @@
 # This file is distributed under the same license as Advanced Custom Fields.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-01-21T10:45:54+00:00\n"
+"PO-Revision-Date: 2025-10-06T21:27:19+00:00\n"
 "Report-Msgid-Bugs-To: http://support.advancedcustomfields.com\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,112 @@ msgstr ""
 "X-Generator: gettext\n"
 "Project-Id-Version: Advanced Custom Fields\n"
 
-#: includes/class-acf-site-health.php:291
+#: includes/admin/tools/class-acf-admin-tool-import.php:61
+msgid ""
+"Import JSON containing field groups, post types, or taxonomies (trusted "
+"sources only)"
+msgstr ""
+
+#: includes/admin/tools/class-acf-admin-tool-import.php:55
+msgid "Select JSON File"
+msgstr ""
+
+#: includes/admin/tools/class-acf-admin-tool-import.php:47
+msgid ""
+"Choose an ACF JSON file to import. Use only files from trusted sources, then "
+"click Import."
+msgstr ""
+
+#: includes/fields/class-acf-field-date_picker.php:235
+#: includes/fields/class-acf-field-date_time_picker.php:222
+msgid "Use the current date as the default value for this field."
+msgstr ""
+
+#: includes/fields/class-acf-field-date_picker.php:234
+#: includes/fields/class-acf-field-date_time_picker.php:221
+msgid "Default to the current date"
+msgstr ""
+
+#: includes/assets.php:363
+msgid "Toggle panel"
+msgstr ""
+
+#. translators: %1$s - Plugin name, %2$s URL to documentation
+#: includes/admin/admin.php:302
+msgid ""
+"%1$s We have detected that this website is configured to use v3 of the "
+"Select2 jQuery library, which has been deprecated in favor of v4 and will be "
+"removed in a future version of ACF. <a href=\"%2$s\" target=\"_blank\">Learn "
+"more</a>."
+msgstr ""
+
+#: includes/fields/class-acf-field-select.php:471
+msgid ""
+"Save created options back to the \"Choices\" setting in the field definition."
+msgstr ""
+
+#: includes/fields/class-acf-field-select.php:470
+msgid "Save Options"
+msgstr ""
+
+#: includes/fields/class-acf-field-select.php:448
+msgid ""
+"Allow content editors to create new options by typing in the Select input. "
+"Multiple options can be created from a comma separated string."
+msgstr ""
+
+#: includes/fields/class-acf-field-select.php:447
+msgid "Create Options"
+msgstr ""
+
+#: includes/admin/views/global/navigation.php:179
+#: includes/admin/views/global/navigation.php:183
+msgid "Edit ACF Field Groups"
+msgstr ""
+
+#: includes/admin/views/global/navigation.php:100
+msgid "Get 4 months free on any WP Engine plan"
+msgstr ""
+
+#: src/Site_Health/Site_Health.php:528
+msgid "Number of Field Groups with Blocks and Other Locations"
+msgstr ""
+
+#: src/Site_Health/Site_Health.php:523
+msgid "Number of Field Groups with Multiple Block Locations"
+msgstr ""
+
+#: src/Site_Health/Site_Health.php:518
+msgid "Number of Field Groups with a Single Block Location"
+msgstr ""
+
+#: src/Site_Health/Site_Health.php:487
+msgid "All Location Rules"
+msgstr ""
+
+#: includes/validation.php:145
+msgid "Learn more"
+msgstr ""
+
+#: includes/validation.php:134
+msgid ""
+"ACF was unable to perform validation because the provided nonce failed "
+"verification."
+msgstr ""
+
+#: includes/validation.php:132
+msgid ""
+"ACF was unable to perform validation because no nonce was received by the "
+"server."
+msgstr ""
+
+#. translators: This text is prepended by a link to ACF's website, and appended
+#. by a link to WP Engine's website.
+#: includes/admin/admin.php:348
+msgid "are developed and maintained by"
+msgstr ""
+
+#: src/Site_Health/Site_Health.php:295
 msgid "Update Source"
 msgstr ""
 
@@ -53,39 +158,33 @@ msgid ""
 "without access to any superglobals like $_POST or $_GET."
 msgstr ""
 
-#: includes/class-acf-site-health.php:292
+#: src/Site_Health/Site_Health.php:296
 msgid "wordpress.org"
 msgstr "wordpress.org"
 
-#: includes/validation.php:136
-msgid ""
-"ACF was unable to perform validation due to an invalid security nonce being "
-"provided."
-msgstr ""
-
-#: includes/fields/class-acf-field.php:359
+#: includes/fields/class-acf-field.php:364
 msgid "Allow Access to Value in Editor UI"
 msgstr ""
 
-#: includes/fields/class-acf-field.php:341
+#: includes/fields/class-acf-field.php:346
 msgid "Learn more."
 msgstr "Дізнатись більше."
 
 #. translators: %s A "Learn More" link to documentation explaining the setting
 #. further.
-#: includes/fields/class-acf-field.php:340
+#: includes/fields/class-acf-field.php:345
 msgid ""
 "Allow content editors to access and display the field value in the editor UI "
 "using Block Bindings or the ACF Shortcode. %s"
 msgstr ""
 
-#: includes/Blocks/Bindings.php:64
+#: src/Blocks/Bindings.php:67
 msgid ""
 "The requested ACF field type does not support output in Block Bindings or "
 "the ACF shortcode."
 msgstr ""
 
-#: includes/api/api-template.php:1085 includes/Blocks/Bindings.php:72
+#: includes/api/api-template.php:1085 src/Blocks/Bindings.php:75
 msgid ""
 "The requested ACF field is not allowed to be output in bindings or the ACF "
 "Shortcode."
@@ -105,668 +204,668 @@ msgstr ""
 msgid "[The ACF shortcode is disabled on this site]"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:451
+#: includes/fields/class-acf-field-icon_picker.php:483
 msgid "Businessman Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:443
+#: includes/fields/class-acf-field-icon_picker.php:475
 msgid "Forums Icon"
 msgstr "Іконка Форуми"
 
-#: includes/fields/class-acf-field-icon_picker.php:722
+#: includes/fields/class-acf-field-icon_picker.php:754
 msgid "YouTube Icon"
 msgstr "Іконка YouTube"
 
-#: includes/fields/class-acf-field-icon_picker.php:721
+#: includes/fields/class-acf-field-icon_picker.php:753
 msgid "Yes (alt) Icon"
 msgstr "Іконка Так (alt)"
 
-#: includes/fields/class-acf-field-icon_picker.php:719
+#: includes/fields/class-acf-field-icon_picker.php:751
 msgid "Xing Icon"
 msgstr "Іконка Xing"
 
-#: includes/fields/class-acf-field-icon_picker.php:718
+#: includes/fields/class-acf-field-icon_picker.php:750
 msgid "WordPress (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:716
+#: includes/fields/class-acf-field-icon_picker.php:748
 msgid "WhatsApp Icon"
 msgstr "Іконка WhatsApp"
 
-#: includes/fields/class-acf-field-icon_picker.php:715
+#: includes/fields/class-acf-field-icon_picker.php:747
 msgid "Write Blog Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:714
+#: includes/fields/class-acf-field-icon_picker.php:746
 msgid "Widgets Menus Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:713
+#: includes/fields/class-acf-field-icon_picker.php:745
 msgid "View Site Icon"
 msgstr "Переглянути іконку сайту"
 
-#: includes/fields/class-acf-field-icon_picker.php:712
+#: includes/fields/class-acf-field-icon_picker.php:744
 msgid "Learn More Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:710
+#: includes/fields/class-acf-field-icon_picker.php:742
 msgid "Add Page Icon"
 msgstr "Додати іконку сторінки"
 
-#: includes/fields/class-acf-field-icon_picker.php:707
+#: includes/fields/class-acf-field-icon_picker.php:739
 msgid "Video (alt3) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:706
+#: includes/fields/class-acf-field-icon_picker.php:738
 msgid "Video (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:705
+#: includes/fields/class-acf-field-icon_picker.php:737
 msgid "Video (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:702
+#: includes/fields/class-acf-field-icon_picker.php:734
 msgid "Update (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:699
+#: includes/fields/class-acf-field-icon_picker.php:731
 msgid "Universal Access (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:696
+#: includes/fields/class-acf-field-icon_picker.php:728
 msgid "Twitter (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:694
+#: includes/fields/class-acf-field-icon_picker.php:726
 msgid "Twitch Icon"
 msgstr "Іконка Twitch"
 
-#: includes/fields/class-acf-field-icon_picker.php:691
+#: includes/fields/class-acf-field-icon_picker.php:723
 msgid "Tide Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:690
+#: includes/fields/class-acf-field-icon_picker.php:722
 msgid "Tickets (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:686
+#: includes/fields/class-acf-field-icon_picker.php:718
 msgid "Text Page Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:680
+#: includes/fields/class-acf-field-icon_picker.php:712
 msgid "Table Row Delete Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:679
+#: includes/fields/class-acf-field-icon_picker.php:711
 msgid "Table Row Before Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:678
+#: includes/fields/class-acf-field-icon_picker.php:710
 msgid "Table Row After Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:677
+#: includes/fields/class-acf-field-icon_picker.php:709
 msgid "Table Col Delete Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:676
+#: includes/fields/class-acf-field-icon_picker.php:708
 msgid "Table Col Before Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:675
+#: includes/fields/class-acf-field-icon_picker.php:707
 msgid "Table Col After Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:674
+#: includes/fields/class-acf-field-icon_picker.php:706
 msgid "Superhero (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:673
+#: includes/fields/class-acf-field-icon_picker.php:705
 msgid "Superhero Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:667
+#: includes/fields/class-acf-field-icon_picker.php:699
 msgid "Spotify Icon"
 msgstr "Іконка Spotify"
 
-#: includes/fields/class-acf-field-icon_picker.php:661
+#: includes/fields/class-acf-field-icon_picker.php:693
 msgid "Shortcode Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:660
+#: includes/fields/class-acf-field-icon_picker.php:692
 msgid "Shield (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:658
+#: includes/fields/class-acf-field-icon_picker.php:690
 msgid "Share (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:657
+#: includes/fields/class-acf-field-icon_picker.php:689
 msgid "Share (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:652
+#: includes/fields/class-acf-field-icon_picker.php:684
 msgid "Saved Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:651
+#: includes/fields/class-acf-field-icon_picker.php:683
 msgid "RSS Icon"
 msgstr "Іконка RSS"
 
-#: includes/fields/class-acf-field-icon_picker.php:650
+#: includes/fields/class-acf-field-icon_picker.php:682
 msgid "REST API Icon"
 msgstr "REST API Іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:649
+#: includes/fields/class-acf-field-icon_picker.php:681
 msgid "Remove Icon"
 msgstr "Видалити іконку"
 
-#: includes/fields/class-acf-field-icon_picker.php:647
+#: includes/fields/class-acf-field-icon_picker.php:679
 msgid "Reddit Icon"
 msgstr "Іконка Reddit"
 
-#: includes/fields/class-acf-field-icon_picker.php:644
+#: includes/fields/class-acf-field-icon_picker.php:676
 msgid "Privacy Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:643
+#: includes/fields/class-acf-field-icon_picker.php:675
 msgid "Printer Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:639
+#: includes/fields/class-acf-field-icon_picker.php:671
 msgid "Podio Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:638
+#: includes/fields/class-acf-field-icon_picker.php:670
 msgid "Plus (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:637
+#: includes/fields/class-acf-field-icon_picker.php:669
 msgid "Plus (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:635
+#: includes/fields/class-acf-field-icon_picker.php:667
 msgid "Plugins Checked Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:632
+#: includes/fields/class-acf-field-icon_picker.php:664
 msgid "Pinterest Icon"
 msgstr "Іконка Pinterest"
 
-#: includes/fields/class-acf-field-icon_picker.php:630
+#: includes/fields/class-acf-field-icon_picker.php:662
 msgid "Pets Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:628
+#: includes/fields/class-acf-field-icon_picker.php:660
 msgid "PDF Icon"
 msgstr "PDF - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:626
+#: includes/fields/class-acf-field-icon_picker.php:658
 msgid "Palm Tree Icon"
 msgstr "Пальма - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:625
+#: includes/fields/class-acf-field-icon_picker.php:657
 msgid "Open Folder Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:624
+#: includes/fields/class-acf-field-icon_picker.php:656
 msgid "No (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:619
+#: includes/fields/class-acf-field-icon_picker.php:651
 msgid "Money (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:614
+#: includes/fields/class-acf-field-icon_picker.php:646
 msgid "Menu (alt3) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:613
+#: includes/fields/class-acf-field-icon_picker.php:645
 msgid "Menu (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:612
+#: includes/fields/class-acf-field-icon_picker.php:644
 msgid "Menu (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:607
+#: includes/fields/class-acf-field-icon_picker.php:639
 msgid "Spreadsheet Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:606
+#: includes/fields/class-acf-field-icon_picker.php:638
 msgid "Interactive Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:605
+#: includes/fields/class-acf-field-icon_picker.php:637
 msgid "Document Icon"
 msgstr "Іконка документа"
 
-#: includes/fields/class-acf-field-icon_picker.php:604
+#: includes/fields/class-acf-field-icon_picker.php:636
 msgid "Default Icon"
 msgstr "Початкова іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:598
+#: includes/fields/class-acf-field-icon_picker.php:630
 msgid "Location (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:595
+#: includes/fields/class-acf-field-icon_picker.php:627
 msgid "LinkedIn Icon"
 msgstr "Іконка LinkedIn"
 
-#: includes/fields/class-acf-field-icon_picker.php:590
+#: includes/fields/class-acf-field-icon_picker.php:622
 msgid "Instagram Icon"
 msgstr "Іконка Instagram"
 
-#: includes/fields/class-acf-field-icon_picker.php:589
+#: includes/fields/class-acf-field-icon_picker.php:621
 msgid "Insert Before Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:588
+#: includes/fields/class-acf-field-icon_picker.php:620
 msgid "Insert After Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:587
+#: includes/fields/class-acf-field-icon_picker.php:619
 msgid "Insert Icon"
 msgstr "Вставити іконку"
 
-#: includes/fields/class-acf-field-icon_picker.php:586
+#: includes/fields/class-acf-field-icon_picker.php:618
 msgid "Info Outline Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:583
+#: includes/fields/class-acf-field-icon_picker.php:615
 msgid "Images (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:582
+#: includes/fields/class-acf-field-icon_picker.php:614
 msgid "Images (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:581
+#: includes/fields/class-acf-field-icon_picker.php:613
 msgid "Rotate Right Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:580
+#: includes/fields/class-acf-field-icon_picker.php:612
 msgid "Rotate Left Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:579
+#: includes/fields/class-acf-field-icon_picker.php:611
 msgid "Rotate Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:578
+#: includes/fields/class-acf-field-icon_picker.php:610
 msgid "Flip Vertical Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:577
+#: includes/fields/class-acf-field-icon_picker.php:609
 msgid "Flip Horizontal Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:575
+#: includes/fields/class-acf-field-icon_picker.php:607
 msgid "Crop Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:574
+#: includes/fields/class-acf-field-icon_picker.php:606
 msgid "ID (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:572
+#: includes/fields/class-acf-field-icon_picker.php:604
 msgid "HTML Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:571
+#: includes/fields/class-acf-field-icon_picker.php:603
 msgid "Hourglass Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:568
+#: includes/fields/class-acf-field-icon_picker.php:600
 msgid "Heading Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:564
+#: includes/fields/class-acf-field-icon_picker.php:596
 msgid "Google Icon"
 msgstr "Google - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:563
+#: includes/fields/class-acf-field-icon_picker.php:595
 msgid "Games Icon"
 msgstr "Ігри - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:562
+#: includes/fields/class-acf-field-icon_picker.php:594
 msgid "Fullscreen Exit (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:561
+#: includes/fields/class-acf-field-icon_picker.php:593
 msgid "Fullscreen (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:558
+#: includes/fields/class-acf-field-icon_picker.php:590
 msgid "Status Icon"
 msgstr "Статус - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:556
+#: includes/fields/class-acf-field-icon_picker.php:588
 msgid "Image Icon"
 msgstr "Іконка зображення"
 
-#: includes/fields/class-acf-field-icon_picker.php:555
+#: includes/fields/class-acf-field-icon_picker.php:587
 msgid "Gallery Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:554
+#: includes/fields/class-acf-field-icon_picker.php:586
 msgid "Chat Icon"
 msgstr "Чат- іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:553
-#: includes/fields/class-acf-field-icon_picker.php:602
+#: includes/fields/class-acf-field-icon_picker.php:585
+#: includes/fields/class-acf-field-icon_picker.php:634
 msgid "Audio Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:552
+#: includes/fields/class-acf-field-icon_picker.php:584
 msgid "Aside Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:551
+#: includes/fields/class-acf-field-icon_picker.php:583
 msgid "Food Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:544
+#: includes/fields/class-acf-field-icon_picker.php:576
 msgid "Exit Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:543
+#: includes/fields/class-acf-field-icon_picker.php:575
 msgid "Excerpt View Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:542
+#: includes/fields/class-acf-field-icon_picker.php:574
 msgid "Embed Video Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:541
+#: includes/fields/class-acf-field-icon_picker.php:573
 msgid "Embed Post Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:540
+#: includes/fields/class-acf-field-icon_picker.php:572
 msgid "Embed Photo Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:539
+#: includes/fields/class-acf-field-icon_picker.php:571
 msgid "Embed Generic Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:538
+#: includes/fields/class-acf-field-icon_picker.php:570
 msgid "Embed Audio Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:537
+#: includes/fields/class-acf-field-icon_picker.php:569
 msgid "Email (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:534
+#: includes/fields/class-acf-field-icon_picker.php:566
 msgid "Ellipsis Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:530
+#: includes/fields/class-acf-field-icon_picker.php:562
 msgid "Unordered List Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:525
+#: includes/fields/class-acf-field-icon_picker.php:557
 msgid "RTL Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:518
+#: includes/fields/class-acf-field-icon_picker.php:550
 msgid "Ordered List RTL Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:517
+#: includes/fields/class-acf-field-icon_picker.php:549
 msgid "Ordered List Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:516
+#: includes/fields/class-acf-field-icon_picker.php:548
 msgid "LTR Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:508
+#: includes/fields/class-acf-field-icon_picker.php:540
 msgid "Custom Character Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:500
+#: includes/fields/class-acf-field-icon_picker.php:532
 msgid "Edit Page Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:499
+#: includes/fields/class-acf-field-icon_picker.php:531
 msgid "Edit Large Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:497
+#: includes/fields/class-acf-field-icon_picker.php:529
 msgid "Drumstick Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:493
+#: includes/fields/class-acf-field-icon_picker.php:525
 msgid "Database View Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:492
+#: includes/fields/class-acf-field-icon_picker.php:524
 msgid "Database Remove Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:491
+#: includes/fields/class-acf-field-icon_picker.php:523
 msgid "Database Import Icon"
 msgstr "Іконка імпорту бази даних"
 
-#: includes/fields/class-acf-field-icon_picker.php:490
+#: includes/fields/class-acf-field-icon_picker.php:522
 msgid "Database Export Icon"
 msgstr "Іконка експорту бази даних"
 
-#: includes/fields/class-acf-field-icon_picker.php:489
+#: includes/fields/class-acf-field-icon_picker.php:521
 msgid "Database Add Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:488
+#: includes/fields/class-acf-field-icon_picker.php:520
 msgid "Database Icon"
 msgstr "Іконка бази даних"
 
-#: includes/fields/class-acf-field-icon_picker.php:486
+#: includes/fields/class-acf-field-icon_picker.php:518
 msgid "Cover Image Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:485
+#: includes/fields/class-acf-field-icon_picker.php:517
 msgid "Volume On Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:484
+#: includes/fields/class-acf-field-icon_picker.php:516
 msgid "Volume Off Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:483
+#: includes/fields/class-acf-field-icon_picker.php:515
 msgid "Skip Forward Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:482
+#: includes/fields/class-acf-field-icon_picker.php:514
 msgid "Skip Back Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:481
+#: includes/fields/class-acf-field-icon_picker.php:513
 msgid "Repeat Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:480
+#: includes/fields/class-acf-field-icon_picker.php:512
 msgid "Play Icon"
 msgstr "Іконка програти"
 
-#: includes/fields/class-acf-field-icon_picker.php:479
+#: includes/fields/class-acf-field-icon_picker.php:511
 msgid "Pause Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:478
+#: includes/fields/class-acf-field-icon_picker.php:510
 msgid "Forward Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:477
+#: includes/fields/class-acf-field-icon_picker.php:509
 msgid "Back Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:476
+#: includes/fields/class-acf-field-icon_picker.php:508
 msgid "Columns Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:475
+#: includes/fields/class-acf-field-icon_picker.php:507
 msgid "Color Picker Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:474
+#: includes/fields/class-acf-field-icon_picker.php:506
 msgid "Coffee Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:473
+#: includes/fields/class-acf-field-icon_picker.php:505
 msgid "Code Standards Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:472
+#: includes/fields/class-acf-field-icon_picker.php:504
 msgid "Cloud Upload Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:471
+#: includes/fields/class-acf-field-icon_picker.php:503
 msgid "Cloud Saved Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:460
+#: includes/fields/class-acf-field-icon_picker.php:492
 msgid "Car Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:459
+#: includes/fields/class-acf-field-icon_picker.php:491
 msgid "Camera (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:455
+#: includes/fields/class-acf-field-icon_picker.php:487
 msgid "Calculator Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:454
+#: includes/fields/class-acf-field-icon_picker.php:486
 msgid "Button Icon"
 msgstr "Іконка кнопки"
 
-#: includes/fields/class-acf-field-icon_picker.php:452
+#: includes/fields/class-acf-field-icon_picker.php:484
 msgid "Businessperson Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:449
+#: includes/fields/class-acf-field-icon_picker.php:481
 msgid "Tracking Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:448
+#: includes/fields/class-acf-field-icon_picker.php:480
 msgid "Topics Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:447
+#: includes/fields/class-acf-field-icon_picker.php:479
 msgid "Replies Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:446
+#: includes/fields/class-acf-field-icon_picker.php:478
 msgid "PM Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:444
+#: includes/fields/class-acf-field-icon_picker.php:476
 msgid "Friends Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:442
+#: includes/fields/class-acf-field-icon_picker.php:474
 msgid "Community Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:441
+#: includes/fields/class-acf-field-icon_picker.php:473
 msgid "BuddyPress Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:440
+#: includes/fields/class-acf-field-icon_picker.php:472
 msgid "bbPress Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:439
+#: includes/fields/class-acf-field-icon_picker.php:471
 msgid "Activity Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:438
+#: includes/fields/class-acf-field-icon_picker.php:470
 msgid "Book (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:436
+#: includes/fields/class-acf-field-icon_picker.php:468
 msgid "Block Default Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:435
+#: includes/fields/class-acf-field-icon_picker.php:467
 msgid "Bell Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:434
+#: includes/fields/class-acf-field-icon_picker.php:466
 msgid "Beer Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:433
+#: includes/fields/class-acf-field-icon_picker.php:465
 msgid "Bank Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:429
+#: includes/fields/class-acf-field-icon_picker.php:461
 msgid "Arrow Up (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:428
+#: includes/fields/class-acf-field-icon_picker.php:460
 msgid "Arrow Up (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:426
+#: includes/fields/class-acf-field-icon_picker.php:458
 msgid "Arrow Right (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:425
+#: includes/fields/class-acf-field-icon_picker.php:457
 msgid "Arrow Right (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:423
+#: includes/fields/class-acf-field-icon_picker.php:455
 msgid "Arrow Left (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:422
+#: includes/fields/class-acf-field-icon_picker.php:454
 msgid "Arrow Left (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:420
+#: includes/fields/class-acf-field-icon_picker.php:452
 msgid "Arrow Down (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:419
+#: includes/fields/class-acf-field-icon_picker.php:451
 msgid "Arrow Down (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:415
+#: includes/fields/class-acf-field-icon_picker.php:447
 msgid "Amazon Icon"
 msgstr "Ікона Amazon"
 
-#: includes/fields/class-acf-field-icon_picker.php:414
+#: includes/fields/class-acf-field-icon_picker.php:446
 msgid "Align Wide Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:412
+#: includes/fields/class-acf-field-icon_picker.php:444
 msgid "Align Pull Right Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:411
+#: includes/fields/class-acf-field-icon_picker.php:443
 msgid "Align Pull Left Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:408
+#: includes/fields/class-acf-field-icon_picker.php:440
 msgid "Align Full Width Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:405
+#: includes/fields/class-acf-field-icon_picker.php:437
 msgid "Airplane Icon"
 msgstr "Іконка літака"
 
-#: includes/fields/class-acf-field-icon_picker.php:402
+#: includes/fields/class-acf-field-icon_picker.php:434
 msgid "Site (alt3) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:401
+#: includes/fields/class-acf-field-icon_picker.php:433
 msgid "Site (alt2) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:400
+#: includes/fields/class-acf-field-icon_picker.php:432
 msgid "Site (alt) Icon"
 msgstr ""
 
@@ -786,7 +885,7 @@ msgstr ""
 msgid "Sorry, you do not have permission to do that."
 msgstr ""
 
-#: includes/class-acf-site-health.php:648
+#: src/Site_Health/Site_Health.php:726
 msgid "Blocks Using Post Meta"
 msgstr ""
 
@@ -801,719 +900,719 @@ msgid "ACF PRO Logo"
 msgstr ""
 
 #. translators: %s - field/param name
-#: includes/fields/class-acf-field-icon_picker.php:788
+#: includes/fields/class-acf-field-icon_picker.php:820
 msgid "%s requires a valid attachment ID when type is set to media_library."
 msgstr ""
 
 #. translators: %s - field name
-#: includes/fields/class-acf-field-icon_picker.php:772
+#: includes/fields/class-acf-field-icon_picker.php:804
 msgid "%s is a required property of acf."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:748
+#: includes/fields/class-acf-field-icon_picker.php:780
 msgid "The value of icon to save."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:742
+#: includes/fields/class-acf-field-icon_picker.php:774
 msgid "The type of icon to save."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:720
+#: includes/fields/class-acf-field-icon_picker.php:752
 msgid "Yes Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:717
+#: includes/fields/class-acf-field-icon_picker.php:749
 msgid "WordPress Icon"
 msgstr "Іконка WordPress"
 
-#: includes/fields/class-acf-field-icon_picker.php:709
+#: includes/fields/class-acf-field-icon_picker.php:741
 msgid "Warning Icon"
 msgstr "Іконка попередження"
 
-#: includes/fields/class-acf-field-icon_picker.php:708
+#: includes/fields/class-acf-field-icon_picker.php:740
 msgid "Visibility Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:704
+#: includes/fields/class-acf-field-icon_picker.php:736
 msgid "Vault Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:703
+#: includes/fields/class-acf-field-icon_picker.php:735
 msgid "Upload Icon"
 msgstr "Завантажити Іконки"
 
-#: includes/fields/class-acf-field-icon_picker.php:701
+#: includes/fields/class-acf-field-icon_picker.php:733
 msgid "Update Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:700
+#: includes/fields/class-acf-field-icon_picker.php:732
 msgid "Unlock Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:698
+#: includes/fields/class-acf-field-icon_picker.php:730
 msgid "Universal Access Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:697
+#: includes/fields/class-acf-field-icon_picker.php:729
 msgid "Undo Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:695
+#: includes/fields/class-acf-field-icon_picker.php:727
 msgid "Twitter Icon"
 msgstr "Іконка X"
 
-#: includes/fields/class-acf-field-icon_picker.php:693
+#: includes/fields/class-acf-field-icon_picker.php:725
 msgid "Trash Icon"
 msgstr "Іконка кошика"
 
-#: includes/fields/class-acf-field-icon_picker.php:692
+#: includes/fields/class-acf-field-icon_picker.php:724
 msgid "Translation Icon"
 msgstr "Іконка перекладу"
 
-#: includes/fields/class-acf-field-icon_picker.php:689
+#: includes/fields/class-acf-field-icon_picker.php:721
 msgid "Tickets Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:688
+#: includes/fields/class-acf-field-icon_picker.php:720
 msgid "Thumbs Up Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:687
+#: includes/fields/class-acf-field-icon_picker.php:719
 msgid "Thumbs Down Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:608
-#: includes/fields/class-acf-field-icon_picker.php:685
+#: includes/fields/class-acf-field-icon_picker.php:640
+#: includes/fields/class-acf-field-icon_picker.php:717
 msgid "Text Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:684
+#: includes/fields/class-acf-field-icon_picker.php:716
 msgid "Testimonial Icon"
 msgstr "Іконка відгуку"
 
-#: includes/fields/class-acf-field-icon_picker.php:683
+#: includes/fields/class-acf-field-icon_picker.php:715
 msgid "Tagcloud Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:682
+#: includes/fields/class-acf-field-icon_picker.php:714
 msgid "Tag Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:681
+#: includes/fields/class-acf-field-icon_picker.php:713
 msgid "Tablet Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:672
+#: includes/fields/class-acf-field-icon_picker.php:704
 msgid "Store Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:671
+#: includes/fields/class-acf-field-icon_picker.php:703
 msgid "Sticky Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:670
+#: includes/fields/class-acf-field-icon_picker.php:702
 msgid "Star Half Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:669
+#: includes/fields/class-acf-field-icon_picker.php:701
 msgid "Star Filled Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:668
+#: includes/fields/class-acf-field-icon_picker.php:700
 msgid "Star Empty Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:666
+#: includes/fields/class-acf-field-icon_picker.php:698
 msgid "Sos Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:665
+#: includes/fields/class-acf-field-icon_picker.php:697
 msgid "Sort Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:664
+#: includes/fields/class-acf-field-icon_picker.php:696
 msgid "Smiley Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:663
+#: includes/fields/class-acf-field-icon_picker.php:695
 msgid "Smartphone Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:662
+#: includes/fields/class-acf-field-icon_picker.php:694
 msgid "Slides Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:659
+#: includes/fields/class-acf-field-icon_picker.php:691
 msgid "Shield Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:656
+#: includes/fields/class-acf-field-icon_picker.php:688
 msgid "Share Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:655
+#: includes/fields/class-acf-field-icon_picker.php:687
 msgid "Search Icon"
 msgstr "Іконка пошуку"
 
-#: includes/fields/class-acf-field-icon_picker.php:654
+#: includes/fields/class-acf-field-icon_picker.php:686
 msgid "Screen Options Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:653
+#: includes/fields/class-acf-field-icon_picker.php:685
 msgid "Schedule Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:648
+#: includes/fields/class-acf-field-icon_picker.php:680
 msgid "Redo Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:646
+#: includes/fields/class-acf-field-icon_picker.php:678
 msgid "Randomize Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:645
+#: includes/fields/class-acf-field-icon_picker.php:677
 msgid "Products Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:642
+#: includes/fields/class-acf-field-icon_picker.php:674
 msgid "Pressthis Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:641
+#: includes/fields/class-acf-field-icon_picker.php:673
 msgid "Post Status Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:640
+#: includes/fields/class-acf-field-icon_picker.php:672
 msgid "Portfolio Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:636
+#: includes/fields/class-acf-field-icon_picker.php:668
 msgid "Plus Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:634
+#: includes/fields/class-acf-field-icon_picker.php:666
 msgid "Playlist Video Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:633
+#: includes/fields/class-acf-field-icon_picker.php:665
 msgid "Playlist Audio Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:631
+#: includes/fields/class-acf-field-icon_picker.php:663
 msgid "Phone Icon"
 msgstr "Іконка телефону"
 
-#: includes/fields/class-acf-field-icon_picker.php:629
+#: includes/fields/class-acf-field-icon_picker.php:661
 msgid "Performance Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:627
+#: includes/fields/class-acf-field-icon_picker.php:659
 msgid "Paperclip Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:623
+#: includes/fields/class-acf-field-icon_picker.php:655
 msgid "No Icon"
 msgstr "Без іконки"
 
-#: includes/fields/class-acf-field-icon_picker.php:622
+#: includes/fields/class-acf-field-icon_picker.php:654
 msgid "Networking Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:621
+#: includes/fields/class-acf-field-icon_picker.php:653
 msgid "Nametag Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:620
+#: includes/fields/class-acf-field-icon_picker.php:652
 msgid "Move Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:618
+#: includes/fields/class-acf-field-icon_picker.php:650
 msgid "Money Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:617
+#: includes/fields/class-acf-field-icon_picker.php:649
 msgid "Minus Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:616
+#: includes/fields/class-acf-field-icon_picker.php:648
 msgid "Migrate Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:615
+#: includes/fields/class-acf-field-icon_picker.php:647
 msgid "Microphone Icon"
 msgstr "Іконка мікрофона"
 
-#: includes/fields/class-acf-field-icon_picker.php:610
+#: includes/fields/class-acf-field-icon_picker.php:642
 msgid "Megaphone Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:600
+#: includes/fields/class-acf-field-icon_picker.php:632
 msgid "Marker Icon"
 msgstr "Іконка маркера"
 
-#: includes/fields/class-acf-field-icon_picker.php:599
+#: includes/fields/class-acf-field-icon_picker.php:631
 msgid "Lock Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:597
+#: includes/fields/class-acf-field-icon_picker.php:629
 msgid "Location Icon"
 msgstr "Іконка розміщення"
 
-#: includes/fields/class-acf-field-icon_picker.php:596
+#: includes/fields/class-acf-field-icon_picker.php:628
 msgid "List View Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:594
+#: includes/fields/class-acf-field-icon_picker.php:626
 msgid "Lightbulb Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:593
+#: includes/fields/class-acf-field-icon_picker.php:625
 msgid "Left Right Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:592
+#: includes/fields/class-acf-field-icon_picker.php:624
 msgid "Layout Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:591
+#: includes/fields/class-acf-field-icon_picker.php:623
 msgid "Laptop Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:585
+#: includes/fields/class-acf-field-icon_picker.php:617
 msgid "Info Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:584
+#: includes/fields/class-acf-field-icon_picker.php:616
 msgid "Index Card Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:573
+#: includes/fields/class-acf-field-icon_picker.php:605
 msgid "ID Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:570
+#: includes/fields/class-acf-field-icon_picker.php:602
 msgid "Hidden Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:569
+#: includes/fields/class-acf-field-icon_picker.php:601
 msgid "Heart Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:567
+#: includes/fields/class-acf-field-icon_picker.php:599
 msgid "Hammer Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:445
-#: includes/fields/class-acf-field-icon_picker.php:566
+#: includes/fields/class-acf-field-icon_picker.php:477
+#: includes/fields/class-acf-field-icon_picker.php:598
 msgid "Groups Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:565
+#: includes/fields/class-acf-field-icon_picker.php:597
 msgid "Grid View Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:560
+#: includes/fields/class-acf-field-icon_picker.php:592
 msgid "Forms Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:550
+#: includes/fields/class-acf-field-icon_picker.php:582
 msgid "Flag Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:549
-#: includes/fields/class-acf-field-icon_picker.php:576
+#: includes/fields/class-acf-field-icon_picker.php:581
+#: includes/fields/class-acf-field-icon_picker.php:608
 msgid "Filter Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:548
+#: includes/fields/class-acf-field-icon_picker.php:580
 msgid "Feedback Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:547
+#: includes/fields/class-acf-field-icon_picker.php:579
 msgid "Facebook (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:546
+#: includes/fields/class-acf-field-icon_picker.php:578
 msgid "Facebook Icon"
 msgstr "Іконка Facebook"
 
-#: includes/fields/class-acf-field-icon_picker.php:545
+#: includes/fields/class-acf-field-icon_picker.php:577
 msgid "External Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:536
+#: includes/fields/class-acf-field-icon_picker.php:568
 msgid "Email (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:535
+#: includes/fields/class-acf-field-icon_picker.php:567
 msgid "Email Icon"
 msgstr "Іконка email"
 
-#: includes/fields/class-acf-field-icon_picker.php:533
-#: includes/fields/class-acf-field-icon_picker.php:559
-#: includes/fields/class-acf-field-icon_picker.php:609
+#: includes/fields/class-acf-field-icon_picker.php:565
+#: includes/fields/class-acf-field-icon_picker.php:591
+#: includes/fields/class-acf-field-icon_picker.php:641
 msgid "Video Icon"
 msgstr "Іконка відео"
 
-#: includes/fields/class-acf-field-icon_picker.php:532
+#: includes/fields/class-acf-field-icon_picker.php:564
 msgid "Unlink Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:531
+#: includes/fields/class-acf-field-icon_picker.php:563
 msgid "Underline Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:529
+#: includes/fields/class-acf-field-icon_picker.php:561
 msgid "Text Color Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:528
+#: includes/fields/class-acf-field-icon_picker.php:560
 msgid "Table Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:527
+#: includes/fields/class-acf-field-icon_picker.php:559
 msgid "Strikethrough Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:526
+#: includes/fields/class-acf-field-icon_picker.php:558
 msgid "Spellcheck Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:524
+#: includes/fields/class-acf-field-icon_picker.php:556
 msgid "Remove Formatting Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:523
-#: includes/fields/class-acf-field-icon_picker.php:557
+#: includes/fields/class-acf-field-icon_picker.php:555
+#: includes/fields/class-acf-field-icon_picker.php:589
 msgid "Quote Icon"
 msgstr "Іконка цитати"
 
-#: includes/fields/class-acf-field-icon_picker.php:522
+#: includes/fields/class-acf-field-icon_picker.php:554
 msgid "Paste Word Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:521
+#: includes/fields/class-acf-field-icon_picker.php:553
 msgid "Paste Text Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:520
+#: includes/fields/class-acf-field-icon_picker.php:552
 msgid "Paragraph Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:519
+#: includes/fields/class-acf-field-icon_picker.php:551
 msgid "Outdent Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:515
+#: includes/fields/class-acf-field-icon_picker.php:547
 msgid "Kitchen Sink Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:514
+#: includes/fields/class-acf-field-icon_picker.php:546
 msgid "Justify Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:513
+#: includes/fields/class-acf-field-icon_picker.php:545
 msgid "Italic Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:512
+#: includes/fields/class-acf-field-icon_picker.php:544
 msgid "Insert More Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:511
+#: includes/fields/class-acf-field-icon_picker.php:543
 msgid "Indent Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:510
+#: includes/fields/class-acf-field-icon_picker.php:542
 msgid "Help Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:509
+#: includes/fields/class-acf-field-icon_picker.php:541
 msgid "Expand Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:507
+#: includes/fields/class-acf-field-icon_picker.php:539
 msgid "Contract Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:506
-#: includes/fields/class-acf-field-icon_picker.php:603
+#: includes/fields/class-acf-field-icon_picker.php:538
+#: includes/fields/class-acf-field-icon_picker.php:635
 msgid "Code Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:505
+#: includes/fields/class-acf-field-icon_picker.php:537
 msgid "Break Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:504
+#: includes/fields/class-acf-field-icon_picker.php:536
 msgid "Bold Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:498
+#: includes/fields/class-acf-field-icon_picker.php:530
 msgid "Edit Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:496
+#: includes/fields/class-acf-field-icon_picker.php:528
 msgid "Download Icon"
 msgstr "Іконка завантаження"
 
-#: includes/fields/class-acf-field-icon_picker.php:495
+#: includes/fields/class-acf-field-icon_picker.php:527
 msgid "Dismiss Icon"
 msgstr "Іконка Відхилити"
 
-#: includes/fields/class-acf-field-icon_picker.php:494
+#: includes/fields/class-acf-field-icon_picker.php:526
 msgid "Desktop Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:487
+#: includes/fields/class-acf-field-icon_picker.php:519
 msgid "Dashboard Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:470
+#: includes/fields/class-acf-field-icon_picker.php:502
 msgid "Cloud Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:469
+#: includes/fields/class-acf-field-icon_picker.php:501
 msgid "Clock Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:468
+#: includes/fields/class-acf-field-icon_picker.php:500
 msgid "Clipboard Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:467
+#: includes/fields/class-acf-field-icon_picker.php:499
 msgid "Chart Pie Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:466
+#: includes/fields/class-acf-field-icon_picker.php:498
 msgid "Chart Line Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:465
+#: includes/fields/class-acf-field-icon_picker.php:497
 msgid "Chart Bar Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:464
+#: includes/fields/class-acf-field-icon_picker.php:496
 msgid "Chart Area Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:463
+#: includes/fields/class-acf-field-icon_picker.php:495
 msgid "Category Icon"
 msgstr "Іконка категорії"
 
-#: includes/fields/class-acf-field-icon_picker.php:462
+#: includes/fields/class-acf-field-icon_picker.php:494
 msgid "Cart Icon"
 msgstr "Іконка кошика"
 
-#: includes/fields/class-acf-field-icon_picker.php:461
+#: includes/fields/class-acf-field-icon_picker.php:493
 msgid "Carrot Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:458
+#: includes/fields/class-acf-field-icon_picker.php:490
 msgid "Camera Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:457
+#: includes/fields/class-acf-field-icon_picker.php:489
 msgid "Calendar (alt) Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:456
+#: includes/fields/class-acf-field-icon_picker.php:488
 msgid "Calendar Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:453
+#: includes/fields/class-acf-field-icon_picker.php:485
 msgid "Businesswoman Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:450
+#: includes/fields/class-acf-field-icon_picker.php:482
 msgid "Building Icon"
 msgstr "Будівля - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:437
+#: includes/fields/class-acf-field-icon_picker.php:469
 msgid "Book Icon"
 msgstr "Книга - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:432
+#: includes/fields/class-acf-field-icon_picker.php:464
 msgid "Backup Icon"
 msgstr "Резервне копіювання - іконка"
 
-#: includes/fields/class-acf-field-icon_picker.php:431
+#: includes/fields/class-acf-field-icon_picker.php:463
 msgid "Awards Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:430
+#: includes/fields/class-acf-field-icon_picker.php:462
 msgid "Art Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:427
+#: includes/fields/class-acf-field-icon_picker.php:459
 msgid "Arrow Up Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:424
+#: includes/fields/class-acf-field-icon_picker.php:456
 msgid "Arrow Right Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:421
+#: includes/fields/class-acf-field-icon_picker.php:453
 msgid "Arrow Left Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:418
+#: includes/fields/class-acf-field-icon_picker.php:450
 msgid "Arrow Down Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:417
-#: includes/fields/class-acf-field-icon_picker.php:601
+#: includes/fields/class-acf-field-icon_picker.php:449
+#: includes/fields/class-acf-field-icon_picker.php:633
 msgid "Archive Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:416
+#: includes/fields/class-acf-field-icon_picker.php:448
 msgid "Analytics Icon"
 msgstr "Іконка аналітики"
 
-#: includes/fields/class-acf-field-icon_picker.php:413
-#: includes/fields/class-acf-field-icon_picker.php:503
+#: includes/fields/class-acf-field-icon_picker.php:445
+#: includes/fields/class-acf-field-icon_picker.php:535
 msgid "Align Right Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:410
+#: includes/fields/class-acf-field-icon_picker.php:442
 msgid "Align None Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:409
-#: includes/fields/class-acf-field-icon_picker.php:502
+#: includes/fields/class-acf-field-icon_picker.php:441
+#: includes/fields/class-acf-field-icon_picker.php:534
 msgid "Align Left Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:407
-#: includes/fields/class-acf-field-icon_picker.php:501
+#: includes/fields/class-acf-field-icon_picker.php:439
+#: includes/fields/class-acf-field-icon_picker.php:533
 msgid "Align Center Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:406
+#: includes/fields/class-acf-field-icon_picker.php:438
 msgid "Album Icon"
 msgstr "Іконка альбому"
 
-#: includes/fields/class-acf-field-icon_picker.php:404
+#: includes/fields/class-acf-field-icon_picker.php:436
 msgid "Users Icon"
 msgstr "Іконка користувачів"
 
-#: includes/fields/class-acf-field-icon_picker.php:403
+#: includes/fields/class-acf-field-icon_picker.php:435
 msgid "Tools Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:399
+#: includes/fields/class-acf-field-icon_picker.php:431
 msgid "Site Icon"
 msgstr "Іконка сайту"
 
-#: includes/fields/class-acf-field-icon_picker.php:398
+#: includes/fields/class-acf-field-icon_picker.php:430
 msgid "Settings Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:397
+#: includes/fields/class-acf-field-icon_picker.php:429
 msgid "Post Icon"
 msgstr "Іконка запису"
 
-#: includes/fields/class-acf-field-icon_picker.php:396
+#: includes/fields/class-acf-field-icon_picker.php:428
 msgid "Plugins Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:395
+#: includes/fields/class-acf-field-icon_picker.php:427
 msgid "Page Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:394
+#: includes/fields/class-acf-field-icon_picker.php:426
 msgid "Network Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:393
+#: includes/fields/class-acf-field-icon_picker.php:425
 msgid "Multisite Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:392
+#: includes/fields/class-acf-field-icon_picker.php:424
 msgid "Media Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:391
+#: includes/fields/class-acf-field-icon_picker.php:423
 msgid "Links Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:390
+#: includes/fields/class-acf-field-icon_picker.php:422
 msgid "Home Icon"
 msgstr "Іконка Домашня сторінка"
 
-#: includes/fields/class-acf-field-icon_picker.php:388
+#: includes/fields/class-acf-field-icon_picker.php:420
 msgid "Customizer Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:387
-#: includes/fields/class-acf-field-icon_picker.php:711
+#: includes/fields/class-acf-field-icon_picker.php:419
+#: includes/fields/class-acf-field-icon_picker.php:743
 msgid "Comments Icon"
 msgstr "Іконка коментарів"
 
-#: includes/fields/class-acf-field-icon_picker.php:386
+#: includes/fields/class-acf-field-icon_picker.php:418
 msgid "Collapse Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:385
+#: includes/fields/class-acf-field-icon_picker.php:417
 msgid "Appearance Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:389
+#: includes/fields/class-acf-field-icon_picker.php:421
 msgid "Generic Icon"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:321
+#: includes/fields/class-acf-field-icon_picker.php:353
 msgid "Icon picker requires a value."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:316
+#: includes/fields/class-acf-field-icon_picker.php:348
 msgid "Icon picker requires an icon type."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:285
+#: includes/fields/class-acf-field-icon_picker.php:317
 msgid ""
 "The available icons matching your search query have been updated in the icon "
 "picker below."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:284
+#: includes/fields/class-acf-field-icon_picker.php:316
 msgid "No results found for that search term"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:266
+#: includes/fields/class-acf-field-icon_picker.php:298
 msgid "Array"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:265
+#: includes/fields/class-acf-field-icon_picker.php:297
 msgid "String"
 msgstr ""
 
 #. translators: %s - link to documentation
-#: includes/fields/class-acf-field-icon_picker.php:253
+#: includes/fields/class-acf-field-icon_picker.php:285
 msgid "Specify the return format for the icon. %s"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:238
+#: includes/fields/class-acf-field-icon_picker.php:270
 msgid "Select where content editors can choose the icon from."
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:211
+#: includes/fields/class-acf-field-icon_picker.php:242
 msgid "The URL to the icon you'd like to use, or svg as Data URI"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:194
+#: includes/fields/class-acf-field-icon_picker.php:225
 msgid "Browse Media Library"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:185
+#: includes/fields/class-acf-field-icon_picker.php:216
 msgid "The currently selected image preview"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:176
+#: includes/fields/class-acf-field-icon_picker.php:207
 msgid "Click to change the icon in the Media Library"
 msgstr ""
 
-#: includes/fields/class-acf-field-icon_picker.php:142
+#: includes/fields/class-acf-field-icon_picker.php:95
 msgid "Search icons..."
 msgstr ""
 
@@ -1535,183 +1634,183 @@ msgstr ""
 msgid "Icon Picker"
 msgstr "Вибір іконки"
 
-#: includes/class-acf-site-health.php:709
+#: src/Site_Health/Site_Health.php:787
 msgid "JSON Load Paths"
 msgstr ""
 
-#: includes/class-acf-site-health.php:703
+#: src/Site_Health/Site_Health.php:781
 msgid "JSON Save Paths"
 msgstr ""
 
-#: includes/class-acf-site-health.php:694
+#: src/Site_Health/Site_Health.php:772
 msgid "Registered ACF Forms"
 msgstr ""
 
-#: includes/class-acf-site-health.php:688
+#: src/Site_Health/Site_Health.php:766
 msgid "Shortcode Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:680
+#: src/Site_Health/Site_Health.php:758
 msgid "Field Settings Tabs Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:672
+#: src/Site_Health/Site_Health.php:750
 msgid "Field Type Modal Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:664
+#: src/Site_Health/Site_Health.php:742
 msgid "Admin UI Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:655
+#: src/Site_Health/Site_Health.php:733
 msgid "Block Preloading Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:643
+#: src/Site_Health/Site_Health.php:721
 msgid "Blocks Per ACF Block Version"
 msgstr ""
 
-#: includes/class-acf-site-health.php:638
+#: src/Site_Health/Site_Health.php:716
 msgid "Blocks Per API Version"
 msgstr ""
 
-#: includes/class-acf-site-health.php:611
+#: src/Site_Health/Site_Health.php:689
 msgid "Registered ACF Blocks"
 msgstr ""
 
-#: includes/class-acf-site-health.php:605
+#: src/Site_Health/Site_Health.php:683
 msgid "Light"
 msgstr "Світлий"
 
-#: includes/class-acf-site-health.php:605
+#: src/Site_Health/Site_Health.php:683
 msgid "Standard"
 msgstr "Стандартний"
 
-#: includes/class-acf-site-health.php:604
+#: src/Site_Health/Site_Health.php:682
 msgid "REST API Format"
 msgstr ""
 
-#: includes/class-acf-site-health.php:596
+#: src/Site_Health/Site_Health.php:674
 msgid "Registered Options Pages (PHP)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:582
+#: src/Site_Health/Site_Health.php:660
 msgid "Registered Options Pages (JSON)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:577
+#: src/Site_Health/Site_Health.php:655
 msgid "Registered Options Pages (UI)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:547
+#: src/Site_Health/Site_Health.php:625
 msgid "Options Pages UI Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:539
+#: src/Site_Health/Site_Health.php:617
 msgid "Registered Taxonomies (JSON)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:527
+#: src/Site_Health/Site_Health.php:605
 msgid "Registered Taxonomies (UI)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:515
+#: src/Site_Health/Site_Health.php:593
 msgid "Registered Post Types (JSON)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:503
+#: src/Site_Health/Site_Health.php:581
 msgid "Registered Post Types (UI)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:490
+#: src/Site_Health/Site_Health.php:568
 msgid "Post Types and Taxonomies Enabled"
 msgstr ""
 
-#: includes/class-acf-site-health.php:483
+#: src/Site_Health/Site_Health.php:561
 msgid "Number of Third Party Fields by Field Type"
 msgstr ""
 
-#: includes/class-acf-site-health.php:478
+#: src/Site_Health/Site_Health.php:556
 msgid "Number of Fields by Field Type"
 msgstr ""
 
-#: includes/class-acf-site-health.php:445
+#: src/Site_Health/Site_Health.php:449
 msgid "Field Groups Enabled for GraphQL"
 msgstr ""
 
-#: includes/class-acf-site-health.php:432
+#: src/Site_Health/Site_Health.php:436
 msgid "Field Groups Enabled for REST API"
 msgstr ""
 
-#: includes/class-acf-site-health.php:420
+#: src/Site_Health/Site_Health.php:424
 msgid "Registered Field Groups (JSON)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:408
+#: src/Site_Health/Site_Health.php:412
 msgid "Registered Field Groups (PHP)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:396
+#: src/Site_Health/Site_Health.php:400
 msgid "Registered Field Groups (UI)"
 msgstr ""
 
-#: includes/class-acf-site-health.php:384
+#: src/Site_Health/Site_Health.php:388
 msgid "Active Plugins"
 msgstr "Активні плагіни"
 
-#: includes/class-acf-site-health.php:358
+#: src/Site_Health/Site_Health.php:362
 msgid "Parent Theme"
 msgstr "Батьківська тема"
 
-#: includes/class-acf-site-health.php:347
+#: src/Site_Health/Site_Health.php:351
 msgid "Active Theme"
 msgstr "Активна тема"
 
-#: includes/class-acf-site-health.php:338
+#: src/Site_Health/Site_Health.php:342
 msgid "Is Multisite"
 msgstr ""
 
-#: includes/class-acf-site-health.php:333
+#: src/Site_Health/Site_Health.php:337
 msgid "MySQL Version"
 msgstr "Версія MySQL"
 
-#: includes/class-acf-site-health.php:328
+#: src/Site_Health/Site_Health.php:332
 msgid "WordPress Version"
 msgstr "Версія WordPress"
 
-#: includes/class-acf-site-health.php:321
+#: src/Site_Health/Site_Health.php:325
 msgid "Subscription Expiry Date"
 msgstr ""
 
-#: includes/class-acf-site-health.php:313
+#: src/Site_Health/Site_Health.php:317
 msgid "License Status"
 msgstr ""
 
-#: includes/class-acf-site-health.php:308
+#: src/Site_Health/Site_Health.php:312
 msgid "License Type"
 msgstr ""
 
-#: includes/class-acf-site-health.php:303
+#: src/Site_Health/Site_Health.php:307
 msgid "Licensed URL"
 msgstr ""
 
-#: includes/class-acf-site-health.php:297
+#: src/Site_Health/Site_Health.php:301
 msgid "License Activated"
 msgstr ""
 
-#: includes/class-acf-site-health.php:286
+#: src/Site_Health/Site_Health.php:290
 msgid "Free"
 msgstr "Безкоштовно"
 
-#: includes/class-acf-site-health.php:285
+#: src/Site_Health/Site_Health.php:289
 msgid "Plugin Type"
 msgstr ""
 
-#: includes/class-acf-site-health.php:280
+#: src/Site_Health/Site_Health.php:284
 msgid "Plugin Version"
 msgstr "Версія плагіна"
 
-#: includes/class-acf-site-health.php:251
+#: src/Site_Health/Site_Health.php:255
 msgid ""
 "This section contains debug information about your ACF configuration which "
 "can be useful to provide to support."
@@ -1738,127 +1837,127 @@ msgstr ""
 msgid "Instructions for content editors. Shown when submitting data."
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:143
+#: includes/admin/post-types/admin-field-group.php:142
 msgid "Has no term selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:142
+#: includes/admin/post-types/admin-field-group.php:141
 msgid "Has any term selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:141
+#: includes/admin/post-types/admin-field-group.php:140
 msgid "Terms do not contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:140
+#: includes/admin/post-types/admin-field-group.php:139
 msgid "Terms contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:139
+#: includes/admin/post-types/admin-field-group.php:138
 msgid "Term is not equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:138
+#: includes/admin/post-types/admin-field-group.php:137
 msgid "Term is equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:137
+#: includes/admin/post-types/admin-field-group.php:136
 msgid "Has no user selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:136
+#: includes/admin/post-types/admin-field-group.php:135
 msgid "Has any user selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:135
+#: includes/admin/post-types/admin-field-group.php:134
 msgid "Users do not contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:134
+#: includes/admin/post-types/admin-field-group.php:133
 msgid "Users contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:133
+#: includes/admin/post-types/admin-field-group.php:132
 msgid "User is not equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:132
+#: includes/admin/post-types/admin-field-group.php:131
 msgid "User is equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:131
+#: includes/admin/post-types/admin-field-group.php:130
 msgid "Has no page selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:130
+#: includes/admin/post-types/admin-field-group.php:129
 msgid "Has any page selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:129
+#: includes/admin/post-types/admin-field-group.php:128
 msgid "Pages do not contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:128
+#: includes/admin/post-types/admin-field-group.php:127
 msgid "Pages contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:127
+#: includes/admin/post-types/admin-field-group.php:126
 msgid "Page is not equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:126
+#: includes/admin/post-types/admin-field-group.php:125
 msgid "Page is equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:125
+#: includes/admin/post-types/admin-field-group.php:124
 msgid "Has no relationship selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:124
+#: includes/admin/post-types/admin-field-group.php:123
 msgid "Has any relationship selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:123
+#: includes/admin/post-types/admin-field-group.php:122
 msgid "Has no post selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:122
+#: includes/admin/post-types/admin-field-group.php:121
 msgid "Has any post selected"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:121
+#: includes/admin/post-types/admin-field-group.php:120
 msgid "Posts do not contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:120
+#: includes/admin/post-types/admin-field-group.php:119
 msgid "Posts contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:119
+#: includes/admin/post-types/admin-field-group.php:118
 msgid "Post is not equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:118
+#: includes/admin/post-types/admin-field-group.php:117
 msgid "Post is equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:117
+#: includes/admin/post-types/admin-field-group.php:116
 msgid "Relationships do not contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:116
+#: includes/admin/post-types/admin-field-group.php:115
 msgid "Relationships contain"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:115
+#: includes/admin/post-types/admin-field-group.php:114
 msgid "Relationship is not equal to"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:114
+#: includes/admin/post-types/admin-field-group.php:113
 msgid "Relationship is equal to"
 msgstr ""
 
-#: includes/Blocks/Bindings.php:35
+#: src/Blocks/Bindings.php:38
 msgctxt "The core ACF block binding source name for fields on the current page"
 msgid "ACF Fields"
 msgstr ""
@@ -1919,11 +2018,11 @@ msgstr ""
 msgid "Learn&nbsp;more"
 msgstr ""
 
-#: includes/admin/admin.php:63
+#: includes/admin/admin.php:64
 msgid "Hide&nbsp;details"
 msgstr ""
 
-#: includes/admin/admin.php:62 includes/admin/views/escaped-html-notice.php:24
+#: includes/admin/admin.php:63 includes/admin/views/escaped-html-notice.php:24
 msgid "Show&nbsp;details"
 msgstr ""
 
@@ -1933,7 +2032,7 @@ msgstr ""
 msgid "%1$s (%2$s) - rendered via %3$s"
 msgstr ""
 
-#: includes/admin/views/global/navigation.php:226
+#: includes/admin/views/global/navigation.php:229
 msgid "Renew ACF PRO License"
 msgstr ""
 
@@ -2014,25 +2113,25 @@ msgstr "Посилання на групу полів"
 msgid "Add fields"
 msgstr "Добавити поле"
 
-#: includes/admin/post-types/admin-field-group.php:147
+#: includes/admin/post-types/admin-field-group.php:146
 msgid "This Field"
 msgstr "Це поле"
 
-#: includes/admin/admin.php:352
+#: includes/admin/admin.php:385
 msgid "ACF PRO"
 msgstr "ACF PRO"
 
-#: includes/admin/admin.php:350
+#: includes/admin/admin.php:383
 msgid "Feedback"
 msgstr "Зворотній зв’язок"
 
-#: includes/admin/admin.php:348
+#: includes/admin/admin.php:381
 msgid "Support"
 msgstr "Підтримка"
 
 #. translators: This text is prepended by a link to ACF's website, and appended
 #. by a link to WP Engine's website.
-#: includes/admin/admin.php:323
+#: includes/admin/admin.php:356
 msgid "is developed and maintained by"
 msgstr "розробляється та підтримується"
 
@@ -2092,7 +2191,7 @@ msgstr "Поле %s"
 msgid "Select Multiple"
 msgstr "Виберіть кілька"
 
-#: includes/admin/views/global/navigation.php:238
+#: includes/admin/views/global/navigation.php:241
 msgid "WP Engine logo"
 msgstr "Логотип WP Engine"
 
@@ -2153,7 +2252,7 @@ msgstr ""
 
 #: includes/admin/views/acf-field-group/pro-features.php:3
 #: includes/admin/views/options-page-preview.php:29
-#: includes/fields/class-acf-field-icon_picker.php:248
+#: includes/fields/class-acf-field-icon_picker.php:280
 msgid "Learn More"
 msgstr "Дізнатись більше"
 
@@ -2173,34 +2272,34 @@ msgstr ""
 msgid "%s fields"
 msgstr "Поля %s"
 
-#: includes/admin/post-types/admin-taxonomies.php:267
+#: includes/admin/post-types/admin-taxonomies.php:263
 msgid "No terms"
 msgstr "Немає умови"
 
-#: includes/admin/post-types/admin-taxonomies.php:240
+#: includes/admin/post-types/admin-taxonomies.php:236
 msgid "No post types"
 msgstr ""
 
-#: includes/admin/post-types/admin-post-types.php:264
+#: includes/admin/post-types/admin-post-types.php:260
 msgid "No posts"
 msgstr ""
 
-#: includes/admin/post-types/admin-post-types.php:238
+#: includes/admin/post-types/admin-post-types.php:234
 msgid "No taxonomies"
 msgstr ""
 
-#: includes/admin/post-types/admin-post-types.php:183
-#: includes/admin/post-types/admin-taxonomies.php:182
+#: includes/admin/post-types/admin-post-types.php:179
+#: includes/admin/post-types/admin-taxonomies.php:178
 msgid "No field groups"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-groups.php:255
+#: includes/admin/post-types/admin-field-groups.php:251
 msgid "No fields"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-groups.php:128
-#: includes/admin/post-types/admin-post-types.php:147
-#: includes/admin/post-types/admin-taxonomies.php:146
+#: includes/admin/post-types/admin-field-groups.php:124
+#: includes/admin/post-types/admin-post-types.php:143
+#: includes/admin/post-types/admin-taxonomies.php:142
 msgid "No description"
 msgstr "Немає опису"
 
@@ -2379,7 +2478,7 @@ msgid ""
 "for keeping fields organized and structured."
 msgstr ""
 
-#: includes/fields/class-acf-field-select.php:24
+#: includes/fields/class-acf-field-select.php:18
 msgid "A dropdown list with a selection of choices that you specify."
 msgstr ""
 
@@ -2424,7 +2523,7 @@ msgid ""
 "items or archive URLs, with the option to search."
 msgstr ""
 
-#: includes/fields/class-acf-field-oembed.php:24
+#: includes/fields/class-acf-field-oembed.php:23
 msgid ""
 "An interactive component for embedding videos, images, tweets, audio and "
 "other content by making use of the native WordPress oEmbed functionality."
@@ -2450,13 +2549,13 @@ msgstr ""
 msgid "Uses the native WordPress media picker to upload, or choose images."
 msgstr ""
 
-#: includes/fields/class-acf-field-group.php:24
+#: includes/fields/class-acf-field-group.php:23
 msgid ""
 "Provides a way to structure fields into groups to better organize the data "
 "and the edit screen."
 msgstr ""
 
-#: includes/fields/class-acf-field-google-map.php:24
+#: includes/fields/class-acf-field-google-map.php:23
 msgid ""
 "An interactive UI for selecting a location using Google Maps. Requires a "
 "Google Maps API key and additional configuration to display correctly."
@@ -2488,7 +2587,7 @@ msgstr ""
 msgid "An interactive UI for selecting a color, or specifying a Hex value."
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:24
+#: includes/fields/class-acf-field-checkbox.php:37
 msgid ""
 "A group of checkbox inputs that allow the user to select one, or multiple "
 "values that you specify."
@@ -2506,14 +2605,14 @@ msgid ""
 "are shown while editing content. Useful for keeping large datasets tidy."
 msgstr ""
 
-#: includes/fields.php:449
+#: includes/fields.php:450
 msgid ""
 "This provides a solution for repeating content such as slides, team members, "
 "and call-to-action tiles, by acting as a parent to a set of subfields which "
 "can be repeated again and again."
 msgstr ""
 
-#: includes/fields.php:439
+#: includes/fields.php:440
 msgid ""
 "This provides an interactive interface for managing a collection of "
 "attachments. Most settings are similar to the Image field type. Additional "
@@ -2521,14 +2620,14 @@ msgid ""
 "and the minimum/maximum number of attachments allowed."
 msgstr ""
 
-#: includes/fields.php:429
+#: includes/fields.php:430
 msgid ""
 "This provides a simple, structured, layout-based editor. The Flexible "
 "Content field allows you to define, create and manage content with total "
 "control by using layouts and subfields to design the available blocks."
 msgstr ""
 
-#: includes/fields.php:419
+#: includes/fields.php:420
 msgid ""
 "This allows you to select and display existing fields. It does not duplicate "
 "any fields in the database, but loads and displays the selected fields at "
@@ -2536,17 +2635,17 @@ msgid ""
 "or display the selected fields as a group of subfields."
 msgstr ""
 
-#: includes/fields.php:416
+#: includes/fields.php:417
 msgctxt "noun"
 msgid "Clone"
 msgstr "Клон"
 
-#: includes/admin/views/global/navigation.php:86
-#: includes/class-acf-site-health.php:286 includes/fields.php:331
+#: includes/admin/views/global/navigation.php:86 includes/fields.php:332
+#: src/Site_Health/Site_Health.php:290
 msgid "PRO"
 msgstr "PRO"
 
-#: includes/fields.php:329 includes/fields.php:386
+#: includes/fields.php:330 includes/fields.php:387
 msgid "Advanced"
 msgstr "Розширене"
 
@@ -2566,7 +2665,7 @@ msgstr "Невірний ID запису."
 msgid "Invalid post type selected for review."
 msgstr ""
 
-#: includes/admin/views/global/navigation.php:189
+#: includes/admin/views/global/navigation.php:192
 msgid "More"
 msgstr "Більше"
 
@@ -2589,7 +2688,7 @@ msgstr ""
 
 #. translators: %s: The invalid search term
 #: includes/admin/views/browse-fields-modal.php:50
-#: includes/fields/class-acf-field-icon_picker.php:155
+#: includes/fields/class-acf-field-icon_picker.php:115
 msgid "No search results for '%s'"
 msgstr ""
 
@@ -3493,7 +3592,7 @@ msgid "Custom Meta Box Callback"
 msgstr ""
 
 #: includes/admin/views/acf-post-type/advanced-settings.php:822
-#: includes/fields/class-acf-field-icon_picker.php:611
+#: includes/fields/class-acf-field-icon_picker.php:643
 msgid "Menu Icon"
 msgstr "Іконка меню"
 
@@ -4100,50 +4199,50 @@ msgstr ""
 msgid "Browse Fields"
 msgstr "Перегляд полів"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:287
+#: includes/admin/tools/class-acf-admin-tool-import.php:289
 msgid "Nothing to import"
 msgstr "Нічого імпортувати"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:282
+#: includes/admin/tools/class-acf-admin-tool-import.php:284
 msgid ". The Custom Post Type UI plugin can be deactivated."
 msgstr ""
 
 #. translators: %d - number of items imported from CPTUI
-#: includes/admin/tools/class-acf-admin-tool-import.php:273
+#: includes/admin/tools/class-acf-admin-tool-import.php:275
 msgid "Imported %d item from Custom Post Type UI -"
 msgid_plural "Imported %d items from Custom Post Type UI -"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:257
+#: includes/admin/tools/class-acf-admin-tool-import.php:259
 msgid "Failed to import taxonomies."
 msgstr ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:239
+#: includes/admin/tools/class-acf-admin-tool-import.php:241
 msgid "Failed to import post types."
 msgstr ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:228
+#: includes/admin/tools/class-acf-admin-tool-import.php:230
 msgid "Nothing from Custom Post Type UI plugin selected for import."
 msgstr ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:204
+#: includes/admin/tools/class-acf-admin-tool-import.php:206
 msgid "Imported 1 item"
 msgid_plural "Imported %s items"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:119
+#: includes/admin/tools/class-acf-admin-tool-import.php:121
 msgid ""
 "Importing a Post Type or Taxonomy with the same key as one that already "
 "exists will overwrite the settings for the existing Post Type or Taxonomy "
 "with those of the import."
 msgstr ""
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:108
-#: includes/admin/tools/class-acf-admin-tool-import.php:124
+#: includes/admin/tools/class-acf-admin-tool-import.php:110
+#: includes/admin/tools/class-acf-admin-tool-import.php:126
 msgid "Import from Custom Post Type UI"
 msgstr ""
 
@@ -4222,7 +4321,7 @@ msgstr "Таксономію видалено."
 msgid "Taxonomy updated."
 msgstr "Таксономію оновлено."
 
-#: includes/admin/post-types/admin-taxonomies.php:351
+#: includes/admin/post-types/admin-taxonomies.php:347
 #: includes/admin/post-types/admin-taxonomy.php:153
 msgid ""
 "This taxonomy could not be registered because its key is in use by another "
@@ -4230,7 +4329,7 @@ msgid ""
 msgstr ""
 
 #. translators: %s number of taxonomies synchronized
-#: includes/admin/post-types/admin-taxonomies.php:333
+#: includes/admin/post-types/admin-taxonomies.php:329
 msgid "Taxonomy synchronized."
 msgid_plural "%s taxonomies synchronized."
 msgstr[0] ""
@@ -4238,7 +4337,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of taxonomies duplicated
-#: includes/admin/post-types/admin-taxonomies.php:326
+#: includes/admin/post-types/admin-taxonomies.php:322
 msgid "Taxonomy duplicated."
 msgid_plural "%s taxonomies duplicated."
 msgstr[0] ""
@@ -4246,7 +4345,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of taxonomies deactivated
-#: includes/admin/post-types/admin-taxonomies.php:319
+#: includes/admin/post-types/admin-taxonomies.php:315
 msgid "Taxonomy deactivated."
 msgid_plural "%s taxonomies deactivated."
 msgstr[0] ""
@@ -4254,19 +4353,19 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of taxonomies activated
-#: includes/admin/post-types/admin-taxonomies.php:312
+#: includes/admin/post-types/admin-taxonomies.php:308
 msgid "Taxonomy activated."
 msgid_plural "%s taxonomies activated."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: includes/admin/post-types/admin-taxonomies.php:113
+#: includes/admin/post-types/admin-taxonomies.php:109
 msgid "Terms"
 msgstr "Умови"
 
 #. translators: %s number of post types synchronized
-#: includes/admin/post-types/admin-post-types.php:327
+#: includes/admin/post-types/admin-post-types.php:323
 msgid "Post type synchronized."
 msgid_plural "%s post types synchronized."
 msgstr[0] ""
@@ -4274,7 +4373,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of post types duplicated
-#: includes/admin/post-types/admin-post-types.php:320
+#: includes/admin/post-types/admin-post-types.php:316
 msgid "Post type duplicated."
 msgid_plural "%s post types duplicated."
 msgstr[0] ""
@@ -4282,7 +4381,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of post types deactivated
-#: includes/admin/post-types/admin-post-types.php:313
+#: includes/admin/post-types/admin-post-types.php:309
 msgid "Post type deactivated."
 msgid_plural "%s post types deactivated."
 msgstr[0] ""
@@ -4290,16 +4389,16 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of post types activated
-#: includes/admin/post-types/admin-post-types.php:306
+#: includes/admin/post-types/admin-post-types.php:302
 msgid "Post type activated."
 msgid_plural "%s post types activated."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: includes/admin/post-types/admin-post-types.php:87
-#: includes/admin/post-types/admin-taxonomies.php:111
-#: includes/admin/tools/class-acf-admin-tool-import.php:79
+#: includes/admin/post-types/admin-post-types.php:84
+#: includes/admin/post-types/admin-taxonomies.php:107
+#: includes/admin/tools/class-acf-admin-tool-import.php:81
 #: includes/admin/views/acf-taxonomy/basic-settings.php:82
 #: includes/post-types/class-acf-post-type.php:91
 msgid "Post Types"
@@ -4316,7 +4415,7 @@ msgid "Basic Settings"
 msgstr "Базові налаштування"
 
 #: includes/admin/post-types/admin-post-type.php:151
-#: includes/admin/post-types/admin-post-types.php:345
+#: includes/admin/post-types/admin-post-types.php:341
 msgid ""
 "This post type could not be registered because its key is in use by another "
 "post type registered by another plugin or theme."
@@ -4369,27 +4468,27 @@ msgstr ""
 msgid "Post type deleted."
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:146
+#: includes/admin/post-types/admin-field-group.php:145
 msgid "Type to search..."
 msgstr "Введіть пошуковий запит..."
 
-#: includes/admin/post-types/admin-field-group.php:101
+#: includes/admin/post-types/admin-field-group.php:100
 msgid "PRO Only"
 msgstr "Тільки Pro"
 
-#: includes/admin/post-types/admin-field-group.php:93
+#: includes/admin/post-types/admin-field-group.php:92
 msgid "Field groups linked successfully."
 msgstr ""
 
 #. translators: %s - URL to ACF tools page.
-#: includes/admin/admin.php:199
+#: includes/admin/admin.php:195
 msgid ""
 "Import Post Types and Taxonomies registered with Custom Post Type UI and "
 "manage them with ACF. <a href=\"%s\">Get Started</a>."
 msgstr ""
 
-#: includes/admin/admin.php:46 includes/admin/admin.php:352
-#: includes/class-acf-site-health.php:250
+#: includes/admin/admin.php:47 includes/admin/admin.php:385
+#: src/Site_Health/Site_Health.php:254
 msgid "ACF"
 msgstr "ACF"
 
@@ -4425,8 +4524,8 @@ msgstr[1] ""
 msgstr[2] ""
 
 #: includes/admin/admin-internal-post-type-list.php:277
-#: includes/admin/post-types/admin-post-types.php:346
-#: includes/admin/post-types/admin-taxonomies.php:352
+#: includes/admin/post-types/admin-post-types.php:342
+#: includes/admin/post-types/admin-taxonomies.php:348
 msgctxt "post status"
 msgid "Registration Failed"
 msgstr "Реєстрація не вдалася"
@@ -4465,7 +4564,7 @@ msgstr "Видимість"
 msgid "Labels"
 msgstr "Мітки"
 
-#: includes/admin/post-types/admin-field-group.php:279
+#: includes/admin/post-types/admin-field-group.php:278
 msgid "Field Settings Tabs"
 msgstr ""
 
@@ -4483,15 +4582,15 @@ msgid "[ACF shortcode value disabled for preview]"
 msgstr ""
 
 #: includes/admin/admin-internal-post-type.php:290
-#: includes/admin/post-types/admin-field-group.php:572
+#: includes/admin/post-types/admin-field-group.php:571
 msgid "Close Modal"
 msgstr "Закрити модаль"
 
-#: includes/admin/post-types/admin-field-group.php:92
+#: includes/admin/post-types/admin-field-group.php:91
 msgid "Field moved to other group"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:91
+#: includes/assets.php:351
 msgid "Close modal"
 msgstr "Закрити модаль"
 
@@ -4516,28 +4615,28 @@ msgstr "Зберегти інший вибір"
 msgid "Allow Other Choice"
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:420
+#: includes/fields/class-acf-field-checkbox.php:433
 msgid "Add Toggle All"
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:379
+#: includes/fields/class-acf-field-checkbox.php:392
 msgid "Save Custom Values"
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:368
+#: includes/fields/class-acf-field-checkbox.php:381
 msgid "Allow Custom Values"
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:134
+#: includes/fields/class-acf-field-checkbox.php:147
 msgid "Checkbox custom values cannot be empty. Uncheck any empty values."
 msgstr ""
 
-#: includes/admin/views/global/navigation.php:253
+#: includes/admin/views/global/navigation.php:256
 msgid "Updates"
 msgstr "Оновлення"
 
-#: includes/admin/views/global/navigation.php:177
-#: includes/admin/views/global/navigation.php:181
+#: includes/admin/views/global/navigation.php:180
+#: includes/admin/views/global/navigation.php:184
 msgid "Advanced Custom Fields logo"
 msgstr ""
 
@@ -4582,7 +4681,7 @@ msgstr ""
 #: includes/admin/admin-options-pages-preview.php:28
 #: includes/admin/views/acf-field-group/pro-features.php:58
 #: includes/admin/views/global/navigation.php:86
-#: includes/admin/views/global/navigation.php:255
+#: includes/admin/views/global/navigation.php:258
 msgid "Options Pages"
 msgstr "Сторінки налаштувань"
 
@@ -4602,7 +4701,7 @@ msgstr ""
 msgid "Repeater Field"
 msgstr "Повторюване поле"
 
-#: includes/admin/views/global/navigation.php:215
+#: includes/admin/views/global/navigation.php:218
 msgid "Unlock Extra Features with ACF PRO"
 msgstr "Розблокуйте додаткові можливості з ACF PRO"
 
@@ -4653,20 +4752,20 @@ msgstr "№"
 msgid "Add Field"
 msgstr "Додати поле"
 
-#: includes/acf-field-group-functions.php:496 includes/fields.php:384
+#: includes/acf-field-group-functions.php:496 includes/fields.php:385
 msgid "Presentation"
 msgstr "Презентація"
 
-#: includes/fields.php:383
+#: includes/fields.php:384
 msgid "Validation"
 msgstr "Перевірка"
 
 #: includes/acf-internal-post-type-functions.php:504
-#: includes/acf-internal-post-type-functions.php:533 includes/fields.php:382
+#: includes/acf-internal-post-type-functions.php:533 includes/fields.php:383
 msgid "General"
 msgstr "Загальні"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:67
+#: includes/admin/tools/class-acf-admin-tool-import.php:69
 msgid "Import JSON"
 msgstr "Імпортувати JSON"
 
@@ -4675,7 +4774,7 @@ msgid "Export As JSON"
 msgstr "Експортувати як JSON"
 
 #. translators: %s number of field groups deactivated
-#: includes/admin/post-types/admin-field-groups.php:360
+#: includes/admin/post-types/admin-field-groups.php:356
 msgid "Field group deactivated."
 msgid_plural "%s field groups deactivated."
 msgstr[0] ""
@@ -4683,7 +4782,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of field groups activated
-#: includes/admin/post-types/admin-field-groups.php:353
+#: includes/admin/post-types/admin-field-groups.php:349
 msgid "Field group activated."
 msgid_plural "%s field groups activated."
 msgstr[0] ""
@@ -4712,8 +4811,8 @@ msgstr "Активувати цей елемент"
 msgid "Move field group to trash?"
 msgstr ""
 
-#: acf.php:501 includes/admin/admin-internal-post-type-list.php:264
-#: includes/admin/post-types/admin-field-group.php:304
+#: acf.php:561 includes/admin/admin-internal-post-type-list.php:264
+#: includes/admin/post-types/admin-field-group.php:303
 #: includes/admin/post-types/admin-post-type.php:282
 #: includes/admin/post-types/admin-taxonomy.php:284
 msgctxt "post status"
@@ -4721,29 +4820,20 @@ msgid "Inactive"
 msgstr "Неактивний"
 
 #. Author of the plugin
-#: acf.php
+#: acf.php includes/admin/views/global/navigation.php:240
 msgid "WP Engine"
 msgstr "WP Engine"
 
-#: acf.php:559
+#: acf.php:619
 msgid ""
 "Advanced Custom Fields and Advanced Custom Fields PRO should not be active "
 "at the same time. We've automatically deactivated Advanced Custom Fields PRO."
 msgstr ""
 
-#: acf.php:557
+#: acf.php:617
 msgid ""
 "Advanced Custom Fields and Advanced Custom Fields PRO should not be active "
 "at the same time. We've automatically deactivated Advanced Custom Fields."
-msgstr ""
-
-#. translators: %1 plugin name, %2 the URL to the documentation on this error
-#: includes/acf-value-functions.php:376
-msgid ""
-"<strong>%1$s</strong> - We've detected one or more calls to retrieve ACF "
-"field values before ACF has been initialized. This is not supported and can "
-"result in malformed or missing data. <a href=\"%2$s\" "
-"target=\"_blank\">Learn how to fix this</a>."
 msgstr ""
 
 #: includes/fields/class-acf-field-user.php:578
@@ -4761,7 +4851,7 @@ msgstr ""
 msgid "Invalid request."
 msgstr "Невірний запит."
 
-#: includes/fields/class-acf-field-select.php:635
+#: includes/fields/class-acf-field-select.php:689
 msgid "%1$s is not one of %2$s"
 msgstr "%1$s не належить до %2$s"
 
@@ -4783,7 +4873,7 @@ msgstr[2] ""
 msgid "%1$s must have a valid post ID."
 msgstr ""
 
-#: includes/fields/class-acf-field-file.php:447
+#: includes/fields/class-acf-field-file.php:451
 msgid "%s requires a valid attachment ID."
 msgstr ""
 
@@ -4812,7 +4902,7 @@ msgstr "HEX рядок"
 msgid "Upgrade to PRO"
 msgstr "Оновлення до Pro"
 
-#: includes/admin/post-types/admin-field-group.php:304
+#: includes/admin/post-types/admin-field-group.php:303
 #: includes/admin/post-types/admin-post-type.php:282
 #: includes/admin/post-types/admin-taxonomy.php:284
 msgctxt "post status"
@@ -4860,9 +4950,9 @@ msgid "Attachments"
 msgstr "Вкладення"
 
 #: includes/acf-wp-functions.php:57
-#: includes/admin/post-types/admin-post-types.php:112
-#: includes/admin/post-types/admin-taxonomies.php:86
-#: includes/admin/tools/class-acf-admin-tool-import.php:90
+#: includes/admin/post-types/admin-post-types.php:108
+#: includes/admin/post-types/admin-taxonomies.php:83
+#: includes/admin/tools/class-acf-admin-tool-import.php:92
 #: includes/admin/views/acf-post-type/basic-settings.php:86
 #: includes/post-types/class-acf-taxonomy.php:90
 #: includes/post-types/class-acf-taxonomy.php:91
@@ -4871,7 +4961,7 @@ msgstr "Таксономії"
 
 #: includes/acf-wp-functions.php:44
 #: includes/admin/post-types/admin-post-type.php:124
-#: includes/admin/post-types/admin-post-types.php:114
+#: includes/admin/post-types/admin-post-types.php:110
 #: includes/admin/views/acf-post-type/advanced-settings.php:106
 msgid "Posts"
 msgstr "Записи"
@@ -4917,7 +5007,7 @@ msgstr "Розташовано в плагіні: %s"
 msgid "Located in theme: %s"
 msgstr "Розташовано в Темі: %s"
 
-#: includes/admin/post-types/admin-field-groups.php:235
+#: includes/admin/post-types/admin-field-groups.php:231
 msgid "Various"
 msgstr "Різні"
 
@@ -4934,23 +5024,23 @@ msgstr "Завантаження різного"
 msgid "Review local JSON changes"
 msgstr "Перегляньте локальні зміни JSON"
 
-#: includes/admin/admin.php:174
+#: includes/admin/admin.php:170
 msgid "Visit website"
 msgstr "Відвідати Сайт"
 
-#: includes/admin/admin.php:173
+#: includes/admin/admin.php:169
 msgid "View details"
 msgstr "Переглянути деталі"
 
-#: includes/admin/admin.php:172
+#: includes/admin/admin.php:168
 msgid "Version %s"
 msgstr "Версія %s"
 
-#: includes/admin/admin.php:171
+#: includes/admin/admin.php:167
 msgid "Information"
 msgstr "Інформація"
 
-#: includes/admin/admin.php:162
+#: includes/admin/admin.php:158
 msgid ""
 "<a href=\"%s\" target=\"_blank\">Help Desk</a>. The support professionals on "
 "our Help Desk will assist with your more in depth, technical challenges."
@@ -4959,14 +5049,14 @@ msgstr ""
 "підтримки в нашому довідковому бюро допоможуть вирішити ваші більш детальні "
 "технічні завдання."
 
-#: includes/admin/admin.php:158
+#: includes/admin/admin.php:154
 msgid ""
 "<a href=\"%s\" target=\"_blank\">Discussions</a>. We have an active and "
 "friendly community on our Community Forums who may be able to help you "
 "figure out the 'how-tos' of the ACF world."
 msgstr ""
 
-#: includes/admin/admin.php:154
+#: includes/admin/admin.php:150
 msgid ""
 "<a href=\"%s\" target=\"_blank\">Documentation</a>. Our extensive "
 "documentation contains references and guides for most situations you may "
@@ -4976,7 +5066,7 @@ msgstr ""
 "документація містить посилання та інструкції щодо більшості ситуацій, з "
 "якими ви можете зіткнутися."
 
-#: includes/admin/admin.php:151
+#: includes/admin/admin.php:147
 msgid ""
 "We are fanatical about support, and want you to get the best out of your "
 "website with ACF. If you run into any difficulties, there are several places "
@@ -4986,11 +5076,11 @@ msgstr ""
 "результати від свого веб-сайту за допомогою ACF. Якщо у вас виникнуть "
 "труднощі, ви можете знайти допомогу в кількох місцях:"
 
-#: includes/admin/admin.php:148 includes/admin/admin.php:150
+#: includes/admin/admin.php:144 includes/admin/admin.php:146
 msgid "Help & Support"
 msgstr "Довідка та Підтримка"
 
-#: includes/admin/admin.php:139
+#: includes/admin/admin.php:135
 msgid ""
 "Please use the Help & Support tab to get in touch should you find yourself "
 "requiring assistance."
@@ -4998,7 +5088,7 @@ msgstr ""
 "Будь ласка, скористайтесь вкладкою Довідка та Підтримка, щоб зв’язатись, "
 "якщо вам потрібна допомога."
 
-#: includes/admin/admin.php:136
+#: includes/admin/admin.php:132
 msgid ""
 "Before creating your first Field Group, we recommend first reading our <a "
 "href=\"%s\" target=\"_blank\">Getting started</a> guide to familiarize "
@@ -5008,7 +5098,7 @@ msgstr ""
 "прочитати наш посібник <a href=\"%s\" target=\"_blank\"> Початок роботи </"
 "a>, щоб ознайомитись із філософією та найкращими практиками плагіна."
 
-#: includes/admin/admin.php:134
+#: includes/admin/admin.php:130
 msgid ""
 "The Advanced Custom Fields plugin provides a visual form builder to "
 "customize WordPress edit screens with extra fields, and an intuitive API to "
@@ -5019,7 +5109,7 @@ msgstr ""
 "інтуїтивний API для відображення значень користувацьких полів у будь-якому "
 "файлі шаблону теми."
 
-#: includes/admin/admin.php:131 includes/admin/admin.php:133
+#: includes/admin/admin.php:127 includes/admin/admin.php:129
 msgid "Overview"
 msgstr "Огляд"
 
@@ -5176,7 +5266,7 @@ msgstr "Всі %s формати"
 msgid "Attachment"
 msgstr "Вкладений файл"
 
-#: includes/validation.php:313
+#: includes/validation.php:324
 msgid "%s value is required"
 msgstr "%s значення обов'язкове"
 
@@ -5185,7 +5275,7 @@ msgid "Show this field if"
 msgstr "Показувати поле, якщо"
 
 #: includes/admin/views/acf-field-group/conditional-logic.php:25
-#: includes/admin/views/acf-field-group/field.php:122 includes/fields.php:385
+#: includes/admin/views/acf-field-group/field.php:122 includes/fields.php:386
 msgid "Conditional Logic"
 msgstr "Умовна логіка"
 
@@ -5194,9 +5284,9 @@ msgstr "Умовна логіка"
 msgid "and"
 msgstr "і"
 
-#: includes/admin/post-types/admin-field-groups.php:97
-#: includes/admin/post-types/admin-post-types.php:118
-#: includes/admin/post-types/admin-taxonomies.php:117
+#: includes/admin/post-types/admin-field-groups.php:93
+#: includes/admin/post-types/admin-post-types.php:114
+#: includes/admin/post-types/admin-taxonomies.php:113
 msgid "Local JSON"
 msgstr "Локальний JSON"
 
@@ -5226,20 +5316,20 @@ msgstr "Дякуємо за оновлення до %1$s v%2$s!"
 msgid "Database Upgrade Required"
 msgstr "Необхідно оновити базу даних"
 
-#: includes/admin/post-types/admin-field-group.php:159
+#: includes/admin/post-types/admin-field-group.php:158
 #: includes/admin/views/upgrade/notice.php:17
 msgid "Options Page"
 msgstr "Сторінка опцій"
 
-#: includes/admin/views/upgrade/notice.php:14 includes/fields.php:436
+#: includes/admin/views/upgrade/notice.php:14 includes/fields.php:437
 msgid "Gallery"
 msgstr "Галерея"
 
-#: includes/admin/views/upgrade/notice.php:11 includes/fields.php:426
+#: includes/admin/views/upgrade/notice.php:11 includes/fields.php:427
 msgid "Flexible Content"
 msgstr "Гнучкий вміст"
 
-#: includes/admin/views/upgrade/notice.php:8 includes/fields.php:446
+#: includes/admin/views/upgrade/notice.php:8 includes/fields.php:447
 msgid "Repeater"
 msgstr "Повторювальне поле"
 
@@ -5385,9 +5475,9 @@ msgstr "Стиль"
 msgid "Type"
 msgstr "Тип"
 
-#: includes/admin/post-types/admin-field-groups.php:91
-#: includes/admin/post-types/admin-post-types.php:111
-#: includes/admin/post-types/admin-taxonomies.php:110
+#: includes/admin/post-types/admin-field-groups.php:87
+#: includes/admin/post-types/admin-post-types.php:107
+#: includes/admin/post-types/admin-taxonomies.php:106
 #: includes/admin/views/acf-field-group/fields.php:54
 msgid "Key"
 msgstr "Ключ"
@@ -5418,7 +5508,7 @@ msgstr "ширина"
 msgid "Wrapper Attributes"
 msgstr "Атрибути обгортки"
 
-#: includes/fields/class-acf-field.php:312
+#: includes/fields/class-acf-field.php:317
 msgid "Required"
 msgstr "Обов'язково"
 
@@ -5476,7 +5566,7 @@ msgstr "Редагувати поле"
 msgid "Drag to reorder"
 msgstr "Перетягніть, щоб змінити порядок"
 
-#: includes/admin/post-types/admin-field-group.php:99
+#: includes/admin/post-types/admin-field-group.php:98
 #: includes/admin/views/acf-field-group/location-group.php:3
 msgid "Show this field group if"
 msgstr "Показувати групу полів, якщо"
@@ -5613,25 +5703,17 @@ msgstr "Генерувати PHP"
 msgid "Export Field Groups"
 msgstr "Експортувати групи полів"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:172
+#: includes/admin/tools/class-acf-admin-tool-import.php:174
 msgid "Import file empty"
 msgstr "Файл імпорту порожній"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:163
+#: includes/admin/tools/class-acf-admin-tool-import.php:165
 msgid "Incorrect file type"
 msgstr "Невірний тип файлу"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:158
+#: includes/admin/tools/class-acf-admin-tool-import.php:160
 msgid "Error uploading file. Please try again"
 msgstr "Помилка завантаження файлу. Спробуйте знову"
-
-#: includes/admin/tools/class-acf-admin-tool-import.php:47
-msgid ""
-"Select the Advanced Custom Fields JSON file you would like to import. When "
-"you click the import button below, ACF will import the items in that file."
-msgstr ""
-"Виберіть файл JSON Advanced Custom Fields, який потрібно імпортувати. Якщо "
-"натиснути кнопку імпорту нижче, ACF імпортує елементи цього файлу."
 
 #: includes/admin/tools/class-acf-admin-tool-import.php:26
 msgid "Import Field Groups"
@@ -5660,14 +5742,14 @@ msgstr "Дублювати цей елемент"
 msgid "Supports"
 msgstr "Підтримка"
 
-#: includes/admin/admin.php:346
+#: includes/admin/admin.php:379
 #: includes/admin/views/browse-fields-modal.php:102
 msgid "Documentation"
 msgstr "Документація"
 
-#: includes/admin/post-types/admin-field-groups.php:90
-#: includes/admin/post-types/admin-post-types.php:110
-#: includes/admin/post-types/admin-taxonomies.php:109
+#: includes/admin/post-types/admin-field-groups.php:86
+#: includes/admin/post-types/admin-post-types.php:106
+#: includes/admin/post-types/admin-taxonomies.php:105
 #: includes/admin/views/acf-field-group/options.php:249
 #: includes/admin/views/acf-post-type/advanced-settings.php:62
 #: includes/admin/views/acf-taxonomy/advanced-settings.php:114
@@ -5682,7 +5764,7 @@ msgid "Sync available"
 msgstr "Доступна синхронізація"
 
 #. translators: %s number of field groups synchronized
-#: includes/admin/post-types/admin-field-groups.php:374
+#: includes/admin/post-types/admin-field-groups.php:370
 msgid "Field group synchronized."
 msgid_plural "%s field groups synchronized."
 msgstr[0] ""
@@ -5690,7 +5772,7 @@ msgstr[1] ""
 msgstr[2] ""
 
 #. translators: %s number of field groups duplicated
-#: includes/admin/post-types/admin-field-groups.php:367
+#: includes/admin/post-types/admin-field-groups.php:363
 msgid "Field group duplicated."
 msgid_plural "%s field groups duplicated."
 msgstr[0] "Групу полів продубльовано."
@@ -5720,22 +5802,22 @@ msgstr "Оновити базу даних"
 msgid "Custom Fields"
 msgstr "Додаткові поля"
 
-#: includes/admin/post-types/admin-field-group.php:609
+#: includes/admin/post-types/admin-field-group.php:608
 msgid "Move Field"
 msgstr "Перемістити поле"
 
-#: includes/admin/post-types/admin-field-group.php:602
-#: includes/admin/post-types/admin-field-group.php:606
+#: includes/admin/post-types/admin-field-group.php:601
+#: includes/admin/post-types/admin-field-group.php:605
 msgid "Please select the destination for this field"
 msgstr "Будь ласка, оберіть групу, в яку перемістити"
 
 #. translators: Confirmation message once a field has been moved to a different
 #. field group.
-#: includes/admin/post-types/admin-field-group.php:568
+#: includes/admin/post-types/admin-field-group.php:567
 msgid "The %1$s field can now be found in the %2$s field group"
 msgstr ""
 
-#: includes/admin/post-types/admin-field-group.php:565
+#: includes/admin/post-types/admin-field-group.php:564
 msgid "Move Complete."
 msgstr "Переміщення завершене."
 
@@ -5746,33 +5828,33 @@ msgstr "Переміщення завершене."
 msgid "Active"
 msgstr "Діючий"
 
-#: includes/admin/post-types/admin-field-group.php:276
+#: includes/admin/post-types/admin-field-group.php:275
 msgid "Field Keys"
 msgstr "Ключі поля"
 
-#: includes/admin/post-types/admin-field-group.php:180
+#: includes/admin/post-types/admin-field-group.php:179
 msgid "Settings"
 msgstr "Налаштування"
 
-#: includes/admin/post-types/admin-field-groups.php:92
+#: includes/admin/post-types/admin-field-groups.php:88
 msgid "Location"
 msgstr "Розміщення"
 
-#: includes/admin/post-types/admin-field-group.php:100
+#: includes/admin/post-types/admin-field-group.php:99
 msgid "Null"
 msgstr "Нуль"
 
-#: includes/admin/post-types/admin-field-group.php:97
+#: includes/admin/post-types/admin-field-group.php:96
 #: includes/class-acf-internal-post-type.php:728
 #: includes/post-types/class-acf-field-group.php:345
 msgid "copy"
 msgstr "копіювати"
 
-#: includes/admin/post-types/admin-field-group.php:96
+#: includes/admin/post-types/admin-field-group.php:95
 msgid "(this field)"
 msgstr "(це поле)"
 
-#: includes/admin/post-types/admin-field-group.php:94
+#: includes/admin/post-types/admin-field-group.php:93
 msgid "Checked"
 msgstr "Перевірено"
 
@@ -5826,9 +5908,9 @@ msgstr "Групу полів видалено."
 msgid "Field group updated."
 msgstr "Групу полів оновлено."
 
-#: includes/admin/admin-tools.php:107
-#: includes/admin/views/global/navigation.php:251
-#: includes/admin/views/tools/tools.php:13
+#: includes/admin/admin-tools.php:112
+#: includes/admin/views/global/navigation.php:254
+#: includes/admin/views/tools/tools.php:14
 msgid "Tools"
 msgstr "Інструменти"
 
@@ -5854,48 +5936,48 @@ msgstr "Сторінка"
 msgid "Post"
 msgstr "Запис"
 
-#: includes/fields.php:328
+#: includes/fields.php:329
 msgid "Relational"
 msgstr "Реляційний"
 
-#: includes/fields.php:327
+#: includes/fields.php:328
 msgid "Choice"
 msgstr "Вибір"
 
-#: includes/fields.php:325
+#: includes/fields.php:326
 msgid "Basic"
 msgstr "Загальне"
 
-#: includes/fields.php:276
+#: includes/fields.php:277
 msgid "Unknown"
 msgstr "Невідомий"
 
-#: includes/fields.php:276
+#: includes/fields.php:277
 msgid "Field type does not exist"
 msgstr "Тип поля не існує"
 
-#: includes/forms/form-front.php:217
+#: includes/forms/form-front.php:219
 msgid "Spam Detected"
 msgstr "Виявлено спам"
 
-#: includes/forms/form-front.php:100
+#: includes/forms/form-front.php:102
 msgid "Post updated"
 msgstr "Запис оновлено"
 
-#: includes/forms/form-front.php:99
+#: includes/forms/form-front.php:101
 msgid "Update"
 msgstr "Оновити"
 
-#: includes/forms/form-front.php:54
+#: includes/forms/form-front.php:62
 msgid "Validate Email"
 msgstr "Підтвердити Email"
 
-#: includes/fields.php:326 includes/forms/form-front.php:46
+#: includes/fields.php:327 includes/forms/form-front.php:54
 msgid "Content"
 msgstr "Вміст"
 
 #: includes/admin/views/acf-post-type/advanced-settings.php:21
-#: includes/forms/form-front.php:37
+#: includes/forms/form-front.php:45
 msgid "Title"
 msgstr "Назва"
 
@@ -5903,69 +5985,70 @@ msgstr "Назва"
 msgid "Edit field group"
 msgstr "Редагувати групу полів"
 
-#: includes/admin/post-types/admin-field-group.php:113
+#: includes/admin/post-types/admin-field-group.php:112
 msgid "Selection is less than"
 msgstr "Обране значення менш ніж"
 
-#: includes/admin/post-types/admin-field-group.php:112
+#: includes/admin/post-types/admin-field-group.php:111
 msgid "Selection is greater than"
 msgstr "Обране значення більш ніж"
 
-#: includes/admin/post-types/admin-field-group.php:111
+#: includes/admin/post-types/admin-field-group.php:110
 msgid "Value is less than"
 msgstr "Значення меньше ніж"
 
-#: includes/admin/post-types/admin-field-group.php:110
+#: includes/admin/post-types/admin-field-group.php:109
 msgid "Value is greater than"
 msgstr "Значення більше ніж"
 
-#: includes/admin/post-types/admin-field-group.php:109
+#: includes/admin/post-types/admin-field-group.php:108
 msgid "Value contains"
 msgstr "Значення містить"
 
-#: includes/admin/post-types/admin-field-group.php:108
+#: includes/admin/post-types/admin-field-group.php:107
 msgid "Value matches pattern"
 msgstr "Значення відповідає шаблону"
 
-#: includes/admin/post-types/admin-field-group.php:107
+#: includes/admin/post-types/admin-field-group.php:106
 msgid "Value is not equal to"
 msgstr "Значення не дорівноє"
 
-#: includes/admin/post-types/admin-field-group.php:106
+#: includes/admin/post-types/admin-field-group.php:105
 msgid "Value is equal to"
 msgstr "Значення дорівнює"
 
-#: includes/admin/post-types/admin-field-group.php:105
+#: includes/admin/post-types/admin-field-group.php:104
 msgid "Has no value"
 msgstr "Немає значення"
 
-#: includes/admin/post-types/admin-field-group.php:104
+#: includes/admin/post-types/admin-field-group.php:103
 msgid "Has any value"
 msgstr "Має будь-яке значення"
 
 #: includes/admin/admin-internal-post-type.php:337
-#: includes/admin/views/browse-fields-modal.php:72 includes/assets.php:354
+#: includes/admin/views/browse-fields-modal.php:72 includes/assets.php:350
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: includes/assets.php:350
+#: includes/assets.php:346
 msgid "Are you sure?"
 msgstr "Ви впевнені?"
 
+#. translators: %d is the number of fields that require attention
 #: includes/assets.php:370
 msgid "%d fields require attention"
 msgstr "%d поле потребує уваги"
 
-#: includes/assets.php:369
+#: includes/assets.php:368
 msgid "1 field requires attention"
 msgstr "1 поле потребує уваги"
 
-#: includes/assets.php:368 includes/validation.php:247
-#: includes/validation.php:255
+#: includes/assets.php:367 includes/validation.php:258
+#: includes/validation.php:266
 msgid "Validation failed"
 msgstr "Помилка валідації"
 
-#: includes/assets.php:367
+#: includes/assets.php:366
 msgid "Validation successful"
 msgstr "Валідація успішна"
 
@@ -5996,7 +6079,7 @@ msgctxt "verb"
 msgid "Edit"
 msgstr "Редагувати"
 
-#: includes/assets.php:364
+#: includes/assets.php:360
 msgid "The changes you made will be lost if you navigate away from this page"
 msgstr "Зміни, які ви внесли, буде втрачено, якщо ви перейдете з цієї сторінки"
 
@@ -6004,7 +6087,7 @@ msgstr "Зміни, які ви внесли, буде втрачено, якщ�
 msgid "File type must be %s."
 msgstr "Тип файлу має бути %s."
 
-#: includes/admin/post-types/admin-field-group.php:98
+#: includes/admin/post-types/admin-field-group.php:97
 #: includes/admin/views/acf-field-group/conditional-logic.php:64
 #: includes/admin/views/acf-field-group/conditional-logic.php:182
 #: includes/admin/views/acf-field-group/location-group.php:3
@@ -6058,7 +6141,7 @@ msgid "Thumbnail"
 msgstr "Мініатюра"
 
 #: includes/acf-field-functions.php:854
-#: includes/admin/post-types/admin-field-group.php:95
+#: includes/admin/post-types/admin-field-group.php:94
 msgid "(no label)"
 msgstr "(без мітки)"
 
@@ -6074,23 +6157,23 @@ msgstr "Рядки"
 msgid "Text Area"
 msgstr "Текстова область"
 
-#: includes/fields/class-acf-field-checkbox.php:421
+#: includes/fields/class-acf-field-checkbox.php:434
 msgid "Prepend an extra checkbox to toggle all choices"
 msgstr "Додайте додатковий прапорець, щоб перемикати всі варіанти"
 
-#: includes/fields/class-acf-field-checkbox.php:383
+#: includes/fields/class-acf-field-checkbox.php:396
 msgid "Save 'custom' values to the field's choices"
 msgstr "Зберегти 'користувацькі' значення для вибору поля"
 
-#: includes/fields/class-acf-field-checkbox.php:372
+#: includes/fields/class-acf-field-checkbox.php:385
 msgid "Allow 'custom' values to be added"
 msgstr ""
 
-#: includes/fields/class-acf-field-checkbox.php:35
+#: includes/fields/class-acf-field-checkbox.php:48
 msgid "Add new choice"
 msgstr "Додати новий вибір"
 
-#: includes/fields/class-acf-field-checkbox.php:157
+#: includes/fields/class-acf-field-checkbox.php:170
 msgid "Toggle All"
 msgstr "Перемкнути всі"
 
@@ -6172,7 +6255,7 @@ msgstr "Окреме значення"
 msgid "Multi Select"
 msgstr "Вибір декількох"
 
-#: includes/fields/class-acf-field-checkbox.php:22
+#: includes/fields/class-acf-field-checkbox.php:35
 #: includes/fields/class-acf-field-taxonomy.php:694
 msgid "Checkbox"
 msgstr "Галочка"
@@ -6222,7 +6305,7 @@ msgstr "Зберегти 'користувацькі' значення для в
 msgid "Add 'other' choice to allow for custom values"
 msgstr "Додати вибір 'Інше', для користувацьких значень"
 
-#: includes/admin/views/global/navigation.php:199
+#: includes/admin/views/global/navigation.php:202
 msgid "Other"
 msgstr "Інше"
 
@@ -6256,29 +6339,29 @@ msgstr "Відкрити"
 msgid "Accordion"
 msgstr "Акордеон"
 
-#: includes/fields/class-acf-field-file.php:253
-#: includes/fields/class-acf-field-file.php:265
+#: includes/fields/class-acf-field-file.php:257
+#: includes/fields/class-acf-field-file.php:269
 msgid "Restrict which files can be uploaded"
 msgstr ""
 
-#: includes/fields/class-acf-field-file.php:207
+#: includes/fields/class-acf-field-file.php:211
 msgid "File ID"
 msgstr "ID файлу"
 
-#: includes/fields/class-acf-field-file.php:206
+#: includes/fields/class-acf-field-file.php:210
 msgid "File URL"
 msgstr "URL файлу"
 
-#: includes/fields/class-acf-field-file.php:205
+#: includes/fields/class-acf-field-file.php:209
 msgid "File Array"
 msgstr "Масив файлу"
 
-#: includes/fields/class-acf-field-file.php:176
+#: includes/fields/class-acf-field-file.php:180
 msgid "Add File"
 msgstr "Додати файл"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:151
-#: includes/fields/class-acf-field-file.php:176
+#: includes/admin/tools/class-acf-admin-tool-import.php:153
+#: includes/fields/class-acf-field-file.php:180
 msgid "No file selected"
 msgstr "Файл не вибрано"
 
@@ -6294,7 +6377,6 @@ msgstr "Оновити файл"
 msgid "Edit File"
 msgstr "Редагувати файл"
 
-#: includes/admin/tools/class-acf-admin-tool-import.php:55
 #: includes/fields/class-acf-field-file.php:55
 msgid "Select File"
 msgstr "Виберіть файл"
@@ -6315,86 +6397,86 @@ msgstr ""
 msgid "Use AJAX to lazy load choices?"
 msgstr "Використати AJAX для завантаження значень?"
 
-#: includes/fields/class-acf-field-checkbox.php:333
+#: includes/fields/class-acf-field-checkbox.php:346
 #: includes/fields/class-acf-field-select.php:352
 msgid "Enter each default value on a new line"
 msgstr "Введіть значення. Одне значення в одному рядку"
 
-#: includes/fields/class-acf-field-select.php:227 includes/media.php:48
+#: includes/fields/class-acf-field-select.php:217 includes/media.php:48
 msgctxt "verb"
 msgid "Select"
 msgstr "Вибрати"
 
-#: includes/fields/class-acf-field-select.php:101
+#: includes/fields/class-acf-field-select.php:95
 msgctxt "Select2 JS load_fail"
 msgid "Loading failed"
 msgstr "Помилка завантаження"
 
-#: includes/fields/class-acf-field-select.php:100
+#: includes/fields/class-acf-field-select.php:94
 msgctxt "Select2 JS searching"
 msgid "Searching&hellip;"
 msgstr "Пошук&hellip;"
 
-#: includes/fields/class-acf-field-select.php:99
+#: includes/fields/class-acf-field-select.php:93
 msgctxt "Select2 JS load_more"
 msgid "Loading more results&hellip;"
 msgstr "Завантаження результатів&hellip;"
 
 #. translators: %d - maximum number of items that can be selected in the select
 #. field
-#: includes/fields/class-acf-field-select.php:98
+#: includes/fields/class-acf-field-select.php:92
 msgctxt "Select2 JS selection_too_long_n"
 msgid "You can only select %d items"
 msgstr ""
 
-#: includes/fields/class-acf-field-select.php:96
+#: includes/fields/class-acf-field-select.php:90
 msgctxt "Select2 JS selection_too_long_1"
 msgid "You can only select 1 item"
 msgstr "Ви можете вибрати тільки 1 позицію"
 
 #. translators: %d - number of characters that should be removed from select
 #. field
-#: includes/fields/class-acf-field-select.php:95
+#: includes/fields/class-acf-field-select.php:89
 msgctxt "Select2 JS input_too_long_n"
 msgid "Please delete %d characters"
 msgstr "Будь-ласка видаліть %s символів"
 
-#: includes/fields/class-acf-field-select.php:93
+#: includes/fields/class-acf-field-select.php:87
 msgctxt "Select2 JS input_too_long_1"
 msgid "Please delete 1 character"
 msgstr "Будь ласка видаліть 1 символ"
 
 #. translators: %d - number of characters to enter into select field input
-#: includes/fields/class-acf-field-select.php:92
+#: includes/fields/class-acf-field-select.php:86
 msgctxt "Select2 JS input_too_short_n"
 msgid "Please enter %d or more characters"
 msgstr "Введіть %d або більше символів"
 
-#: includes/fields/class-acf-field-select.php:90
+#: includes/fields/class-acf-field-select.php:84
 msgctxt "Select2 JS input_too_short_1"
 msgid "Please enter 1 or more characters"
 msgstr "Будь ласка введіть 1 або більше символів"
 
-#: includes/fields/class-acf-field-select.php:89
+#: includes/fields/class-acf-field-select.php:83
 msgctxt "Select2 JS matches_0"
 msgid "No matches found"
 msgstr "Співпадінь не знайдено"
 
 #. translators: %d - number of results available in select field
-#: includes/fields/class-acf-field-select.php:88
+#: includes/fields/class-acf-field-select.php:82
 msgctxt "Select2 JS matches_n"
 msgid "%d results are available, use up and down arrow keys to navigate."
 msgstr ""
 "Доступні результати %d, використовуйте клавіші зі стрілками вгору та вниз "
 "для навігації."
 
-#: includes/fields/class-acf-field-select.php:86
+#: includes/fields/class-acf-field-select.php:80
 msgctxt "Select2 JS matches_1"
 msgid "One result is available, press enter to select it."
 msgstr ""
 "Лише один результат доступний, натисніть клавішу ENTER, щоб вибрати його."
 
-#: includes/fields/class-acf-field-select.php:22
+#: includes/fields/class-acf-field-select.php:16
 #: includes/fields/class-acf-field-taxonomy.php:699
 msgctxt "noun"
 msgid "Select"
@@ -6448,77 +6530,77 @@ msgstr "Очистити"
 msgid "Color Picker"
 msgstr "Вибір кольору"
 
-#: includes/fields/class-acf-field-date_time_picker.php:82
+#: includes/fields/class-acf-field-date_time_picker.php:83
 msgctxt "Date Time Picker JS pmTextShort"
 msgid "P"
 msgstr "P"
 
-#: includes/fields/class-acf-field-date_time_picker.php:81
+#: includes/fields/class-acf-field-date_time_picker.php:82
 msgctxt "Date Time Picker JS pmText"
 msgid "PM"
 msgstr "PM"
 
-#: includes/fields/class-acf-field-date_time_picker.php:78
+#: includes/fields/class-acf-field-date_time_picker.php:79
 msgctxt "Date Time Picker JS amTextShort"
 msgid "A"
 msgstr "A"
 
-#: includes/fields/class-acf-field-date_time_picker.php:77
+#: includes/fields/class-acf-field-date_time_picker.php:78
 msgctxt "Date Time Picker JS amText"
 msgid "AM"
 msgstr "AM"
 
-#: includes/fields/class-acf-field-date_time_picker.php:75
+#: includes/fields/class-acf-field-date_time_picker.php:76
 msgctxt "Date Time Picker JS selectText"
 msgid "Select"
 msgstr "Виберіть"
 
-#: includes/fields/class-acf-field-date_time_picker.php:74
+#: includes/fields/class-acf-field-date_time_picker.php:75
 msgctxt "Date Time Picker JS closeText"
 msgid "Done"
 msgstr "Готово"
 
-#: includes/fields/class-acf-field-date_time_picker.php:73
+#: includes/fields/class-acf-field-date_time_picker.php:74
 msgctxt "Date Time Picker JS currentText"
 msgid "Now"
 msgstr "Зараз"
 
-#: includes/fields/class-acf-field-date_time_picker.php:72
+#: includes/fields/class-acf-field-date_time_picker.php:73
 msgctxt "Date Time Picker JS timezoneText"
 msgid "Time Zone"
 msgstr "Часовий пояс"
 
-#: includes/fields/class-acf-field-date_time_picker.php:71
+#: includes/fields/class-acf-field-date_time_picker.php:72
 msgctxt "Date Time Picker JS microsecText"
 msgid "Microsecond"
 msgstr "Мікросекунда"
 
-#: includes/fields/class-acf-field-date_time_picker.php:70
+#: includes/fields/class-acf-field-date_time_picker.php:71
 msgctxt "Date Time Picker JS millisecText"
 msgid "Millisecond"
 msgstr "Мілісекунда"
 
-#: includes/fields/class-acf-field-date_time_picker.php:69
+#: includes/fields/class-acf-field-date_time_picker.php:70
 msgctxt "Date Time Picker JS secondText"
 msgid "Second"
 msgstr "Секунда"
 
-#: includes/fields/class-acf-field-date_time_picker.php:68
+#: includes/fields/class-acf-field-date_time_picker.php:69
 msgctxt "Date Time Picker JS minuteText"
 msgid "Minute"
 msgstr "Хвилина"
 
-#: includes/fields/class-acf-field-date_time_picker.php:67
+#: includes/fields/class-acf-field-date_time_picker.php:68
 msgctxt "Date Time Picker JS hourText"
 msgid "Hour"
 msgstr "Година"
 
-#: includes/fields/class-acf-field-date_time_picker.php:66
+#: includes/fields/class-acf-field-date_time_picker.php:67
 msgctxt "Date Time Picker JS timeText"
 msgid "Time"
 msgstr "Час"
 
-#: includes/fields/class-acf-field-date_time_picker.php:65
+#: includes/fields/class-acf-field-date_time_picker.php:66
 msgctxt "Date Time Picker JS timeOnlyTitle"
 msgid "Choose Time"
 msgstr "Виберіть час"
@@ -6597,7 +6679,7 @@ msgid "Range"
 msgstr "Діапазон (Range)"
 
 #: includes/fields/class-acf-field-button-group.php:165
-#: includes/fields/class-acf-field-checkbox.php:350
+#: includes/fields/class-acf-field-checkbox.php:363
 #: includes/fields/class-acf-field-radio.php:210
 #: includes/fields/class-acf-field-select.php:370
 msgid "Both (Array)"
@@ -6605,54 +6687,54 @@ msgstr "Галочка"
 
 #: includes/admin/views/acf-field-group/fields.php:52
 #: includes/fields/class-acf-field-button-group.php:164
-#: includes/fields/class-acf-field-checkbox.php:349
+#: includes/fields/class-acf-field-checkbox.php:362
 #: includes/fields/class-acf-field-radio.php:209
 #: includes/fields/class-acf-field-select.php:369
 msgid "Label"
 msgstr "Мітка"
 
 #: includes/fields/class-acf-field-button-group.php:163
-#: includes/fields/class-acf-field-checkbox.php:348
+#: includes/fields/class-acf-field-checkbox.php:361
 #: includes/fields/class-acf-field-radio.php:208
 #: includes/fields/class-acf-field-select.php:368
 msgid "Value"
 msgstr "Значення"
 
 #: includes/fields/class-acf-field-button-group.php:211
-#: includes/fields/class-acf-field-checkbox.php:411
+#: includes/fields/class-acf-field-checkbox.php:424
 #: includes/fields/class-acf-field-radio.php:282
 msgid "Vertical"
 msgstr "Вертикально"
 
 #: includes/fields/class-acf-field-button-group.php:210
-#: includes/fields/class-acf-field-checkbox.php:412
+#: includes/fields/class-acf-field-checkbox.php:425
 #: includes/fields/class-acf-field-radio.php:283
 msgid "Horizontal"
 msgstr "Горизонтально"
 
 #: includes/fields/class-acf-field-button-group.php:138
-#: includes/fields/class-acf-field-checkbox.php:323
+#: includes/fields/class-acf-field-checkbox.php:336
 #: includes/fields/class-acf-field-radio.php:183
 #: includes/fields/class-acf-field-select.php:341
 msgid "red : Red"
 msgstr "red : Червоний"
 
 #: includes/fields/class-acf-field-button-group.php:138
-#: includes/fields/class-acf-field-checkbox.php:323
+#: includes/fields/class-acf-field-checkbox.php:336
 #: includes/fields/class-acf-field-radio.php:183
 #: includes/fields/class-acf-field-select.php:341
 msgid "For more control, you may specify both a value and label like this:"
 msgstr "Для більшого контролю, Ви можете вказати маркувати значення:"
 
 #: includes/fields/class-acf-field-button-group.php:138
-#: includes/fields/class-acf-field-checkbox.php:323
+#: includes/fields/class-acf-field-checkbox.php:336
 #: includes/fields/class-acf-field-radio.php:183
 #: includes/fields/class-acf-field-select.php:341
 msgid "Enter each choice on a new line."
 msgstr "У кожному рядку по варіанту"
 
 #: includes/fields/class-acf-field-button-group.php:137
-#: includes/fields/class-acf-field-checkbox.php:322
+#: includes/fields/class-acf-field-checkbox.php:335
 #: includes/fields/class-acf-field-radio.php:182
 #: includes/fields/class-acf-field-select.php:340
 msgid "Choices"
@@ -6706,7 +6788,7 @@ msgstr "Візуальний лише"
 msgid "Visual & Text"
 msgstr "Візуальний і Текстовий"
 
-#: includes/fields/class-acf-field-icon_picker.php:237
+#: includes/fields/class-acf-field-icon_picker.php:269
 #: includes/fields/class-acf-field-wysiwyg.php:324
 msgid "Tabs"
 msgstr "Вкладки"
@@ -6914,24 +6996,24 @@ msgstr "Досягнуто максимальних значень ( {max} value
 msgid "Relationship"
 msgstr "Зв'язок"
 
-#: includes/fields/class-acf-field-file.php:277
+#: includes/fields/class-acf-field-file.php:281
 #: includes/fields/class-acf-field-image.php:307
 msgid "Comma separated list. Leave blank for all types"
 msgstr "Перелік, розділений комами. Залиште порожнім для всіх типів"
 
-#: includes/fields/class-acf-field-file.php:276
+#: includes/fields/class-acf-field-file.php:280
 #: includes/fields/class-acf-field-image.php:306
 msgid "Allowed File Types"
 msgstr "Дозволені типи файлів"
 
-#: includes/fields/class-acf-field-file.php:264
+#: includes/fields/class-acf-field-file.php:268
 #: includes/fields/class-acf-field-image.php:270
 msgid "Maximum"
 msgstr "Максимум"
 
 #: includes/fields/class-acf-field-file.php:144
-#: includes/fields/class-acf-field-file.php:256
-#: includes/fields/class-acf-field-file.php:268
+#: includes/fields/class-acf-field-file.php:260
+#: includes/fields/class-acf-field-file.php:272
 #: includes/fields/class-acf-field-image.php:261
 #: includes/fields/class-acf-field-image.php:297
 msgid "File size"
@@ -6942,17 +7024,17 @@ msgstr "Розмір файлу"
 msgid "Restrict which images can be uploaded"
 msgstr "Обмежте, які зображення можна завантажувати"
 
-#: includes/fields/class-acf-field-file.php:252
+#: includes/fields/class-acf-field-file.php:256
 #: includes/fields/class-acf-field-image.php:234
 msgid "Minimum"
 msgstr "Мінімум"
 
-#: includes/fields/class-acf-field-file.php:222
+#: includes/fields/class-acf-field-file.php:226
 #: includes/fields/class-acf-field-image.php:200
 msgid "Uploaded to post"
 msgstr "Завантажено до матеріалу"
 
-#: includes/fields/class-acf-field-file.php:221
+#: includes/fields/class-acf-field-file.php:225
 #: includes/fields/class-acf-field-image.php:199
 #: includes/locations/class-acf-location-attachment.php:73
 #: includes/locations/class-acf-location-comment.php:61
@@ -6964,12 +7046,12 @@ msgstr "Завантажено до матеріалу"
 msgid "All"
 msgstr "Всі"
 
-#: includes/fields/class-acf-field-file.php:216
+#: includes/fields/class-acf-field-file.php:220
 #: includes/fields/class-acf-field-image.php:194
 msgid "Limit the media library choice"
 msgstr "Обмежте вибір медіатеки"
 
-#: includes/fields/class-acf-field-file.php:215
+#: includes/fields/class-acf-field-file.php:219
 #: includes/fields/class-acf-field-image.php:193
 msgid "Library"
 msgstr "Бібліотека"
@@ -6991,16 +7073,16 @@ msgid "Image Array"
 msgstr "Масив зображення"
 
 #: includes/fields/class-acf-field-button-group.php:158
-#: includes/fields/class-acf-field-checkbox.php:343
-#: includes/fields/class-acf-field-file.php:200
+#: includes/fields/class-acf-field-checkbox.php:356
+#: includes/fields/class-acf-field-file.php:204
 #: includes/fields/class-acf-field-link.php:147
 #: includes/fields/class-acf-field-radio.php:203
 msgid "Specify the returned value on front end"
 msgstr ""
 
 #: includes/fields/class-acf-field-button-group.php:157
-#: includes/fields/class-acf-field-checkbox.php:342
-#: includes/fields/class-acf-field-file.php:199
+#: includes/fields/class-acf-field-checkbox.php:355
+#: includes/fields/class-acf-field-file.php:203
 #: includes/fields/class-acf-field-link.php:146
 #: includes/fields/class-acf-field-radio.php:202
 #: includes/fields/class-acf-field-taxonomy.php:672
@@ -7015,7 +7097,7 @@ msgstr "Додати зображення"
 msgid "No image selected"
 msgstr "Зображення не вибрано"
 
-#: includes/assets.php:353 includes/fields/class-acf-field-file.php:152
+#: includes/assets.php:349 includes/fields/class-acf-field-file.php:152
 #: includes/fields/class-acf-field-image.php:135
 #: includes/fields/class-acf-field-link.php:124
 msgid "Remove"
@@ -7081,40 +7163,40 @@ msgstr "Вкажіть спосіб обробки нових рядків"
 msgid "New Lines"
 msgstr "Перенесення рядків"
 
-#: includes/fields/class-acf-field-date_picker.php:221
-#: includes/fields/class-acf-field-date_time_picker.php:208
+#: includes/fields/class-acf-field-date_picker.php:223
+#: includes/fields/class-acf-field-date_time_picker.php:210
 msgid "Week Starts On"
 msgstr "Тиждень починається з"
 
-#: includes/fields/class-acf-field-date_picker.php:190
+#: includes/fields/class-acf-field-date_picker.php:192
 msgid "The format used when saving a value"
 msgstr ""
 
-#: includes/fields/class-acf-field-date_picker.php:189
+#: includes/fields/class-acf-field-date_picker.php:191
 msgid "Save Format"
 msgstr "Зберегти формат"
 
-#: includes/fields/class-acf-field-date_picker.php:61
+#: includes/fields/class-acf-field-date_picker.php:62
 msgctxt "Date Picker JS weekHeader"
 msgid "Wk"
-msgstr "Wk"
+msgstr "Нд"
 
-#: includes/fields/class-acf-field-date_picker.php:60
+#: includes/fields/class-acf-field-date_picker.php:61
 msgctxt "Date Picker JS prevText"
 msgid "Prev"
 msgstr "Назад"
 
-#: includes/fields/class-acf-field-date_picker.php:59
+#: includes/fields/class-acf-field-date_picker.php:60
 msgctxt "Date Picker JS nextText"
 msgid "Next"
 msgstr "Далі"
 
-#: includes/fields/class-acf-field-date_picker.php:58
+#: includes/fields/class-acf-field-date_picker.php:59
 msgctxt "Date Picker JS currentText"
 msgid "Today"
 msgstr "Сьогодні"
 
-#: includes/fields/class-acf-field-date_picker.php:57
+#: includes/fields/class-acf-field-date_picker.php:58
 msgctxt "Date Picker JS closeText"
 msgid "Done"
 msgstr "Готово"
@@ -7125,20 +7207,20 @@ msgstr "Вибір дати"
 
 #: includes/fields/class-acf-field-image.php:238
 #: includes/fields/class-acf-field-image.php:274
-#: includes/fields/class-acf-field-oembed.php:241
+#: includes/fields/class-acf-field-oembed.php:240
 msgid "Width"
 msgstr "Ширина"
 
-#: includes/fields/class-acf-field-oembed.php:238
-#: includes/fields/class-acf-field-oembed.php:250
+#: includes/fields/class-acf-field-oembed.php:237
+#: includes/fields/class-acf-field-oembed.php:249
 msgid "Embed Size"
 msgstr "Розмір вставки"
 
-#: includes/fields/class-acf-field-oembed.php:198
+#: includes/fields/class-acf-field-oembed.php:197
 msgid "Enter URL"
 msgstr "Введіть URL"
 
-#: includes/fields/class-acf-field-oembed.php:22
+#: includes/fields/class-acf-field-oembed.php:21
 msgid "oEmbed"
 msgstr "oEmbed (вставка)"
 
@@ -7164,7 +7246,7 @@ msgid "Stylized UI"
 msgstr "Стилізований інтерфейс користувача"
 
 #: includes/fields/class-acf-field-button-group.php:147
-#: includes/fields/class-acf-field-checkbox.php:332
+#: includes/fields/class-acf-field-checkbox.php:345
 #: includes/fields/class-acf-field-color_picker.php:144
 #: includes/fields/class-acf-field-email.php:103
 #: includes/fields/class-acf-field-number.php:113
@@ -7189,17 +7271,15 @@ msgstr "Відображати текст поруч із прапорцем"
 msgid "Message"
 msgstr "Повідомлення"
 
-#: includes/assets.php:352 includes/class-acf-site-health.php:277
-#: includes/class-acf-site-health.php:339
-#: includes/fields/class-acf-field-true_false.php:79
+#: includes/assets.php:348 includes/fields/class-acf-field-true_false.php:79
 #: includes/fields/class-acf-field-true_false.php:175
+#: src/Site_Health/Site_Health.php:281 src/Site_Health/Site_Health.php:343
 msgid "No"
 msgstr "Ні"
 
-#: includes/assets.php:351 includes/class-acf-site-health.php:276
-#: includes/class-acf-site-health.php:339
-#: includes/fields/class-acf-field-true_false.php:76
+#: includes/assets.php:347 includes/fields/class-acf-field-true_false.php:76
 #: includes/fields/class-acf-field-true_false.php:159
+#: src/Site_Health/Site_Health.php:280 src/Site_Health/Site_Health.php:343
 msgid "Yes"
 msgstr "Так"
 
@@ -7207,102 +7287,102 @@ msgstr "Так"
 msgid "True / False"
 msgstr "Так / Ні"
 
-#: includes/fields/class-acf-field-group.php:415
+#: includes/fields/class-acf-field-group.php:414
 msgid "Row"
 msgstr "Рядок"
 
-#: includes/fields/class-acf-field-group.php:414
+#: includes/fields/class-acf-field-group.php:413
 msgid "Table"
 msgstr "Таблиця"
 
-#: includes/admin/post-types/admin-field-group.php:158
-#: includes/fields/class-acf-field-group.php:413
+#: includes/admin/post-types/admin-field-group.php:157
+#: includes/fields/class-acf-field-group.php:412
 msgid "Block"
 msgstr "Блок"
 
-#: includes/fields/class-acf-field-group.php:408
+#: includes/fields/class-acf-field-group.php:407
 msgid "Specify the style used to render the selected fields"
 msgstr "Укажіть стиль для візуалізації вибраних полів"
 
-#: includes/fields.php:330 includes/fields/class-acf-field-button-group.php:204
-#: includes/fields/class-acf-field-checkbox.php:405
-#: includes/fields/class-acf-field-group.php:407
+#: includes/fields.php:331 includes/fields/class-acf-field-button-group.php:204
+#: includes/fields/class-acf-field-checkbox.php:418
+#: includes/fields/class-acf-field-group.php:406
 #: includes/fields/class-acf-field-radio.php:276
 msgid "Layout"
 msgstr "Компонування"
 
-#: includes/fields/class-acf-field-group.php:391
+#: includes/fields/class-acf-field-group.php:390
 msgid "Sub Fields"
 msgstr "Підполя"
 
-#: includes/fields/class-acf-field-group.php:22
+#: includes/fields/class-acf-field-group.php:21
 msgid "Group"
 msgstr "Група"
 
-#: includes/fields/class-acf-field-google-map.php:222
+#: includes/fields/class-acf-field-google-map.php:221
 msgid "Customize the map height"
 msgstr "Налаштування висоти карти"
 
-#: includes/fields/class-acf-field-google-map.php:221
+#: includes/fields/class-acf-field-google-map.php:220
 #: includes/fields/class-acf-field-image.php:249
 #: includes/fields/class-acf-field-image.php:285
-#: includes/fields/class-acf-field-oembed.php:253
+#: includes/fields/class-acf-field-oembed.php:252
 msgid "Height"
 msgstr "Висота"
 
-#: includes/fields/class-acf-field-google-map.php:210
+#: includes/fields/class-acf-field-google-map.php:209
 msgid "Set the initial zoom level"
 msgstr "Встановіть початковий рівень масштабування"
 
-#: includes/fields/class-acf-field-google-map.php:209
+#: includes/fields/class-acf-field-google-map.php:208
 msgid "Zoom"
 msgstr "Збільшити"
 
-#: includes/fields/class-acf-field-google-map.php:183
-#: includes/fields/class-acf-field-google-map.php:196
+#: includes/fields/class-acf-field-google-map.php:182
+#: includes/fields/class-acf-field-google-map.php:195
 msgid "Center the initial map"
 msgstr "Відцентруйте початкову карту"
 
-#: includes/fields/class-acf-field-google-map.php:182
-#: includes/fields/class-acf-field-google-map.php:195
+#: includes/fields/class-acf-field-google-map.php:181
+#: includes/fields/class-acf-field-google-map.php:194
 msgid "Center"
 msgstr "По центру"
 
-#: includes/fields/class-acf-field-google-map.php:154
+#: includes/fields/class-acf-field-google-map.php:153
 msgid "Search for address..."
 msgstr "Шукати адресу..."
 
-#: includes/fields/class-acf-field-google-map.php:151
+#: includes/fields/class-acf-field-google-map.php:150
 msgid "Find current location"
 msgstr "Знайдіть поточне місце розташування"
 
-#: includes/fields/class-acf-field-google-map.php:150
+#: includes/fields/class-acf-field-google-map.php:149
 msgid "Clear location"
 msgstr "Очистити розміщення"
 
-#: includes/fields/class-acf-field-google-map.php:149
+#: includes/fields/class-acf-field-google-map.php:148
 #: includes/fields/class-acf-field-relationship.php:600
 msgid "Search"
 msgstr "Пошук"
 
-#: includes/fields/class-acf-field-google-map.php:57
+#: includes/fields/class-acf-field-google-map.php:56
 msgid "Sorry, this browser does not support geolocation"
 msgstr "Вибачте, цей браузер не підтримує автоматичне визначення локації"
 
-#: includes/fields/class-acf-field-google-map.php:22
+#: includes/fields/class-acf-field-google-map.php:21
 msgid "Google Map"
 msgstr "Google Map"
 
-#: includes/fields/class-acf-field-date_picker.php:201
-#: includes/fields/class-acf-field-date_time_picker.php:189
+#: includes/fields/class-acf-field-date_picker.php:203
+#: includes/fields/class-acf-field-date_time_picker.php:191
 #: includes/fields/class-acf-field-time_picker.php:122
 msgid "The format returned via template functions"
 msgstr "Формат повертається через функції шаблону"
 
 #: includes/fields/class-acf-field-color_picker.php:168
-#: includes/fields/class-acf-field-date_picker.php:200
-#: includes/fields/class-acf-field-date_time_picker.php:188
-#: includes/fields/class-acf-field-icon_picker.php:260
+#: includes/fields/class-acf-field-date_picker.php:202
+#: includes/fields/class-acf-field-date_time_picker.php:190
+#: includes/fields/class-acf-field-icon_picker.php:292
 #: includes/fields/class-acf-field-image.php:177
 #: includes/fields/class-acf-field-post_object.php:396
 #: includes/fields/class-acf-field-relationship.php:610
@@ -7312,23 +7392,23 @@ msgstr "Формат повертається через функції шабл
 msgid "Return Format"
 msgstr "Формат повернення"
 
-#: includes/fields/class-acf-field-date_picker.php:179
-#: includes/fields/class-acf-field-date_picker.php:210
-#: includes/fields/class-acf-field-date_time_picker.php:180
-#: includes/fields/class-acf-field-date_time_picker.php:198
+#: includes/fields/class-acf-field-date_picker.php:181
+#: includes/fields/class-acf-field-date_picker.php:212
+#: includes/fields/class-acf-field-date_time_picker.php:182
+#: includes/fields/class-acf-field-date_time_picker.php:200
 #: includes/fields/class-acf-field-time_picker.php:113
 #: includes/fields/class-acf-field-time_picker.php:129
 msgid "Custom:"
 msgstr "Користувацький:"
 
-#: includes/fields/class-acf-field-date_picker.php:171
-#: includes/fields/class-acf-field-date_time_picker.php:171
+#: includes/fields/class-acf-field-date_picker.php:173
+#: includes/fields/class-acf-field-date_time_picker.php:173
 #: includes/fields/class-acf-field-time_picker.php:106
 msgid "The format displayed when editing a post"
 msgstr ""
 
-#: includes/fields/class-acf-field-date_picker.php:170
-#: includes/fields/class-acf-field-date_time_picker.php:170
+#: includes/fields/class-acf-field-date_picker.php:172
+#: includes/fields/class-acf-field-date_time_picker.php:172
 #: includes/fields/class-acf-field-time_picker.php:105
 msgid "Display Format"
 msgstr "Формат показу"
@@ -7338,93 +7418,93 @@ msgid "Time Picker"
 msgstr "Вибір часу"
 
 #. translators: counts for inactive field groups
-#: acf.php:507
+#: acf.php:567
 msgid "Inactive <span class=\"count\">(%s)</span>"
 msgid_plural "Inactive <span class=\"count\">(%s)</span>"
 msgstr[0] "Неактивний <span class=\"count\">(%s)</span>"
 msgstr[1] "Неактивні <span class=\"count\">(%s)</span>"
 msgstr[2] "Неактивних <span class=\"count\">(%s)</span>"
 
-#: acf.php:468
+#: acf.php:528
 msgid "No Fields found in Trash"
 msgstr "Не знайдено полів у кошику"
 
-#: acf.php:467
+#: acf.php:527
 msgid "No Fields found"
 msgstr "Не знайдено полів"
 
-#: acf.php:466
+#: acf.php:526
 msgid "Search Fields"
 msgstr "Поля пошуку"
 
-#: acf.php:465
+#: acf.php:525
 msgid "View Field"
 msgstr "Переглянути\t поле"
 
-#: acf.php:464 includes/admin/views/acf-field-group/fields.php:113
+#: acf.php:524 includes/admin/views/acf-field-group/fields.php:113
 msgid "New Field"
 msgstr "Нове поле"
 
-#: acf.php:463
+#: acf.php:523
 msgid "Edit Field"
 msgstr "Редагувати поле"
 
-#: acf.php:462
+#: acf.php:522
 msgid "Add New Field"
 msgstr "Додати нове поле"
 
-#: acf.php:460
+#: acf.php:520
 msgid "Field"
 msgstr "Поле"
 
-#: acf.php:459 includes/admin/post-types/admin-field-group.php:179
-#: includes/admin/post-types/admin-field-groups.php:93
+#: acf.php:519 includes/admin/post-types/admin-field-group.php:178
+#: includes/admin/post-types/admin-field-groups.php:89
 #: includes/admin/views/acf-field-group/fields.php:32
 msgid "Fields"
 msgstr "Поля"
 
-#: acf.php:434
+#: acf.php:494
 msgid "No Field Groups found in Trash"
 msgstr "У кошику немає груп полів"
 
-#: acf.php:433
+#: acf.php:493
 msgid "No Field Groups found"
 msgstr "Не знайдено груп полів"
 
-#: acf.php:432
+#: acf.php:492
 msgid "Search Field Groups"
 msgstr "Шукати групи полів"
 
-#: acf.php:431
+#: acf.php:491
 msgid "View Field Group"
 msgstr "Переглянути групу полів"
 
-#: acf.php:430
+#: acf.php:490
 msgid "New Field Group"
 msgstr "Нова група полів"
 
-#: acf.php:429
+#: acf.php:489
 msgid "Edit Field Group"
 msgstr "Редагувати групу полів"
 
-#: acf.php:428
+#: acf.php:488
 msgid "Add New Field Group"
 msgstr "Додати нову групу полів"
 
-#: acf.php:427 acf.php:461
+#: acf.php:487 acf.php:521
 #: includes/admin/views/acf-post-type/advanced-settings.php:224
 #: includes/post-types/class-acf-post-type.php:93
 #: includes/post-types/class-acf-taxonomy.php:92
 msgid "Add New"
 msgstr "Додати новий"
 
-#: acf.php:426
+#: acf.php:486
 msgid "Field Group"
 msgstr "Група полів"
 
-#: acf.php:425 includes/admin/post-types/admin-field-groups.php:55
-#: includes/admin/post-types/admin-post-types.php:113
-#: includes/admin/post-types/admin-taxonomies.php:112
+#: acf.php:485 includes/admin/post-types/admin-field-groups.php:52
+#: includes/admin/post-types/admin-post-types.php:109
+#: includes/admin/post-types/admin-taxonomies.php:108
 msgid "Field Groups"
 msgstr "Групи полів"
 
@@ -7441,7 +7521,7 @@ msgid "https://www.advancedcustomfields.com"
 msgstr "https://www.advancedcustomfields.com"
 
 #. Plugin Name of the plugin
-#: acf.php acf.php:93
+#: acf.php acf.php:331
 msgid "Advanced Custom Fields"
 msgstr "Advanced Custom Fields"
 

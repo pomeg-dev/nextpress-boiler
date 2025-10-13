@@ -76,7 +76,7 @@ class GF_Field_Consent extends GF_Field {
 		 *
 		 * @param string $tag Image tag.
 		 */
-		$this->checked_indicator_markup = apply_filters( 'gform_consent_checked_indicator_markup', '<img src="' . esc_url( $this->checked_indicator_url ) . '" />' );
+		$this->checked_indicator_markup = apply_filters( 'gform_consent_checked_indicator_markup', '<img src="' . esc_url( $this->checked_indicator_url ) . '" alt="" />' );
 	}
 
 	/**
@@ -208,8 +208,8 @@ class GF_Field_Consent extends GF_Field {
 
 		$target_input_id       = parent::get_first_input_id( $form );
 		$for_attribute         = empty( $target_input_id ) ? '' : "for='{$target_input_id}'";
-		$label_class_attribute = 'class="gfield_consent_label"';
-		$required_div          = ( $this->labelPlacement === 'hidden_label' && $this->isRequired ) ? $this->get_required_indicator() : '';
+		$label_class_attribute = 'class="gform-field-label gform-field-label--type-inline gfield_consent_label"';
+		$required_div          = ( $this->labelPlacement === 'hidden_label' && $this->isRequired && ! GFCommon::is_entry_detail_edit() ) ? $this->get_required_indicator() : '';
 
 		if ( $is_admin && ! GFCommon::is_entry_detail_edit() ) {
 			$checkbox_label = ! is_array( $value ) || empty( $value[ $id . '.2' ] ) ? $this->checkboxLabel : $value[ $id . '.2' ];
@@ -230,7 +230,7 @@ class GF_Field_Consent extends GF_Field {
 		$extra_describedby_ids = empty( $description ) ? array() : array( "gfield_consent_description_{$form['id']}_{$this->id}" );
 		$aria_describedby      = $this->get_aria_describedby( $extra_describedby_ids );
 
-		$input  = "<input name='input_{$id}.1' id='{$target_input_id}' type='{$html_input_type}' value='1' {$tabindex} {$aria_describedby} {$required_attribute} {$invalid_attribute} {$disabled_text} {$checked} /> <label {$label_class_attribute} {$for_attribute} >{$checkbox_label}</label>{$required_div}";
+		$input  = "<input name='input_{$id}.1' id='{$target_input_id}' type='{$html_input_type}' value='1' {$tabindex} {$aria_describedby} {$required_attribute} {$invalid_attribute} {$disabled_text} {$checked} /> <label {$label_class_attribute} {$for_attribute} >{$checkbox_label}{$required_div}</label>";
 		$input .= "<input type='hidden' name='input_{$id}.2' value='" . esc_attr( $checkbox_label ) . "' class='gform_hidden' />";
 		$input .= "<input type='hidden' name='input_{$id}.3' value='" . esc_attr( $revision_id ) . "' class='gform_hidden' />";
 
@@ -272,28 +272,51 @@ class GF_Field_Consent extends GF_Field {
 
 			$css_class .= ' gfield_consent_description';
 
-			return "<div class='$css_class' id='$id'>" . nl2br( $description ) . '</div>';
+			return "<div class='$css_class' id='$id' tabindex='0'>" . nl2br( $description ) . '</div>';
 		}
 
 		return parent::get_description( $description, $css_class );
 	}
 
 	/**
-	 * Return the result (bool) by setting $this->failed_validation.
-	 * Return the validation message (string) by setting $this->validation_message.
+	 * If a field has a description, the aria-describedby attribute for the input field is returned.
+	 * This method is specific to the consent field since the consent description has a different ID pattern.
 	 *
-	 * @since 2.4
+	 * @since 2.6.8
 	 *
-	 * @param string|array $value The field value from get_value_submission().
-	 * @param array        $form  The Form Object currently being processed.
+	 * @param array|string $extra_ids Any extra ids that should be added to the describedby attribute.
+	 *
+	 * @return string
 	 */
-	public function validate( $value, $form ) {
-		$consent = rgget( $this->id . '.1', $value );
+	public function get_aria_describedby( $extra_ids = array() ) {
 
-		if ( $this->isRequired && rgblank( $consent ) ) {
-			$this->failed_validation  = true;
-			$this->validation_message = empty( $this->errorMessage ) ? esc_html__( 'This field is required.', 'gravityforms' ) : $this->errorMessage;
+		$describedby_ids = is_array( $extra_ids ) ? $extra_ids : explode( ' ', $extra_ids );
+
+		if ( $this->failed_validation ) {
+			$describedby_ids[] = "validation_message_{$this->formId}_{$this->id}";
 		}
+
+		if ( empty( $describedby_ids ) ) {
+			return '';
+		}
+
+		return 'aria-describedby="' . implode( ' ', $describedby_ids ) . '"';
+
+	}
+
+	/**
+	 * Used when determining if the field has failed required validation.
+	 *
+	 * The consent field has three inputs; only the checkbox is required.
+	 *
+	 * @since 2.7.5
+	 *
+	 * @param int $form_id The ID of the form currently being processed.
+	 *
+	 * @return bool
+	 */
+	public function is_value_submission_empty( $form_id ) {
+		return rgblank( rgpost( 'input_' . $this->id . '_1' ) );
 	}
 
 	/**
@@ -415,11 +438,13 @@ class GF_Field_Consent extends GF_Field {
 				$return  = $this->checked_indicator_markup;
 				$return .= ' ' . wp_kses_post( $text );
 
-				// checking revisions.
-				$description = $this->get_field_description_from_revision( $revision_id );
+				if ( $media === 'screen' ) {
+					// checking revisions.
+					$description = $this->get_field_description_from_revision( $revision_id );
 
-				if ( ! empty( $description ) ) {
-					$return .= '<br /><div class="gfield_consent_description">' . nl2br( $description ) . '</div>';
+					if ( ! empty( $description ) ) {
+						$return .= '<br /><div class="gfield_consent_description">' . nl2br( $description ) . '</div>';
+					}
 				}
 			}
 		}
@@ -542,7 +567,7 @@ class GF_Field_Consent extends GF_Field {
 	public function get_field_description_from_revision( $revision_id ) {
 		global $wpdb;
 		$revisions_table_name = GFFormsModel::get_form_revisions_table_name();
-		$display_meta         = $wpdb->get_var( $wpdb->prepare( "SELECT display_meta FROM $revisions_table_name WHERE form_id=%d AND id=%d", $this->formId, $revision_id ) );
+		$display_meta         = $wpdb->get_var( $wpdb->prepare( "SELECT display_meta FROM $revisions_table_name WHERE form_id=%d AND id=%d", $this->formId, $revision_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$value                = '';
 		$is_entry_detail = $this->is_entry_detail();
 

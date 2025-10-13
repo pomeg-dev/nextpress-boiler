@@ -14,11 +14,24 @@ gform.addAction( 'gform_input_change', function( elem, formId, fieldId ) {
 function gf_apply_rules(formId, fields, isInit){
 
 	jQuery(document).trigger( 'gform_pre_conditional_logic', [ formId, fields, isInit ] );
+	gform.utils.trigger( {
+		event: 'gform/conditionalLogic/applyRules/start',
+		native: false,
+		data: { formId: formId, fields: fields, isInit: isInit },
+	} );
 	for(var i=0; i < fields.length; i++){
 		gf_apply_field_rule(formId, fields[i], isInit, function(){
-			jQuery(document).trigger('gform_post_conditional_logic', [formId, fields, isInit]);
-			if(window["gformCalculateTotalPrice"]){
-				window["gformCalculateTotalPrice"](formId);
+			var is_last_field = ( i >= fields.length - 1 );
+			if( is_last_field ) {
+				jQuery(document).trigger('gform_post_conditional_logic', [formId, fields, isInit]);
+				gform.utils.trigger( {
+					event: 'gform/conditionalLogic/applyRules/end',
+					native: false,
+					data: { formId: formId, fields: fields, isInit: isInit },
+				} );
+				if( window.gformCalculateTotalPrice ) {
+					window.gformCalculateTotalPrice( formId );
+				}
 			}
 		});
 	}
@@ -131,9 +144,9 @@ function gf_is_match( formId, rule ) {
 		$inputs;
 
 	if( isInputSpecific ) {
-		$inputs = $( '#input_{0}_{1}_{2}'.format( formId, fieldId, inputIndex ) );
+		$inputs = $( '#input_{0}_{1}_{2}, #choice_{0}_{1}_{2}'.gformFormat( formId, fieldId, inputIndex ) );
 	} else {
-		$inputs = $( 'input[id="input_{0}_{1}"], input[id^="input_{0}_{1}_"], input[id^="choice_{0}_{1}_"], select#input_{0}_{1}, textarea#input_{0}_{1}'.format( formId, fieldId ) );
+		$inputs = $( 'input[id="input_{0}_{1}"], input[id^="input_{0}_{1}_"], input[id^="choice_{0}_{1}_"], select#input_{0}_{1}, textarea#input_{0}_{1}'.gformFormat( formId, fieldId ) );
 	}
 
 	var isCheckable = $.inArray( $inputs.attr( 'type' ), [ 'checkbox', 'radio' ] ) !== -1;
@@ -169,7 +182,7 @@ function gf_is_match_checkable( $inputs, rule, formId, fieldId ) {
 		}
 		// if the 'other' choice is selected, get the value from the 'other' text input
 		else if ( fieldValue == 'gf_other_choice' ) {
-			fieldValue = jQuery( '#input_{0}_{1}_other'.format( formId, fieldId ) ).val();
+			fieldValue = jQuery( '#input_{0}_{1}_other'.gformFormat( formId, fieldId ) ).val();
 		}
 
 		if( gf_matches_operation( fieldValue, rule.value, rule.operator ) ) {
@@ -242,7 +255,7 @@ function gf_format_number( value, fieldNumberFormat ) {
 	decimalSeparator = '.';
 
 	if( fieldNumberFormat == 'currency' ) {
-		decimalSeparator = gformGetDecimalSeparator( 'currency' );
+		decimalSeparator = gform.Currency.getDecimalSeparator( 'currency' );
 	} else if( fieldNumberFormat == 'decimal_comma' ) {
 		decimalSeparator = ',';
 	} else if( fieldNumberFormat == 'decimal_dot' ) {
@@ -250,7 +263,7 @@ function gf_format_number( value, fieldNumberFormat ) {
 	}
 
 	// transform to a decimal dot number
-	value = gformCleanNumber( value, '', '', decimalSeparator );
+	value = gform.Currency.cleanNumber( value, '', '', decimalSeparator );
 
 	/**
 	 * Looking at format specified by wp locale creates issues. When performing conditional logic, all numbers will be formatted to decimal dot and then compared that way. AC
@@ -279,7 +292,7 @@ function gf_try_convert_float(text){
 	var format = 'decimal_dot';
 	if( gformIsNumeric( text, format ) ) {
 		var decimal_separator = format == "decimal_comma" ? "," : ".";
-		return gformCleanNumber( text, "", "", decimal_separator );
+		return gform.Currency.cleanNumber( text, "", "", decimal_separator );
 	}
 
 	return text;
@@ -302,14 +315,14 @@ function gf_matches_operation(val1, val2, operation){
 			val1 = gf_try_convert_float(val1);
 			val2 = gf_try_convert_float(val2);
 
-			return gformIsNumber(val1) && gformIsNumber(val2) ? val1 > val2 : false;
+			return gform.utils.isNumber(val1) && gform.utils.isNumber(val2) ? val1 > val2 : false;
 			break;
 
 		case "<" :
 			val1 = gf_try_convert_float(val1);
 			val2 = gf_try_convert_float(val2);
 
-			return gformIsNumber(val1) && gformIsNumber(val2) ? val1 < val2 : false;
+			return gform.utils.isNumber(val1) && gform.utils.isNumber(val2) ? val1 < val2 : false;
 			break;
 
 		case "contains" :
@@ -351,7 +364,26 @@ function gf_do_field_action(formId, action, fieldId, isInit, callback){
 		//calling callback function on the last dependent field, to make sure it is only called once
 		do_callback = (i+1) == dependent_fields.length ? callback : null;
 
-		gf_do_action(action, targetId, conditional_logic["animation"], defaultValues, isInit, do_callback, formId);
+		/**
+		 * Allow add-ons to abort gf_do_action() function.
+		 *
+		 * @since 2.6.2
+		 *
+		 * @param bool   $doAbort      The value being filtered. True to abort conditional logic action, false to continue. Defaults to false.
+		 * @param string $action       The conditional logic action that will be performed. Possible values: show or hide
+		 * @param string $targetId     HTML element id that will be the targed of the conditional logic action.
+		 * @param bool   $doAnimation  True to perform animation while showing/hiding field. False to hide/show field without animation.
+		 * @param array  $defaultValue Array containg default field values.
+		 * @param bool   $isInit       True if form is being initialized (i.e. before user has interacted with any input). False otherwise.
+		 * @param array  $formId       The current form ID.
+		 * @param func   $do_callback   Callback function to be executed after conditional logic is executed.
+		 */
+		let abort = gform.applyFilters( 'gform_abort_conditional_logic_do_action', false, action, targetId, conditional_logic[ "animation" ], defaultValues, isInit, formId, do_callback );
+		if ( ! abort ) {
+			gf_do_action( action, targetId, conditional_logic[ "animation" ], defaultValues, isInit, do_callback, formId );
+		} else if ( do_callback ) {
+			do_callback();
+		}
 
 		gform.doAction('gform_post_conditional_logic_field_action', formId, action, targetId, defaultValues, isInit);
 	}
@@ -361,7 +393,24 @@ function gf_do_next_button_action(formId, action, fieldId, isInit){
 	var conditional_logic = window["gf_form_conditional_logic"][formId];
 	var targetId = "#gform_next_button_" + formId + "_" + fieldId;
 
-	gf_do_action(action, targetId, conditional_logic["animation"], null, isInit, null, formId);
+	/**
+	 * Allow add-ons to abort gf_do_action() function.
+	 *
+	 * @since 2.6.2
+	 *
+	 * @param bool   $doAbort      The value being filtered. True to abort conditional logic action, false to continue. Defaults to false.
+	 * @param string $action       The conditional logic action that will be performed. Possible values: show or hide
+	 * @param string $targetId     HTML element id that will be the targed of the conditional logic action.
+	 * @param bool   $doAnimation  True to perform animation while showing/hiding field. False to hide/show field without animation.
+	 * @param array  $defaultValue Array containg default field values.
+	 * @param bool   $isInit       True if form is being initialized (i.e. before user has interacted with any input). False otherwise.
+	 * @param array  $formId       The current form ID.
+	 * @param func   $do_callback   Callback function to be executed after conditional logic is executed.
+	 */
+	let abort = gform.applyFilters( 'gform_abort_conditional_logic_do_action', false, action, targetId, conditional_logic[ "animation" ], null, isInit, formId, null );
+	if ( ! abort ) {
+		gf_do_action( action, targetId, conditional_logic[ "animation" ], null, isInit, null, formId );
+	}
 }
 
 function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, callback, formId){
@@ -376,8 +425,12 @@ function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, cal
 		$target.data( 'gf-disabled-assessed', true );
 	}
 
-	if(action == "show"){
+	// honeypot should not be impacted by conditional logic.
+	if( $target.hasClass( 'gfield--type-honeypot') ) {
+		return;
+	}
 
+	if(action == "show"){
 		// reset tabindex for selects
 		$target.find( 'select' ).each( function() {
 			var $select = jQuery( this );
@@ -386,38 +439,35 @@ function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, cal
 
 		if(useAnimation && !isInit){
 			if($target.length > 0){
-				$target.find(':input:hidden:not(.gf-default-disabled)').removeAttr( 'disabled' );
+				$target.find(':input:hidden:not(.gf-default-disabled)').prop( 'disabled', false );
 				if ( $target.is( 'input[type="submit"]' ) || $target.hasClass( 'gform_next_button' ) ) {
-					$target.removeAttr( 'disabled' ).css( 'display', '' );
-					if ( '1' == gf_legacy.is_legacy ) {
-						// for legacy markup, remove screen reader class.
-						$target.removeClass( 'screen-reader-text' );
-					}
+					gf_show_button( $target );
 				}
 				$target.slideDown(callback);
+				$target.attr( 'data-conditional-logic', 'visible' );
 			} else if(callback){
 				callback();
 			}
 		}
 		else{
-
 			var display = $target.data('gf_display');
 
 			// set display if previous (saved) display isn't set for any reason
 			if ( display == '' || display == 'none' ){
 				display = '1' === gf_legacy.is_legacy ? 'list-item' : 'block';
 			}
-			$target.find(':input:hidden:not(.gf-default-disabled)').removeAttr( 'disabled' );
+			$target.find(':input:hidden:not(.gf-default-disabled)').prop( 'disabled', false ).attr( 'data-conditional-logic', 'visible' );
 
 			// Handle conditional submit and next buttons.
 			if ( $target.is( 'input[type="submit"]' ) || $target.hasClass( 'gform_next_button' ) ) {
-				$target.removeAttr( 'disabled' ).css( 'display', '' );
-				if ( '1' == gf_legacy.is_legacy ) {
-					// for legacy markup, remove screen reader class.
-					$target.removeClass( 'screen-reader-text' );
-				}
+				gf_show_button( $target );
 			} else {
 				$target.css( 'display', display );
+				if( display == 'none' ) {
+					$target.attr( 'data-conditional-logic', 'hidden' );
+				} else {
+					$target.attr( 'data-conditional-logic', 'visible' );
+				}
 			}
 
 			if(callback){
@@ -450,13 +500,10 @@ function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, cal
 
 		if(useAnimation && !isInit){
 			if( $target.is( 'input[type="submit"]' ) || $target.hasClass( 'gform_next_button' ) ) {
-				$target.attr( 'disabled', 'disabled' ).hide();
-				if ( '1' === gf_legacy.is_legacy ) {
-					// for legacy markup, let screen readers read the button.
-					$target.addClass( 'screen-reader-text' );
-				}
+				gf_hide_button( $target );
 			} else if ( $target.length > 0 && $target.is( ":visible" ) ) {
 				$target.slideUp( callback );
+				$target.attr( 'data-conditional-logic', 'hidden' );
 			} else if ( callback ) {
 				callback();
 			}
@@ -464,13 +511,10 @@ function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, cal
 
 			// Handle conditional submit and next buttons.
 			if ( $target.is( 'input[type="submit"]' ) || $target.hasClass( 'gform_next_button' ) ) {
-				$target.attr( 'disabled', 'disabled' ).hide();
-				if ( '1' === gf_legacy.is_legacy ) {
-					// for legacy markup, let screen readers read the button.
-					$target.addClass( 'screen-reader-text' );
-				}
+				gf_hide_button( $target );
 			} else {
 				$target.css( 'display', 'none' );
+				$target.attr( 'data-conditional-logic', 'hidden' );
 			}
 			$target.find(':input:hidden:not(.gf-default-disabled)').attr( 'disabled', 'disabled' );
 			if(callback){
@@ -479,6 +523,38 @@ function gf_do_action(action, targetId, useAnimation, defaultValues, isInit, cal
 		}
 	}
 
+}
+
+function gf_show_button( $target ) {
+	$target.prop( 'disabled', false ).css( 'display', '' );
+	$target.attr( 'data-conditional-logic', 'visible' );
+	if ( '1' == gf_legacy.is_legacy ) {
+		// for legacy markup, remove screen reader class.
+		$target.removeClass( 'screen-reader-text' );
+	}
+
+	// Sometimes the next button is pretending to be a submit button, so it needs conditional logic too.
+	var fauxSubmitButton = jQuery( 'input.gform_next_button[type="button"][value="Submit"]' );
+	if ( fauxSubmitButton ) {
+		fauxSubmitButton.prop( 'disabled', false ).css( 'display', '' );
+		fauxSubmitButton.attr( 'data-conditional-logic', 'visible' );
+	}
+}
+
+function gf_hide_button( $target ) {
+	$target.attr( 'disabled', 'disabled' ).hide();
+	$target.attr( 'data-conditional-logic', 'hidden' );
+	if ( '1' === gf_legacy.is_legacy ) {
+		// for legacy markup, let screen readers read the button.
+		$target.addClass( 'screen-reader-text' );
+	}
+
+	// Sometimes the next button is pretending to be a submit button, so it needs conditional logic too.
+	var fauxSubmitButton = jQuery( 'input.gform_next_button[type="button"][value="Submit"]' );
+	if ( fauxSubmitButton ) {
+		fauxSubmitButton.attr( 'disabled', 'disabled' ).hide();
+		fauxSubmitButton.attr( 'data-conditional-logic', 'hidden' );
+	}
 }
 
 function gf_reset_to_default(targetId, defaultValue){
@@ -549,11 +625,11 @@ function gf_reset_to_default(targetId, defaultValue){
 
 		//get name of previous input field to see if it is the radio button which goes with the "Other" text box
 		//otherwise field is populated with input field name
-		var radio_button_name = element.prev("input").attr("value");
+		var radio_button_name = element.prevAll("input").first().attr("value");
 		if(radio_button_name == "gf_other_choice"){
 			val = element.attr("value");
 		}
-		else if( jQuery.isArray( defaultValue ) && ! element.is( 'select[multiple]' ) ) {
+		else if( Array.isArray( defaultValue ) && ! element.is( 'select[multiple]' ) ) {
 			val = defaultValue[target_index];
 		}
 		else if(jQuery.isPlainObject(defaultValue)){
@@ -563,7 +639,7 @@ function gf_reset_to_default(targetId, defaultValue){
 				var inputId = element.attr( 'id' ).split( '_' ).slice( 2 ).join( '.' );
 				val = defaultValue[ inputId ];
 			}
-			if( ! val && element.attr( 'name' ) ) {
+			if( ! val && element.attr( 'name' ) && element.attr( 'type' ) != 'email' ) {
 				var inputId = element.attr( 'name' ).split( '_' )[1];
 				val = defaultValue[ inputId ];
 			}

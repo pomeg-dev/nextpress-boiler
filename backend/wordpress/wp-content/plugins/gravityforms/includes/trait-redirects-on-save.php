@@ -33,7 +33,7 @@ trait Redirects_On_Save {
 		$url = get_admin_url();
 		$url = add_query_arg(
 			array(
-				'page'     => rgget( 'page' ),
+				'page'     => GFForms::get_page_query_arg(),
 				'view'     => rgget( 'view' ),
 				'subview'  => rgget( 'subview' ),
 				'id'       => rgget( 'id' ),
@@ -44,7 +44,7 @@ trait Redirects_On_Save {
 
 		self::save_flash_message();
 
-		wp_safe_redirect( $url );
+		wp_safe_redirect( esc_url_raw( $url ) );
 	}
 
 	/**

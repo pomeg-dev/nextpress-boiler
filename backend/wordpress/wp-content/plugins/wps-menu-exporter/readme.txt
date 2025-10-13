@@ -3,8 +3,8 @@ Contributors: WPServeur, NicolasKulka, wpformation, benoti
 Donate link: https://www.paypal.me/donateWPServeur
 Tags: export, menus, exporter, menu, wordpress menus, import, importer, xml, rss, wxr, posts, pages, terms, wpserveur
 Requires at least: 4.2
-Tested up to: 6.5
-Stable tag: 1.3.7.1
+Tested up to: 6.8
+Stable tag: 1.3.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,9 @@ This plugin is only maintained, which means we do not guarantee free support. Co
 
 
 == Changelog ==
+
+= 1.3.7.2 =
+* Tested up to 6.8
 
 = 1.3.7.1 =
 * Fix screen admin notices
