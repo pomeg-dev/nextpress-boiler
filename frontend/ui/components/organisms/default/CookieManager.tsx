@@ -15,7 +15,7 @@ declare global {
 
 interface CookieManagerProps {
   settings: {
-    blogname: string,
+    blogname?: string,
     google_tag_manager_enabled: boolean;
     google_tag_manager_id: string;
   };
@@ -131,7 +131,7 @@ export function CookieManager({ settings }: CookieManagerProps) {
 
   return (
     <CookieBanner
-      companyName={settings.blogname || "Pomegranate"}
+      companyName={settings.blogname || "ORAPortal"}
       onAcceptAll={handleConsentChange}
       onDecline={handleConsentChange}
       onSavePreferences={handleConsentChange}
