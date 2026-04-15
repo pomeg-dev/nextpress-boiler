@@ -4,20 +4,20 @@
 set -e
 
 # Set variables
-SERVER="pometreeservername" 
+SERVER="[SITENAME]" 
 DB_UN="bn_wordpress"
-DB_PW="9e8164bb8cfb57b5c31271fc60df505a0cae20cc9de983bde57b95512127c285"
+DB_PW="bAlXnPEjrvXfY9qrp1ejymScCr0oT9Mj4uPDrLNDIYpj5kAmhsqLiILpZA79jdao"
 ADMIN_EMAIL="developer@pomegranate.co.uk"
 ADMIN_USER="wordpress"
 ADMIN_PASS="wordpress"
-SITE_URL="wp.pometreeservername.pomeg.dev"
+SITE_URL="wp.[SITENAME].pomeg.dev"
 DB_NAME="bitnami_wordpress"
 DUMP_FILE="/tmp/${SERVER}_dump.sql"
 DUMP_FILE_GZ="${DUMP_FILE}.gz"
 
 # Create a heredoc with the site mappings that we'll pass to the remote server
 cat > /tmp/site_mappings.txt << 'EOF'
-2|/subsite-slug-here
+2|/missionuk
 EOF
 
 # Function to check if previous command succeeded
@@ -29,7 +29,7 @@ check_error() {
 }
 
 echo "1. Creating DB dump from production server via pometree..."
-ssh pometree "sudo ssh $SERVER 'mariadb-dump -u\"$DB_UN\" -p\"$DB_PW\" \"$DB_NAME\" -v' | tail +2 | gzip -9 > $DUMP_FILE_GZ"
+ssh pometree "sudo ssh $SERVER '/opt/bitnami/mariadb/bin/mysqldump -u\"$DB_UN\" -p\"$DB_PW\" \"$DB_NAME\" -v' | tail +2 | gzip -9 > $DUMP_FILE_GZ"
 check_error "Failed to create database dump on pometree"
 
 echo "2. Copying DB dump from pometree to local..."

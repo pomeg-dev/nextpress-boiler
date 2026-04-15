@@ -1,40 +1,48 @@
 #!/bin/bash
 
 set -e  # Exit on error
-set -x  # Print commands as they're executed
 
-PROD_SERVER="pomepress"
+PROD_SERVER="[SITENAME]"
 POMETREE="pometree"
 DIR="$( cd "$( dirname "$0" )" && pwd )"
+LOCAL_UPLOADS="${DIR}/../wordpress/wp-content/uploads/"
+POMETREE_TEMP="/tmp/[SITENAME]_uploads_sync/"
 
-# Local operations first
-echo "1. Zipping up UPLOADS DUMP from local..."
-rm -rf /tmp/${PROD_SERVER}_new_uploads_dump.tar.gz
-cd ${DIR}/../wordpress/wp-content
-tar -zcvf /tmp/${PROD_SERVER}_new_uploads_dump.tar.gz uploads
+# Function to check if previous command succeeded
+check_error() {
+    if [ $? -ne 0 ]; then
+        echo "Error: $1"
+        exit 1
+    fi
+}
 
-# Send to pometree
-echo "2. Copying tar.gz to pometree..."
-scp /tmp/${PROD_SERVER}_new_uploads_dump.tar.gz ${POMETREE}:/tmp/${PROD_SERVER}_new_uploads_dump.tar.gz
+echo "1. Setting up temporary directory on pometree..."
+ssh ${POMETREE} "mkdir -p ${POMETREE_TEMP} && sudo chown -R \$(whoami): ${POMETREE_TEMP}"
+check_error "Failed to create temp directory on pometree"
 
-# Now connect to pometree and execute commands directly
-echo "3. Executing commands on pometree...."
-ssh $POMETREE 'bash -s' << 'COMMANDS'
-set -x
-echo "4. Setting permissions on destination server..."
-sudo ssh -tt pomepress "sudo chmod -R 777 /opt/bitnami/wordpress/wp-content/uploads/*"
+echo "2. Rsyncing uploads from local to pometree (with compression and fast cipher)..."
+rsync -avz --progress --delete \
+    -e "ssh -c aes128-ctr -o Compression=no" \
+    ${LOCAL_UPLOADS} \
+    ${POMETREE}:${POMETREE_TEMP}
+check_error "Failed to rsync to pometree"
 
-echo "5. Copying tar from pometree to final server..."
-sudo scp /tmp/pomepress_new_uploads_dump.tar.gz pomepress:/tmp/pomepress_new_uploads_dump.tar.gz
+echo "3. Setting permissions on destination server..."
+ssh ${POMETREE} "sudo ssh ${PROD_SERVER} 'sudo chmod -R 777 /opt/bitnami/wordpress/wp-content/uploads/* 2>/dev/null'" || true
 
-echo "6. Unzipping on new server..."
-sudo ssh -tt pomepress "cd /tmp && tar -xvpf pomepress_new_uploads_dump.tar.gz"
+echo "4. Rsyncing from pometree to production server..."
+ssh ${POMETREE} "sudo rsync -avz --progress --delete \
+    -e 'ssh -o StrictHostKeyChecking=no' \
+    ${POMETREE_TEMP} \
+    ${PROD_SERVER}:/opt/bitnami/wordpress/wp-content/uploads/"
+check_error "Failed to rsync to production server"
 
-echo "7. Rsyncing uploads folders on new server..."
-sudo ssh -tt pomepress "rsync -avz /tmp/uploads/* /opt/bitnami/wordpress/wp-content/uploads/"
+echo "5. Correcting ownership and permissions on production server..."
+ssh ${POMETREE} "sudo ssh ${PROD_SERVER} 'cd /opt/bitnami/wordpress/wp-content && sudo chown -R bitnami:daemon uploads && sudo find uploads -type d -exec chmod 775 {} \; && sudo find uploads -type f -exec chmod 664 {} \;'"
+check_error "Failed to set permissions on production"
 
-echo "8. Correcting permissions..."
-sudo ssh -tt pomepress "cd /opt/bitnami/wordpress && sudo chown bitnami:daemon -R * && sudo find . -type f -exec chmod 644 {} \;"
+echo "6. Cleanup on pometree..."
+ssh ${POMETREE} "sudo rm -rf ${POMETREE_TEMP}"
+check_error "Failed to cleanup on pometree"
 
-echo "Operations completed!"
-COMMANDS
+echo "Done! Local uploads have been synced to production using rsync."

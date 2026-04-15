@@ -2,7 +2,7 @@
 
 # Configuration
 POMEG_HOST="pometree"  # Replace with your actual pometree hostname
-SERVER_NAME="pomepress" # Replace with your actual server name
+SERVER_NAME="[SITENAME]" # Replace with your actual server name
 
 # Colors for output
 GREEN='\033[0;32m'

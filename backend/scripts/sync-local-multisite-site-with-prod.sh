@@ -1,128 +1,136 @@
-# SERVER="missionwp"
-# DB_UN="bn_wordpress"
-# DB_PW="fdcc506878845de5bde50ef7848608f93e896eb1ff4a787b3819839c8fd6119b"
+#!/bin/bash
 
-# # SITE_ID equal to first param in sh command
-# SITE_ID=$1
+# Set variables
+SERVER="[SITENAME]"
+DB_UN="bn_wordpress"
+DB_PW="bAlXnPEjrvXfY9qrp1ejymScCr0oT9Mj4uPDrLNDIYpj5kAmhsqLiILpZA79jdao"
+ADMIN_EMAIL="developer@pomegranate.co.uk"
+ADMIN_USER="wordpress"
+ADMIN_PASS="^U(GLDf4$6NJ%uAg8NeS2%gf"
+SITE_URL="wp.$SERVER.pomeg.dev"
 
-# # if no site id, exit
-# if [ -z "$SITE_ID" ]
-# then
-#         echo
-#         echo "ERROR: No site id supplied"
-#         echo
-#         echo "Usage: ./sync-local-multisite-site-with-prod.sh <site_id>"
-#         echo
-#         exit
-# fi
+# Create a heredoc with the site mappings that we'll pass to the remote server
+cat > /tmp/site_mappings.txt << 'EOF'
+2|/sitename
+EOF
 
-# # continue editing here >>
-# echo "1. Zipping up DB DUMP from local...\n"
-# docker exec -i wordpress_mysql mysqldump -uroot -ppassword wordpress | gzip -9 > /tmp/mission_dump.sql.gz
+echo "1. Zipping up DB DUMP from local..."
+docker exec -i wordpress_mysql mariadb-dump --add-drop-table -uroot -ppassword wordpress | gzip -9 > /tmp/${SERVER}_dump.sql.gz
+echo "   Dump size: $(du -sh /tmp/${SERVER}_dump.sql.gz | cut -f1)"
 
-# echo "2. copying DB DUMP to server...\n"
-# scp -r /tmp/mission_dump.sql.gz $SERVER:/tmp/mission_dump.sql.gz
+echo "2. Copying DB DUMP to pometree..."
+scp /tmp/${SERVER}_dump.sql.gz pometree:/tmp/ && echo "   dump.sql.gz copied OK" || echo "   ERROR: failed to copy dump"
+scp /tmp/site_mappings.txt pometree:/tmp/ && echo "   site_mappings.txt copied OK" || echo "   ERROR: failed to copy site_mappings"
 
-# echo "3. Unzipping on server...\n"
-# ssh $SERVER "gzip -f -d /tmp/mission_dump.sql.gz"
+# SSH into pometree and create the remote script
+ssh pometree "cat > /tmp/remote_update.sh" << 'EOT'
+#!/bin/bash
 
+SERVER=$1
+SITE_URL=$2
+DB_UN=$3
+DB_PW=$4
+ADMIN_USER=$5
+ADMIN_EMAIL=$6
+ADMIN_PASS=$7
 
-# echo "4. Syncing mysql dbs on server ONLY FOR wp site id == $SITE_ID..\n"
-# ssh $SERVER "mysql -u$DB_UN -p$DB_PW bitnami_wordpress < /tmp/mission_dump.sql"
+echo "3. Copying DB DUMP from pometree to $SERVER..."
+sudo scp /tmp/${SERVER}_dump.sql.gz "$SERVER:/tmp/" && echo "   dump.sql.gz copied to $SERVER OK" || echo "   ERROR: failed to copy dump to $SERVER"
+sudo scp /tmp/site_mappings.txt "$SERVER:/tmp/" && echo "   site_mappings.txt copied to $SERVER OK" || echo "   ERROR: failed to copy site_mappings to $SERVER"
 
+# Create the final server script
+sudo ssh "$SERVER" "cat > /tmp/server_update.sh" << 'EOF'
+#!/bin/bash
 
-# echo "5. Setting db urls...."
-# ssh $SERVER "mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e \"UPDATE wp_options SET option_value = 'https://mission-wp.pomeg.dev' WHERE option_name = 'home' OR option_name = 'siteurl'\";"
+# Get parameters
+DB_UN=$1
+DB_PW=$2
+SITE_URL=$3
+ADMIN_USER=$4
+ADMIN_EMAIL=$5
+ADMIN_PASS=$6
 
+# Calculate admin username length for PHP serialization
+ADMIN_USER_LENGTH=${#ADMIN_USER}
 
-# echo "6. Replacing urls within posts..."
-# ssh $SERVER "mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e \"UPDATE wp_posts SET post_content = REPLACE(post_content, 'http://localhost', 'https://mission-wp.pomeg.dev');\";"
-# ssh $SERVER "mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e \"UPDATE wp_postmeta SET meta_value = REPLACE(meta_value, 'http://localhost', 'https://mission-wp.pomeg.dev');\";"
+# Bitnami: use mariadb binaries with TCP to avoid socket path mismatch
+MYSQL_BIN="/opt/bitnami/mariadb/bin/mariadb"
+MYSQLDUMP_BIN="/opt/bitnami/mariadb/bin/mariadb-dump"
+MYSQL_OPTS="-h 127.0.0.1"
 
-# # if port 22 blocked message, may need to allow ip in ufw
-# echo "7. Setting wp admin user...."
-# ssh -T $SERVER << EOF
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'DELETE FROM wp_users where ID = 1';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'DELETE FROM wp_usermeta where user_id = 1';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name) VALUES ("1", "ryan.s", MD5("&GYvhe2df32dwf"), "Admin Name", "ryan.s@pomegranate.co.uk", "", "2014-06-09 00:00:00", "", "0", "Ryan S")';
+echo "4. Backing up existing database..."
+BACKUP_FILE="/tmp/bitnami_wordpress_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
+"$MYSQLDUMP_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress | gzip -9 > "$BACKUP_FILE"
+echo "   Backup saved to $BACKUP_FILE ($(du -sh "$BACKUP_FILE" | cut -f1))"
+
+echo "5. Unzipping and importing database..."
+ls -lh /tmp/*_dump.sql.gz 2>/dev/null || echo "   WARNING: no dump file found in /tmp"
+gzip -f -d /tmp/*_dump.sql.gz && echo "   Unzip OK" || echo "   ERROR: unzip failed"
+ls -lh /tmp/*_dump.sql 2>/dev/null || echo "   WARNING: no .sql file after unzip"
+echo "   Running import..."
+"$MYSQL_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress < /tmp/*_dump.sql && echo "   Import OK" || echo "   ERROR: import failed"
+echo "   Post-import table count: $("$MYSQL_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress -e 'SHOW TABLES;' 2>/dev/null | wc -l)"
+
+echo "6. Setting up main site..."
+"$MYSQL_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress -e "
+    DELETE FROM wp_users WHERE ID = 1;
+    DELETE FROM wp_usermeta WHERE user_id = 1;
     
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_user_level", "10")';
+    INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name)
+    VALUES (1, '$ADMIN_USER', 'placeholder', 'admin', '$ADMIN_EMAIL', '', '2014-06-09 00:00:00', '', 0, 'Developer');
     
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_sitemeta SET meta_value="https://mission-wp.pomeg.dev/" WHERE meta_key="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_sitemeta (meta_id, site_id, meta_key, meta_value) VALUES (NULL, "1", "site_admins", "a:1:{i:0;s:6:\"ryan.s\";}")';
+    INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, 1, 'wp_capabilities', 'a:1:{s:13:\"administrator\";b:1;}');
+    INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, 1, 'wp_user_level', '10');
+    
+    UPDATE wp_options SET option_value = 'https://$SITE_URL' WHERE option_name = 'home' OR option_name = 'siteurl';
+    UPDATE wp_posts SET post_content = REPLACE(post_content, 'http://localhost', 'https://$SITE_URL');
+    UPDATE wp_postmeta SET meta_value = REPLACE(meta_value, 'http://localhost', 'https://$SITE_URL');
+    
+    UPDATE wp_site SET domain = '$SITE_URL';
+    UPDATE wp_blogs SET domain = '$SITE_URL' WHERE blog_id = 1;
+    UPDATE wp_sitemeta SET meta_value = 'https://$SITE_URL' WHERE meta_key = 'siteurl';
+    
+    # Set site_admins with proper PHP serialization format
+    DELETE FROM wp_sitemeta WHERE meta_key = 'site_admins';
+    INSERT INTO wp_sitemeta (meta_id, site_id, meta_key, meta_value)
+    VALUES (NULL, 1, 'site_admins', CONCAT('a:1:{i:0;s:', $ADMIN_USER_LENGTH, ':\"', '$ADMIN_USER', '\";}'));
+"
 
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_options SET option_value="https://mission-wp.pomeg.dev" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="1"';
+echo "7. Processing additional sites..."
+while IFS='|' read -r site_id site_path; do
+    echo "Processing site $site_id at $site_path..."
+    
+    "$MYSQL_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress -e "
+        UPDATE wp_${site_id}_options SET option_value = 'https://$SITE_URL$site_path' WHERE option_name = 'home' OR option_name = 'siteurl';
+        UPDATE wp_blogs SET domain = '$SITE_URL', path = '${site_path}/' WHERE blog_id = ${site_id};
+        UPDATE wp_${site_id}_posts SET post_content = REPLACE(post_content, 'http://localhost', 'https://$SITE_URL');
+        UPDATE wp_${site_id}_postmeta SET meta_value = REPLACE(meta_value, 'http://localhost', 'https://$SITE_URL');
+        INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, 1, 'wp_${site_id}_capabilities', 'a:1:{s:13:\"administrator\";b:1;}') ON DUPLICATE KEY UPDATE meta_value=VALUES(meta_value);
+        INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, 1, 'wp_${site_id}_user_level', '10') ON DUPLICATE KEY UPDATE meta_value=VALUES(meta_value);
+    "
+done < /tmp/site_mappings.txt
 
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="1"';
+echo "8. Final multisite configuration..."
+"$MYSQL_BIN" $MYSQL_OPTS -u"$DB_UN" -p"$DB_PW" bitnami_wordpress -e "
+    UPDATE wp_site SET path = '/';
+    UPDATE wp_sitemeta SET meta_value = 'https://$SITE_URL' WHERE meta_key = 'siteurl';
+    UPDATE wp_options SET option_value = 'https://$SITE_URL/wp-content/uploads' WHERE option_name = 'upload_url_path';
+    UPDATE wp_options SET option_value = 'a:1:{s:13:\"subdirectories\";s:1:\"1\";}' WHERE option_name = 'wordpress_multisite';
+"
 
+echo "9. Setting admin password via WP-CLI..."
+/opt/bitnami/wordpress/wp-cli.phar --path=/opt/bitnami/wordpress user update 1 --user_pass="$ADMIN_PASS" --allow-root && echo "   Password set OK" || echo "   ERROR: WP-CLI password update failed"
 
+echo "10. Cleanup..."
+rm /tmp/*_dump.sql /tmp/site_mappings.txt /tmp/server_update.sh
+EOF
 
+# Make the server script executable and run it
+sudo ssh "$SERVER" "chmod +x /tmp/server_update.sh && /tmp/server_update.sh '$DB_UN' '$DB_PW' '$SITE_URL' '$ADMIN_USER' '$ADMIN_EMAIL' '$ADMIN_PASS'"
+EOT
 
-#     # extra site /series-example
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_2_options SET option_value="https://mission-wp.pomeg.dev/series-example" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="2"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="2"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_2_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_2_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_2_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_2_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
+# Make the remote script executable and run it
+ssh pometree "chmod +x /tmp/remote_update.sh && /tmp/remote_update.sh '$SERVER' '$SITE_URL' '$DB_UN' '$DB_PW' '$ADMIN_USER' '$ADMIN_EMAIL' '$ADMIN_PASS'"
 
-#     # extra site /igniteins
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_3_options SET option_value="https://mission-wp.pomeg.dev/igniteins" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="3"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="3"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_3_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_3_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_3_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_3_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-#     # extra site /series-design-system
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_4_options SET option_value="https://mission-wp.pomeg.dev/series-design-system" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="4"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="4"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_4_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_4_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_4_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_4_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-#     # extra site /alteainsurance
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_5_options SET option_value="https://mission-wp.pomeg.dev/alteainsurance" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="5"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="5"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_5_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_5_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_5_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_5_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-#      # extra site /kayzen
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_6_options SET option_value="https://mission-wp.pomeg.dev/kayzen" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="6"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="6"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_6_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_6_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_6_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_6_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-#      # extra site /onebefore
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_7_options SET option_value="https://mission-wp.pomeg.dev/onebefore" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="7"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="7"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_7_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_7_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_7_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_7_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-#     # extra site /ventis
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_8_options SET option_value="https://mission-wp.pomeg.dev/ventis" WHERE option_name="home" OR option_name="siteurl"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_blogs SET domain="mission-wp.pomeg.dev" WHERE blog_id="8"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_site SET domain="mission-wp.pomeg.dev" WHERE id="8"';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_8_capabilities", "a:1:{s:13:\"administrator\";b:1;}")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'INSERT INTO wp_usermeta (umeta_id, user_id, meta_key, meta_value) VALUES (NULL, "1", "wp_8_user_level", "10")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_8_posts SET post_content = REPLACE(post_content, "http://localhost", "https://mission-wp.pomeg.dev")';
-#     mysql -u$DB_UN -p$DB_PW bitnami_wordpress -e 'UPDATE wp_8_postmeta SET meta_value = REPLACE(meta_value, "http://localhost", "https://mission-wp.pomeg.dev")';
-
-
-# EOF
-
+# Cleanup local files
+rm /tmp/${SERVER}_dump.sql.gz /tmp/site_mappings.txt
