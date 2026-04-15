@@ -1,0 +1,46 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "version": 2,
+    "settings": {
+        "color": {
+            "defaultPalette": false,
+            "palette": [
+                {
+                    "name": "Black",
+                    "slug": "black",
+                    "color": "var(--color-black)"
+                },
+                {
+                    "name": "White",
+                    "slug": "white",
+                    "color": "var(--color-white)"
+                },
+                {
+                    "name": "Primary",
+                    "slug": "primary",
+                    "color": "var(--color-primary)"
+                },
+                {
+                    "name": "Secondary",
+                    "slug": "secondary",
+                    "color": "var(--color-secondary)"
+                },
+                {
+                    "name": "Tertiary",
+                    "slug": "tertiary",
+                    "color": "var(--color-tertiary)"
+                },
+                {
+                    "name": "Accent",
+                    "slug": "accent",
+                    "color": "var(--color-accent)"
+                },
+                {
+                    "name": "Card Fill",
+                    "slug": "card-fill",
+                    "color": "var(--card-fill)"
+                }
+            ]
+        }
+    }
+}
