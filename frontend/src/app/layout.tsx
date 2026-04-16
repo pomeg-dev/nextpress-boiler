@@ -1,5 +1,5 @@
-import { getSettings } from "@/lib/wp/settings";
 import "../ui/globals.scss";
+import { getSettings } from "@/lib/wp/settings";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
 import { LocaleProvider } from "./providers";
@@ -10,6 +10,7 @@ import { figmaVariablesCSS } from "@/lib/figma-variables.css";
 
 // Function to dynamically load theme-specific Figma variables
 async function getThemeFigmaVariables(theme: string): Promise<string> {
+
   try {
     // Try to import theme vars
     const themeModule = await import(`@/lib/figma-variables-${theme}.css`);
@@ -25,6 +26,7 @@ async function getThemeFigmaVariables(theme: string): Promise<string> {
 async function SettingsProvider({ children }: { children: React.ReactNode }) {
   const settings = await getSettings(
     [
+      'blogname',
       'enable_user_flow', 
       'google_tag_manager_enabled', 
       'google_tag_manager_id',
@@ -38,7 +40,7 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   initializeComponentCache().catch(console.warn);
   
   // Get theme-specific Figma variables
-  const mainTheme = themes[0] || 'sommet';
+  const mainTheme = themes[0] || 'elitehub';
   const themeFigmaVariables = await getThemeFigmaVariables(mainTheme);
   
   const themeProps = themes.reduce(
@@ -62,6 +64,7 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
           <Suspense>
             <CookieManager 
               settings={{
+                blogname: settings.blogname,
                 google_tag_manager_enabled: settings.google_tag_manager_enabled,
                 google_tag_manager_id: settings.google_tag_manager_id,
               }}
