@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Sync your local multisite WP database with production, this overwrites the entire DB.
+
 # Set variables
 SERVER="[SITENAME]"
 DB_UN="bn_wordpress"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Sync your local single site WP database with production, this overwrites the entire DB.
+
 # Exit on error
 set -e
 
