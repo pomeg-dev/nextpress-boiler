@@ -8,6 +8,7 @@ import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
+import PasswordGate from '@ui/components/organisms/default/PasswordGate';
 
 type NextProps = {
   params: Promise<{ slug: string[] }>
@@ -68,6 +69,9 @@ export default async function Post({ params, searchParams }: NextProps) {
     }
   }
 
+  // Password protection
+  const postPassword = post?.password;
+
   // Handle 404.
   if (!post && !isTaxPage || (!isTaxPage && post?.['404'] && post['404'] === true)) {
     notFound();
@@ -110,7 +114,7 @@ export default async function Post({ params, searchParams }: NextProps) {
     sidebarContent = additionalPostData(post.template.sidebar_content, post);
   }
 
-  return (
+  const content = (
     <>
       {updatedSchema &&
         <script
@@ -148,6 +152,10 @@ export default async function Post({ params, searchParams }: NextProps) {
       }
     </>
   );
+
+  return postPassword ? (
+    <PasswordGate password={postPassword}>{content}</PasswordGate>
+  ) : content;
 }
 
 export async function generateStaticParams() {
@@ -234,7 +242,10 @@ export async function generateMetadata(
     return {
       title: post.yoastHeadJSON.title,
       description: post.yoastHeadJSON.description,
-      robots: post.yoastHeadJSON.robots,
+      robots: post.yoastHeadJSON.robots ? {
+        index: post.yoastHeadJSON.robots.index === 'index',
+        follow: post.yoastHeadJSON.robots.follow === 'follow',
+      } : undefined,
       metadataBase: post.yoastHeadJSON.metadataBase,
       openGraph: {
         locale: post.yoastHeadJSON.og_locale,
