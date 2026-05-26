@@ -155,7 +155,9 @@ class Yoast_Network_Settings_API {
 	 */
 	public static function get() {
 
-		self::$instance ??= new self();
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
 
 		return self::$instance;
 	}

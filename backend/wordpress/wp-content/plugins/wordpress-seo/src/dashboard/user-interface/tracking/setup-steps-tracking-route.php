@@ -1,5 +1,4 @@
 <?php
-
 // phpcs:disable Yoast.NamingConventions.NamespaceName.TooLong -- Needed in the folder structure.
 namespace Yoast\WP\SEO\Dashboard\User_Interface\Tracking;
 
@@ -7,7 +6,7 @@ use Exception;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use Yoast\WP\SEO\Conditionals\No_Conditionals;
+use Yoast\WP\SEO\Conditionals\Google_Site_Kit_Feature_Conditional;
 use Yoast\WP\SEO\Dashboard\Infrastructure\Tracking\Setup_Steps_Tracking_Repository_Interface;
 use Yoast\WP\SEO\Helpers\Capability_Helper;
 use Yoast\WP\SEO\Main;
@@ -21,8 +20,6 @@ use Yoast\WP\SEO\Routes\Route_Interface;
  * @phpcs:disable Yoast.NamingConventions.ObjectNameDepth.MaxExceeded
  */
 class Setup_Steps_Tracking_Route implements Route_Interface {
-
-	use No_Conditionals;
 
 	/**
 	 *  The namespace for this route.
@@ -51,6 +48,15 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 	 * @var Capability_Helper
 	 */
 	private $capability_helper;
+
+	/**
+	 * Returns the needed conditionals.
+	 *
+	 * @return array<string> The conditionals that must be met to load this.
+	 */
+	public static function get_conditionals(): array {
+		return [ Google_Site_Kit_Feature_Conditional::class ];
+	}
 
 	/**
 	 * Constructs the class.
@@ -108,7 +114,7 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 						],
 					],
 				],
-			],
+			]
 		);
 	}
 
@@ -133,7 +139,7 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 				$data,
 				static function ( $value ) {
 					return $value !== null;
-				},
+				}
 			);
 
 			// Check if all values are null then return an error that no valid params were passed.
@@ -141,7 +147,7 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 			return new WP_Error(
 				'wpseo_set_site_kit_usage_tracking',
 				\__( 'No valid parameters were passed.', 'wordpress-seo' ),
-				[ 'status' => 400 ],
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -153,7 +159,7 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 				return new WP_Error(
 					'wpseo_set_site_kit_usage_tracking',
 					$exception->getMessage(),
-					(object) [],
+					(object) []
 				);
 			}
 			if ( ! $result ) {
@@ -165,7 +171,7 @@ class Setup_Steps_Tracking_Route implements Route_Interface {
 			[
 				'success' => $result,
 			],
-			( $result ) ? 200 : 400,
+			( $result ) ? 200 : 400
 		);
 	}
 

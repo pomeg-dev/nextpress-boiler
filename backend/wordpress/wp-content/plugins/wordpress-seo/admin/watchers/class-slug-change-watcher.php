@@ -184,7 +184,9 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 		$post_type_object = get_post_type_object( $post_type );
 
 		// If the post type of this post wasn't registered default back to post.
-		$post_type_object ??= get_post_type_object( 'post' );
+		if ( $post_type_object === null ) {
+			$post_type_object = get_post_type_object( 'post' );
+		}
 
 		return $post_type_object->labels->singular_name;
 	}
@@ -245,7 +247,7 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 			[
 				'type'           => 'notice-warning is-dismissible',
 				'yoast_branding' => true,
-			],
+			]
 		);
 
 		$notification_center = Yoast_Notification_Center::get();

@@ -27,7 +27,9 @@ class Home_Url_Helper {
 	 * @return string The home url.
 	 */
 	public function get() {
-		static::$home_url ??= \home_url();
+		if ( static::$home_url === null ) {
+			static::$home_url = \home_url();
+		}
 
 		return static::$home_url;
 	}
@@ -38,7 +40,9 @@ class Home_Url_Helper {
 	 * @return array The parsed url.
 	 */
 	public function get_parsed() {
-		static::$parsed_home_url ??= \wp_parse_url( $this->get() );
+		if ( static::$parsed_home_url === null ) {
+			static::$parsed_home_url = \wp_parse_url( $this->get() );
+		}
 
 		return static::$parsed_home_url;
 	}

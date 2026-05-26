@@ -96,8 +96,7 @@ class WPSEO_Premium_Import_Manager implements WPSEO_WordPress_Integration {
 			$result = $this->import_redirects_from_loader( $loader );
 
 			$this->set_import_success( $result );
-		}
-		catch ( WPSEO_Redirect_Import_Exception $e ) {
+		} catch ( WPSEO_Redirect_Import_Exception $e ) {
 			$this->set_import_message( $e->getMessage() );
 		}
 	}
@@ -119,8 +118,7 @@ class WPSEO_Premium_Import_Manager implements WPSEO_WordPress_Integration {
 			$result = $this->import_redirects_from_loader( $loader );
 
 			$this->set_import_success( $result );
-		}
-		catch ( WPSEO_Redirect_Import_Exception $e ) {
+		} catch ( WPSEO_Redirect_Import_Exception $e ) {
 			$this->set_import_message( $e->getMessage() );
 		}
 	}
@@ -145,8 +143,7 @@ class WPSEO_Premium_Import_Manager implements WPSEO_WordPress_Integration {
 			$result = $this->import_redirects_from_loader( $loader );
 
 			$this->set_import_success( $result );
-		}
-		catch ( WPSEO_Redirect_Import_Exception $e ) {
+		} catch ( WPSEO_Redirect_Import_Exception $e ) {
 			$this->set_import_message( $e->getMessage() );
 		}
 	}
@@ -330,12 +327,13 @@ class WPSEO_Premium_Import_Manager implements WPSEO_WordPress_Integration {
 	 * @return string The posted htaccess.
 	 */
 	protected function get_posted_htaccess() {
-		$htaccess = filter_input( INPUT_POST, 'htaccess' );
-		if ( $htaccess === null ) {
-			return '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: We are validating a nonce here.
+		if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'wpseo-import' )
+			&& isset( $_POST['htaccess'] ) && is_string( $_POST['htaccess'] ) ) {
+			return sanitize_text_field( wp_unslash( $_POST['htaccess'] ) );
 		}
 
-		return stripcslashes( $htaccess );
+		return '';
 	}
 
 	/**
@@ -346,13 +344,14 @@ class WPSEO_Premium_Import_Manager implements WPSEO_WordPress_Integration {
 	 * @return string|null The posted import plugin.
 	 */
 	protected function get_posted_import_plugin() {
-		$wpseo_post = filter_input( INPUT_POST, 'wpseo', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-
-		if ( ! isset( $wpseo_post['import_plugin'] ) ) {
-			return null;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: We are validating a nonce here.
+		if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'wpseo-import' )
+			&& isset( $_POST['wpseo'] ) && is_array( $_POST['wpseo'] )
+			&& isset( $_POST['wpseo']['import_plugin'] ) && is_string( $_POST['wpseo']['import_plugin'] ) ) {
+			return sanitize_text_field( wp_unslash( $_POST['wpseo']['import_plugin'] ) );
 		}
 
-		return $wpseo_post['import_plugin'];
+		return null;
 	}
 
 	/**

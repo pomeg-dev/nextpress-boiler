@@ -102,7 +102,9 @@ class Yoast_Plugin_Conflict {
 			return false;
 		}
 
-		$sections_checked ??= [];
+		if ( $sections_checked === null ) {
+			$sections_checked = [];
+		}
 
 		if ( ! in_array( $plugin_section, $sections_checked, true ) ) {
 			$sections_checked[] = $plugin_section;
@@ -192,8 +194,8 @@ class Yoast_Plugin_Conflict {
 					[
 						'type' => Yoast_Notification::ERROR,
 						'id'   => 'wpseo-conflict-' . $identifier,
-					],
-				),
+					]
+				)
 			);
 		}
 	}

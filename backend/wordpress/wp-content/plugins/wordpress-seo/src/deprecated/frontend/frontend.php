@@ -92,7 +92,9 @@ class WPSEO_Frontend {
 	 * @return static The instance.
 	 */
 	public static function get_instance() {
-		self::$instance ??= new self();
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
 
 		return self::$instance;
 	}

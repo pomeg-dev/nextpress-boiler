@@ -145,7 +145,9 @@ class Meta_Surface {
 	 * @return Meta|false The meta values. False if none could be found.
 	 */
 	public function for_post_type_archive( $post_type = null ) {
-		$post_type ??= \get_post_type();
+		if ( $post_type === null ) {
+			$post_type = \get_post_type();
+		}
 
 		$indexable = $this->repository->find_for_post_type_archive( $post_type );
 
@@ -224,7 +226,7 @@ class Meta_Surface {
 			function ( $indexable ) {
 				return $this->build_meta( $this->context_memoizer->get( $indexable, 'Post_Type' ) );
 			},
-			$indexables,
+			$indexables
 		);
 	}
 
@@ -275,7 +277,9 @@ class Meta_Surface {
 		if ( ! \is_a( $indexable, Indexable::class ) ) {
 			return false;
 		}
-		$page_type ??= $this->indexable_helper->get_page_type_for_indexable( $indexable );
+		if ( $page_type === null ) {
+			$page_type = $this->indexable_helper->get_page_type_for_indexable( $indexable );
+		}
 
 		return $this->build_meta( $this->context_memoizer->get( $indexable, $page_type ) );
 	}
@@ -290,8 +294,10 @@ class Meta_Surface {
 	 */
 	public function for_indexables( $indexables, $page_type = null ) {
 		$closure = function ( $indexable ) use ( $page_type ) {
-			$this_page_type   = $page_type;
-			$this_page_type ??= $this->indexable_helper->get_page_type_for_indexable( $indexable );
+			$this_page_type = $page_type;
+			if ( $this_page_type === null ) {
+				$this_page_type = $this->indexable_helper->get_page_type_for_indexable( $indexable );
+			}
 
 			return $this->build_meta( $this->context_memoizer->get( $indexable, $this_page_type ) );
 		};

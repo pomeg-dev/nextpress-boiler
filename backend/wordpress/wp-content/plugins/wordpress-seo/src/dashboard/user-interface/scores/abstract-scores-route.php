@@ -1,5 +1,4 @@
 <?php
-
 // phpcs:disable Yoast.NamingConventions.NamespaceName.TooLong -- Needed in the folder structure.
 namespace Yoast\WP\SEO\Dashboard\User_Interface\Scores;
 
@@ -146,7 +145,7 @@ abstract class Abstract_Scores_Route implements Route_Interface {
 							'type'              => 'integer',
 							'default'           => null,
 							'sanitize_callback' => static function ( $param ) {
-								return (int) $param;
+								return \intval( $param );
 							},
 						],
 						'troubleshooting' => [
@@ -157,7 +156,7 @@ abstract class Abstract_Scores_Route implements Route_Interface {
 						],
 					],
 				],
-			],
+			]
 		);
 	}
 
@@ -180,13 +179,13 @@ abstract class Abstract_Scores_Route implements Route_Interface {
 				[
 					'error' => $exception->getMessage(),
 				],
-				$exception->getCode(),
+				$exception->getCode()
 			);
 		}
 
 		return new WP_REST_Response(
 			$results,
-			200,
+			200
 		);
 	}
 

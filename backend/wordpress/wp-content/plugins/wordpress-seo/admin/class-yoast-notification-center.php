@@ -90,7 +90,9 @@ class Yoast_Notification_Center {
 	 */
 	public static function get() {
 
-		self::$instance ??= new self();
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
 
 		return self::$instance;
 	}
@@ -542,7 +544,7 @@ class Yoast_Notification_Center {
 		$this->display_notifications( $echo );
 
 		// AJAX die.
-		exit();
+		exit;
 	}
 
 	/**
@@ -864,7 +866,7 @@ class Yoast_Notification_Center {
 
 		return new Yoast_Notification(
 			$notification_data['message'],
-			$notification_data['options'],
+			$notification_data['options']
 		);
 	}
 

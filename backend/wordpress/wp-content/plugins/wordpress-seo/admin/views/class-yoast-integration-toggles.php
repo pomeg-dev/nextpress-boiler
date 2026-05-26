@@ -33,7 +33,9 @@ class Yoast_Integration_Toggles {
 	 * @return self Main instance.
 	 */
 	public static function instance() {
-		self::$instance ??= new self();
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
 
 		return self::$instance;
 	}
@@ -44,7 +46,9 @@ class Yoast_Integration_Toggles {
 	 * @return array List of sorted Yoast_Feature_Toggle instances.
 	 */
 	public function get_all() {
-		$this->toggles ??= $this->load_toggles();
+		if ( $this->toggles === null ) {
+			$this->toggles = $this->load_toggles();
+		}
 
 		return $this->toggles;
 	}
@@ -65,7 +69,7 @@ class Yoast_Integration_Toggles {
 				'label'           => sprintf(
 					/* translators: %s: 'Semrush' */
 					__( 'The %s integration offers suggestions and insights for keywords related to the entered focus keyphrase.', 'wordpress-seo' ),
-					'Semrush',
+					'Semrush'
 				),
 				'order'           => 10,
 			],

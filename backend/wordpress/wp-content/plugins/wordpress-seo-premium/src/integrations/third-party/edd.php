@@ -2,9 +2,10 @@
 
 namespace Yoast\WP\SEO\Premium\Integrations\Third_Party;
 
-use Yoast\WP\SEO\Premium\Conditionals\EDD_Conditional;
+use WPSEO_Schema_Context;
 use Yoast\WP\SEO\Conditionals\Front_End_Conditional;
 use Yoast\WP\SEO\Integrations\Integration_Interface;
+use Yoast\WP\SEO\Premium\Conditionals\EDD_Conditional;
 use Yoast\WP\SEO\Surfaces\Meta_Surface;
 
 /**
@@ -70,8 +71,8 @@ class EDD implements Integration_Interface {
 	/**
 	 * Make sure the WebPage schema contains reference to the product.
 	 *
-	 * @param array                 $data    The schema Webpage data.
-	 * @param \WPSEO_Schema_Context $context Context object.
+	 * @param array                $data    The schema Webpage data.
+	 * @param WPSEO_Schema_Context $context Context object.
 	 *
 	 * @return array
 	 */
@@ -92,6 +93,7 @@ class EDD implements Integration_Interface {
 	 * @return array
 	 */
 	public function filter_download_schema( $data ) {
+
 		$data['@id']    = $this->meta->for_current_page()->canonical . '#/schema/edd-product/' . \get_the_ID();
 		$data['sku']    = (string) $data['sku'];
 		$data['brand']  = $this->return_organization_node();
@@ -112,10 +114,21 @@ class EDD implements Integration_Interface {
 	 * @return array
 	 */
 	private function clean_up_offer( $offer ) {
-		if ( array_key_exists( 'priceValidUntil', $offer ) && $offer['priceValidUntil'] === null ) {
-			unset( $offer['priceValidUntil'] );
+		// Checking for not isset @type makes sure there are multiple offers in the offer list. It is always an array.
+		if ( ! isset( $offer['@type'] ) ) {
+			foreach ( $offer as $key => $o ) {
+				if ( \array_key_exists( 'priceValidUntil', $o ) && $o['priceValidUntil'] === null ) {
+					unset( $offer[ $key ]['priceValidUntil'] );
+				}
+				$offer[ $key ]['seller'] = $this->return_organization_node();
+			}
 		}
-		$offer['seller'] = $this->return_organization_node();
+		else {
+			if ( \array_key_exists( 'priceValidUntil', $offer ) && $offer['priceValidUntil'] === null ) {
+				unset( $offer['priceValidUntil'] );
+			}
+			$offer['seller'] = $this->return_organization_node();
+		}
 
 		return $offer;
 	}

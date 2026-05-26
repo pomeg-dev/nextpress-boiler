@@ -25,18 +25,16 @@
   },
   "example": {
     "attributes": {
-      "questions": [
+      "steps": [
         {
           "id": "faq-question-1",
-          "question": "",
-          "answer": "",
-          "images": []
+          "question": [ ],
+          "answer": [ ]
         },
         {
           "id": "faq-question-2",
-          "question": "",
-          "answer": "",
-          "images": []
+          "question": [ ],
+          "answer": [ ]
         }
       ]
     }

@@ -1,5 +1,4 @@
 <?php
-
 // phpcs:disable Yoast.NamingConventions.NamespaceName.MaxExceeded
 namespace Yoast\WP\SEO\Llms_Txt\Domain\Markdown\Sections;
 
@@ -73,12 +72,12 @@ class Intro implements Section_Interface {
 			static function ( $link ) {
 				return $link->render();
 			},
-			$this->intro_links,
+			$this->intro_links
 		);
 
 		$this->intro_content = \sprintf(
 			$this->intro_content,
-			...$rendered_links,
+			...$rendered_links
 		);
 		return $this->intro_content;
 	}

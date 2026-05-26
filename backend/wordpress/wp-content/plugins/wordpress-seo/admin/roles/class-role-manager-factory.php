@@ -18,7 +18,9 @@ class WPSEO_Role_Manager_Factory {
 	public static function get() {
 		static $manager = null;
 
-		$manager ??= new WPSEO_Role_Manager_WP();
+		if ( $manager === null ) {
+			$manager = new WPSEO_Role_Manager_WP();
+		}
 
 		return $manager;
 	}

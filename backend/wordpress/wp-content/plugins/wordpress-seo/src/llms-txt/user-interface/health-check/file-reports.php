@@ -1,5 +1,4 @@
 <?php
-
 // phpcs:disable Yoast.NamingConventions.NamespaceName.TooLong
 namespace Yoast\WP\SEO\Llms_Txt\User_Interface\Health_Check;
 
@@ -68,7 +67,7 @@ class File_Reports {
 					'<p>',
 					'</p>',
 					'<p>',
-					'</p>',
+					'</p>'
 				);
 				break;
 			case 'filesystem_permissions':
@@ -79,7 +78,7 @@ class File_Reports {
 					'<p>',
 					'</p>',
 					'<p>',
-					'</p>',
+					'</p>'
 				);
 				break;
 			default:

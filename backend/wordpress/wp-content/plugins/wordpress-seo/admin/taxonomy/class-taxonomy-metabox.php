@@ -78,6 +78,7 @@ class WPSEO_Taxonomy_Metabox {
 		printf( '<div id="wpseo_meta" class="postbox yoast wpseo-taxonomy-metabox-postbox"><h2><span>%1$s</span></h2>', $this->get_product_title() );
 
 		echo '<div class="inside">';
+		echo '<div id="taxonomy_overall"></div>';
 
 		$this->render_hidden_fields();
 		$this->render_tabs();
@@ -160,7 +161,7 @@ class WPSEO_Taxonomy_Metabox {
 				'',
 				[
 					'html_after' => '<div id="wpseo-section-social"></div>',
-				],
+				]
 			);
 		}
 
@@ -209,7 +210,7 @@ class WPSEO_Taxonomy_Metabox {
 					$tab['name'],
 					$tab['link_content'],
 					$tab['content'],
-					$options,
+					$options
 				);
 			}
 		}
