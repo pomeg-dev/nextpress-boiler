@@ -20,59 +20,7 @@ function GFOwnerSetting() {
 	 * Initializes the Contact Owner module in the HubSpot feed settings.
 	 */
 	this.init = function() {
-		this.initOwner();
 		new GFConditionsSetting();
-	};
-
-	/**
-	 * Binds event listeners to the contact owner inputs and initializes the state.
-	 */
-	this.initOwner = function() {
-		var t = this;
-
-		$( '#contact_owner0, #contact_owner1, #contact_owner2' ).on( 'change', function() {
-			t.toggleOwner( true );
-		} );
-
-		this.toggleOwner( false );
-	};
-
-	/**
-	 * Toggles the active owner inputs.
-	 *
-	 * @param {boolean} doSlide
-	 */
-	this.toggleOwner = function( doSlide ) {
-		var ownerRadioIds = [
-			'#' + prefix.field + 'contact_owner_select',
-			'#' + prefix.field + 'contact_owner_conditional',
-		];
-		var $section = $( '.contact_owner_section' );
-		var $selectedOption = $( 'input[name="' + prefix.input + 'contact_owner"]:checked' );
-		var selection = $selectedOption.val();
-
-		$( ownerRadioIds.join( ', ' ) ).hide();
-
-		// No contact owner selected. Hide and exit.
-		if ( selection === 'none' ) {
-			if ( doSlide && legacyUI ) {
-				$section.slideUp();
-			} else {
-				$section.hide();
-			}
-			return;
-		}
-
-		// Show the contact owner section and the selected option.
-		if ( $section.is( ':hidden' ) ) {
-			if ( doSlide && legacyUI ) {
-				$section.slideDown();
-			} else {
-				$section.show();
-			}
-		}
-
-		$( '#' + prefix.field + 'contact_owner_' + selection ).show();
 	};
 
 	//Initializes this class
@@ -107,8 +55,8 @@ function GFConditionsSetting() {
 		headerMarkup += '<th class="gform-routings__heading gform-routings__heading--condition" colspan="3">{1}</th>';
 		headerMarkup += '</tr></thead>';
 
-		headerMarkup = headerMarkup.format( gform_hubspot_owner_settings_strings.assign_to, gform_hubspot_owner_settings_strings.condition );
-		routingsMarkup = '<table class="gform-routings">{0}<tbody class="repeater">{1}</tbody></table>'.format(headerMarkup, this.getNewRow());
+		headerMarkup = headerMarkup.gformFormat( gform_hubspot_owner_settings_strings.assign_to, gform_hubspot_owner_settings_strings.condition );
+		routingsMarkup = '<table class="gform-routings">{0}<tbody class="repeater">{1}</tbody></table>'.gformFormat(headerMarkup, this.getNewRow());
 
 		var $routings = $(routingsMarkup);
 
@@ -155,13 +103,13 @@ function GFConditionsSetting() {
 	this.getNewRow = function () {
 		var r = [];
 
-		r.push( '<td>{0}</td>'.format( this.getOwners() ) );
-		r.push( '<td>{0}</td>'.format( this.getFields() ) );
-		r.push( '<td>{0}</td>'.format( this.getOperators( this.options.fields[0] ) ) );
-		r.push( '<td>{0}</td>'.format( this.getValues() ) );
+		r.push( '<td>{0}</td>'.gformFormat( this.getOwners() ) );
+		r.push( '<td>{0}</td>'.gformFormat( this.getFields() ) );
+		r.push( '<td>{0}</td>'.gformFormat( this.getOperators( this.options.fields[0] ) ) );
+		r.push( '<td>{0}</td>'.gformFormat( this.getValues() ) );
 		r.push( '<td class="gform-routings-field gform-routings-field__buttons">{buttons}</td>' );
 
-		return '<tr class="gform-routing-row">{0}</tr>'.format( r.join('') );
+		return '<tr class="gform-routing-row">{0}</tr>'.gformFormat( r.join('') );
 	},
 
 	this.getOwners = function () {
@@ -171,7 +119,7 @@ function GFConditionsSetting() {
 			str = '<select class="gform-routing-owners owner_{i}">';
 
 		for (i = 0; i < owners.length; i++) {
-            str += '<option value="{0}">{1}</option>'.format( owners[i].value, owners[i].label );
+            str += '<option value="{0}">{1}</option>'.gformFormat( owners[i].value, owners[i].label );
 		}
 
 		str += "</select>";
@@ -192,12 +140,12 @@ function GFConditionsSetting() {
 				for (j = 0; j < numRows; j++) {
 					label = settings[i].filters[j].text;
 					val = settings[i].filters[j].key;
-					options.push('<option value="{0}">{1}</option>'.format(val, label));
+					options.push('<option value="{0}">{1}</option>'.gformFormat(val, label));
 				}
-				select.push('<optgroup label="{0}">{1}</optgroup>'.format(groupLabel, options.join('')));
+				select.push('<optgroup label="{0}">{1}</optgroup>'.gformFormat(groupLabel, options.join('')));
 			} else {
 				label = settings[i].text;
-				select.push('<option value="{0}">{1}</option>'.format(key, label));
+				select.push('<option value="{0}">{1}</option>'.gformFormat(key, label));
 			}
 
 		}
@@ -236,12 +184,12 @@ function GFConditionsSetting() {
 		}
 		var i, operator,
 			operatorStrings = this.options.operatorStrings,
-			str = '<select class="gform-routing-operator operator_{0}">'.format(index);
+			str = '<select class="gform-routing-operator operator_{0}">'.gformFormat(index);
 
 		if (filter) {
 			for (i = 0; i < filter.operators.length; i++) {
 				operator = filter.operators[i];
-				str += '<option value="{0}">{1}</option>'.format(operator, gf_vars[operatorStrings[operator]] );
+				str += '<option value="{0}">{1}</option>'.gformFormat(operator, gf_vars[operatorStrings[operator]] );
 			}
 		}
 		str += "</select>";
@@ -259,11 +207,11 @@ function GFConditionsSetting() {
 			for (i = 0; i < filter.values.length; i++) {
 				val = filter.values[i].value;
 				text = filter.values[i].text;
-				options += '<option value="{0}">{1}</option>'.format(val, text);
+				options += '<option value="{0}">{1}</option>'.gformFormat(val, text);
 			}
-			str = '<select class="gform-routing-value value_{0}">{1}</select>'.format(index, options);
+			str = '<select class="gform-routing-value value_{0}">{1}</select>'.gformFormat(index, options);
 		} else {
-			str = '<input type="text" value="" class="gform-routing-value value_{0}" />'.format(index);
+			str = '<input type="text" value="" class="gform-routing-value value_{0}" />'.gformFormat(index);
 		}
 
 		return str;

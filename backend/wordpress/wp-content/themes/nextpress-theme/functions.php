@@ -227,6 +227,9 @@ add_action('after_setup_theme', 'create_theme_nav_menus');
 
 function enqueue_admin_styles()
 {
+    if ( ! is_admin() ) {
+        return;
+    }
     wp_enqueue_style(
         'nextpress-editor-style',
         get_template_directory_uri() . '/assets/css/editor-style.css',
@@ -234,7 +237,7 @@ function enqueue_admin_styles()
         filemtime(get_template_directory() . '/assets/css/editor-style.css')
     );
 }
-add_action('admin_enqueue_scripts', 'enqueue_admin_styles');
+add_action('enqueue_block_assets', 'enqueue_admin_styles');
 
 //------------------------------------------------
 // ** EDITOR **

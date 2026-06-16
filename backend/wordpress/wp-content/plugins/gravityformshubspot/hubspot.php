@@ -3,7 +3,9 @@
 Plugin Name: Gravity Forms HubSpot Add-On
 Plugin URI: https://gravityforms.com
 Description: Integrates Gravity Forms with HubSpot, allowing form submissions to be automatically sent to your HubSpot account.
-Version: 2.0.0
+Version: 3.0.2
+Requires at least: 6.5
+Requires PHP: 7.4
 Author: Gravity Forms
 Author URI: https://gravityforms.com
 License: GPL-3.0+
@@ -11,7 +13,7 @@ Text Domain: gravityformshubspot
 Domain Path: /languages
 
 ------------------------------------------------------------------------
-Copyright 2019-2023 Rocketgenius, Inc.
+Copyright 2019-2026 Rocketgenius, Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,9 +32,9 @@ along with this program.  If not, see http://www.gnu.org/licenses.
 
 
 // Defines the current version of the Gravity Forms HubSpot Add-On.
-define( 'GF_HSPOT_VERSION', '2.0.0' );
+define( 'GF_HSPOT_VERSION', '3.0.2' );
 
-define( 'GF_HSPOT_MIN_GF_VERSION', '2.2' );
+define( 'GF_HSPOT_MIN_GF_VERSION', '2.9.4' );
 
 // After GF is loaded, load the add-on.
 add_action( 'gform_loaded', array( 'GF_HSpot_Bootstrap', 'load_addon' ), 5 );

@@ -53,7 +53,7 @@ class GF_HubSpot_API {
 	public function make_request( $path = '', $options = array(), $method = 'GET', $return_key = null, $response_code = 200 ) {
 
 		// Log API call succeed.
-		gf_hspot()->log_debug( __METHOD__ . '(): Making request to: ' . $path );
+		gf_hspot()->log_debug( __METHOD__ . sprintf( '(): Making %s request to: %s', $method, $path ) );
 
 		// Get authentication data.
 		$auth_data = $this->auth_data;
@@ -83,8 +83,9 @@ class GF_HubSpot_API {
 			);
 
 			// Add request arguments to body.
-			if ( in_array( $method, array( 'POST', 'PUT' ) ) ) {
+			if ( in_array( $method, array( 'POST', 'PUT', 'PATCH' ) ) ) {
 				$args['body'] = json_encode( $options );
+				gf_hspot()->log_debug( __METHOD__ . '(): Request body: ' . print_r( $args['body'], true ) );
 			}
 
 			// Execute API request.
@@ -107,12 +108,16 @@ class GF_HubSpot_API {
 			$error_message = "Expected response code: {$response_code}. Returned response code: {$retrieved_response_code}.";
 			$json_body     = gf_hspot()->maybe_decode_json( $response['body'] );
 
-			$error_data = array( 'status' => $retrieved_response_code );
-			if ( ! rgempty( 'message', $json_body ) ) {
-				$error_message = $json_body['message'];
-			}
-			if ( ! rgempty( rgars( $json_body, 'errors' ) ) ) {
-				$error_data['data'] = rgars( $json_body, 'errors' );
+			if ( rgar( $json_body, 'status' ) === 'error' ) {
+				$error_data = $json_body;
+			} else {
+				$error_data = array( 'status' => $retrieved_response_code );
+				if ( ! rgempty( 'message', $json_body ) ) {
+					$error_message = $json_body['message'];
+				}
+				if ( ! rgempty( rgars( $json_body, 'errors' ) ) ) {
+					$error_data['data'] = rgars( $json_body, 'errors' );
+				}
 			}
 
 			// 401 Unauthorized - Returned when the authentication provided is invalid.
@@ -136,7 +141,6 @@ class GF_HubSpot_API {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -185,7 +189,6 @@ class GF_HubSpot_API {
 			} elseif ( isset( $auth_payload['status'] ) ) {
 				$message = $auth_payload['status'];
 			}
-
 		}
 
 		return new WP_Error( 'hubspot_refresh_token_error', $message, array( 'status' => $response_code ) );
@@ -209,13 +212,13 @@ class GF_HubSpot_API {
 		}
 
 		return $this->make_request( 'token/revoke', array( 'token' => $auth_data['refresh_token'] ), 'DELETE', null, 204 );
-
 	}
 
 	/**
 	 * Get available users.
 	 *
 	 * @since  1.0
+	 * @since  2.3 Updated to use the v3 endpoint.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -223,7 +226,7 @@ class GF_HubSpot_API {
 		static $contacts;
 
 		if ( ! isset( $contacts ) ) {
-			$contacts = $this->make_request( 'contacts/v1/lists/all/contacts/all', array(), 'GET', 'users' );
+			$contacts = $this->make_request( 'crm/v3/objects/contacts', array(), 'GET', 'results' );
 		}
 
 		return $contacts;
@@ -233,14 +236,38 @@ class GF_HubSpot_API {
 	 * Get contact properties.
 	 *
 	 * @since 1.0
+	 * @depecated 2.3 No longer used as the add-on starts migrating to HubSpot API V3
 	 *
-	 * @return array|WP_Error
+	 * @return array|WP_Error Array of grouped property information or WP_Error on failure.
 	 */
 	public function get_contact_properties() {
+		return $this->make_request( 'properties/v1/contacts/groups/?includeProperties=true' );
+	}
 
-		$properties = $this->make_request( 'properties/v1/contacts/groups/?includeProperties=true', array(), 'GET' );
+	/**
+	 * Get contact property definitions from HubSpot API v3.
+	 *
+	 * Fetches a flat list of all contact property definitions.
+	 *
+	 * @since 2.3
+	 *
+	 * @return array|WP_Error Array of property definitions or WP_Error on failure.
+	 */
+	public function get_properties() {
+		return $this->make_request( 'crm/v3/properties/contacts', array(), 'GET', 'results' );
+	}
 
-		return $properties;
+	/**
+	 * Get contact property groups from HubSpot API v3.
+	 *
+	 * Fetches a list of all contact property groups.
+	 *
+	 * @since 2.3
+	 *
+	 * @return array|WP_Error Array of property groups or WP_Error on failure.
+	 */
+	public function get_property_groups() {
+		return $this->make_request( 'crm/v3/properties/contacts/groups', array(), 'GET', 'results' );
 	}
 
 	/**
@@ -261,79 +288,146 @@ class GF_HubSpot_API {
 	 * Create a new form.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated to use the v3 endpoint.
+	 * @since 3.0.1 Added the $retry_on_error parameter.
 	 *
-	 * @param array $form The form options array.
+	 * @param array $form           The form options array.
+	 * @param bool  $retry_on_error Whether to retry the request if form creation fails due to hubspot_owner_id field.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function create_form( $form ) {
-		return $this->make_request( 'forms/v2/forms', $form, 'POST' );
+	public function create_form( $form, $retry_on_error = true ) {
+		$result = $this->make_request( 'marketing/v3/forms', $form, 'POST', null, 201 );
+
+		return $retry_on_error ? $this->maybe_retry_without_owner_id_field( $result, $form ) : $result;
+	}
+
+	/**
+	 * Retries the request if the form creation or update fails due to the hubspot_owner_id field.
+	 *
+	 * @since 3.0.1
+	 *
+	 * @param array|WP_Error $result The result of the create or update form request.
+	 * @param array          $form   The form options array.
+	 * @param null|string    $guid   GUID of the form.
+	 *
+	 * @return array|WP_Error
+	 */
+	private function maybe_retry_without_owner_id_field( $result, $form, $guid = null ) {
+		if ( ! is_wp_error( $result ) || $result->get_error_code() !== 'hubspot_api_error' ) {
+			return $result;
+		}
+
+		$error_data = $result->get_error_data();
+		if ( ! ( rgar( $error_data, 'message' ) === 'internal error' && rgar( $error_data, 'category' ) === 'VALIDATION_ERROR' ) ) {
+			return $result;
+		}
+
+		$owner_removed = false;
+
+		foreach ( $form['fieldGroups'] as &$group ) {
+			if ( empty( $group['fields'] ) ) {
+				continue;
+			}
+
+			foreach ( $group['fields'] as $key => $field ) {
+				if ( rgar( $field, 'name' ) !== 'hubspot_owner_id' ) {
+					continue;
+				}
+
+				$owner_removed = true;
+				unset( $group['fields'][ $key ] );
+				$group['fields'] = array_values( $group['fields'] );
+				break;
+			}
+		}
+
+		if ( ! $owner_removed ) {
+			return $result;
+		}
+
+		if ( $guid ) {
+			$result = $this->update_form( $guid, $form, false );
+		} else {
+			$result = $this->create_form( $form, false );
+		}
+
+		if ( ! is_wp_error( $result ) ) {
+			GFCache::set( GF_HubSpot::OWNER_ID_DISABLED, true, true );
+		}
+
+		return $result;
 	}
 
 	/**
 	 * Get form by guid.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated to use the v3 endpoint.
 	 *
 	 * @param string $guid GUID of the form.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function get_form( $guid ) {
-		return $this->make_request( "forms/v2/forms/{$guid}" );
+		return $this->make_request( "marketing/v3/forms/{$guid}" );
 	}
 
 	/**
 	 * Get all forms.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated to use the v3 endpoint.
 	 *
 	 * @return array|WP_Error Returns an array of forms
 	 */
 	public function get_forms() {
-		return $this->make_request( 'forms/v2/forms' );
+		return $this->make_request( 'marketing/v3/forms', array(), 'GET', 'results' );
 	}
 
 	/**
 	 * Update the form.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated to use the v3 endpoint.
+	 * @since 3.0.1 Added the $retry_on_error parameter.
 	 *
-	 * @param string $guid GUID of the form.
-	 * @param array  $form The form options array.
+	 * @param string $guid           GUID of the form.
+	 * @param array  $form           The form options array.
+	 * @param bool   $retry_on_error Whether to retry the request if form update fails due to hubspot_owner_id field.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function update_form( $guid, $form ) {
+	public function update_form( $guid, $form, $retry_on_error = true ) {
+		$result = $this->make_request( "marketing/v3/forms/{$guid}", $form, 'PATCH' );
 
-		gf_hspot()->log_debug( 'Updating Form. GUID: ' . $guid );
-		gf_hspot()->log_debug( 'Payload: ' . print_r( $form, true ) );
-
-		return $this->make_request( "forms/v2/forms/{$guid}", $form, 'POST' );
+		return $retry_on_error ? $this->maybe_retry_without_owner_id_field( $result, $form, $guid ) : $result;
 	}
 
 	/**
 	 * Delete form.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated to use the v3 endpoint.
 	 *
 	 * @param string $guid GUID of the form.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function delete_form( $guid ) {
-		return $this->make_request( "forms/v2/forms/{$guid}", array(), 'DELETE', null, 204 );
+		return $this->make_request( "marketing/v3/forms/{$guid}", array(), 'DELETE', null, 204 );
 	}
 
 	/**
 	 * Get contact owners from HubSpot.
 	 *
 	 * @since 1.0
+	 * @since 2.1 Updated to use the v3 endpoint.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function get_owners() {
-		return $this->make_request( 'owners/v2/owners/' );
+		return $this->make_request( 'crm/v3/owners', array( 'limit' => 500 ), 'GET', 'results' );
 	}
 
 	/**
@@ -352,10 +446,18 @@ class GF_HubSpot_API {
 		// Submit HubSpot form.
 		$url = "https://api.hsforms.com/submissions/v3/integration/submit/{$portal_id}/{$form_guid}";
 
-		gf_hspot()->log_debug( 'Submitting Form. URL:' . $url );
-		gf_hspot()->log_debug( 'Payload: ' . print_r( $submission, true ) );
-
 		return $this->make_request( $url, $submission, 'POST' );
+	}
+
+	/**
+	 * Retrieve account information from HubSpot.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_account_info() {
+		return $this->make_request( 'account-info/v3/details' );
 	}
 
 }

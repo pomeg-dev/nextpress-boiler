@@ -97,7 +97,9 @@ class GFFormSettings {
 	 * Prepare form settings fields.
 	 *
 	 * @since 2.5
-	 * @since 2.9.8 Updated honeypotAction default to spam.
+	 * @since 2.9.8  Updated honeypotAction default to spam.
+	 * @since 2.9.21 Moved the honeypot fields to a new spam section and added submission speed check fields.
+	 * @since 2.10.0   Added the enableSpamConfirmation toggle to the spam section.
 	 *
 	 * @param array $form Form being edited.
 	 *
@@ -106,8 +108,8 @@ class GFFormSettings {
 	public static function form_settings_fields( $form ) {
 
 		// Handles the deprecation notice for the confirmation ready classes in the CSS class field of form settings.
-		$deprecated_confirmation_classes_field_notice = function( $value, $field ) use ( $form ) {
-			if ( GFCommon::is_legacy_markup_enabled_og( $form ) ){
+		$deprecated_confirmation_classes_field_notice = function ( $value, $field ) use ( $form ) {
+			if ( GFCommon::is_legacy_markup_enabled_og( $form ) ) {
 				return false;
 			}
 
@@ -122,9 +124,9 @@ class GFFormSettings {
 				return '<div id="gfield-warning-deprecated" class="gform-alert gform-alert--notice gform-alert--inline" role="alert" style="margin-block-start: 1rem;">
 					<span class="gform-alert__icon gform-icon gform-icon--circle-notice-fine" aria-hidden="true"></span>
 					<div class="gform-alert__message-wrap">
-						<p class="gform-alert__message">' . esc_html__( 'This form uses the "' . $value . '" Ready Class, which will be removed in Gravity Forms 3.1. You can use a CSS code snippet instead.', 'gravityforms' ) .
+						<p class="gform-alert__message">' . esc_html__( 'This form uses the "' . $value . '" Ready Class, which will be removed in Gravity Forms 4.0. You can use a CSS code snippet instead.', 'gravityforms' ) .
 					   ' <a href="https://docs.gravityforms.com/migrating-your-forms-from-ready-classes/" target="_blank" title="' .
-					   esc_attr__( 'Deprecation of Ready Classes in Gravity Forms 3.1', 'gravityforms' ) . '">' .
+					   esc_attr__( 'Deprecation of Ready Classes in Gravity Forms 4.0', 'gravityforms' ) . '">' .
 					   esc_html__( 'Learn more', 'gravityforms' ) .
 					   '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'gravityforms' ) . '</span>&nbsp;' .
 					   '<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a></p>
@@ -135,7 +137,7 @@ class GFFormSettings {
 		};
 
 		$fields = array(
-			'form_basics' => array(
+			'form_basics'       => array(
 				'title'  => esc_html__( 'Form Basics', 'gravityforms' ),
 				'fields' => array(
 					array(
@@ -144,11 +146,12 @@ class GFFormSettings {
 						'label'               => esc_html__( 'Form Title', 'gravityforms' ),
 						'tooltip'             => gform_tooltip( 'form_title', '', true ),
 						'required'            => true,
-						'validation_callback' => function( $field, $value ) use ( $form ) {
+						'validation_callback' => function ( $field, $value ) use ( $form ) {
 
 							// If value is empty, set error.
 							if ( rgblank( $value ) ) {
 								$field->set_error( rgobj( $field, 'error_message' ) );
+
 								return;
 							}
 
@@ -187,7 +190,7 @@ class GFFormSettings {
 					),
 				),
 			),
-			'form_layout' => array(
+			'form_layout'       => array(
 				'title'  => esc_html__( 'Form Layout', 'gravityforms' ),
 				'fields' => array(
 					array(
@@ -305,8 +308,8 @@ class GFFormSettings {
 						'label'         => esc_html__( 'Custom Required Indicator', 'gravityforms' ),
 						'default_value' => esc_html__( '(Required)', 'gravityforms' ),
 						'dependency'    => array(
-							'live'      => true,
-							'fields'    => array(
+							'live'   => true,
+							'fields' => array(
 								array(
 									'field'  => 'requiredIndicator',
 									'values' => array( 'custom' ),
@@ -323,7 +326,7 @@ class GFFormSettings {
 					),
 				),
 			),
-			'form_button' => array(
+			'form_button'       => array(
 				'title'  => esc_html__( 'Form Button', 'gravityforms' ),
 				'fields' => array(
 					array(
@@ -362,7 +365,7 @@ class GFFormSettings {
 					),
 				),
 			),
-			'restrictions' => array(
+			'restrictions'      => array(
 				'title'  => esc_html__( 'Restrictions', 'gravityforms' ),
 				'fields' => array(
 					array(
@@ -537,13 +540,13 @@ class GFFormSettings {
 					),
 				),
 			),
-			'form_options' => array(
-				'title'  => esc_html__( 'Form Options', 'gravityforms' ),
+			'spam'              => array(
+				'title'  => esc_html__( 'Spam Detection', 'gravityforms' ),
 				'fields' => array(
 					array(
 						'name'    => 'enableHoneypot',
 						'type'    => 'toggle',
-						'label'   => esc_html__( 'Anti-spam honeypot', 'gravityforms' ),
+						'label'   => esc_html__( 'Honeypot', 'gravityforms' ),
 						'tooltip' => gform_tooltip( 'form_honeypot', '', true ),
 					),
 					array(
@@ -571,6 +574,85 @@ class GFFormSettings {
 							),
 						),
 					),
+					array(
+						'name'          => 'enableSubmitSpeedCheck',
+						'type'          => 'toggle',
+						'label'         => esc_html__( 'Submission Speed Check', 'gravityforms' ),
+						'description'   => esc_html__( 'Flags the submission as spam if the elapsed time between page load and form submission is less than the threshold.', 'gravityforms' ),
+						'default_value' => false,
+						'dependency'    => array(
+							'live'   => true,
+							'fields' => array(
+								array(
+									'field' => 'enableHoneypot',
+								),
+							),
+						),
+					),
+					array(
+						'name'                => 'submitSpeedCheckThreshold',
+						'type'                => 'text',
+						'input_type'          => 'number',
+						'min'                 => 1,
+						'default_value'       => 2000,
+						'label'               => esc_html__( 'Submission Speed Check: Threshold (milliseconds)', 'gravityforms' ),
+						'dependency'          => array(
+							'live'   => true,
+							'fields' => array(
+								array(
+									'field' => 'enableHoneypot',
+								),
+								array(
+									'field' => 'enableSubmitSpeedCheck',
+								),
+							),
+						),
+						'validation_callback' => function ( $field, $value ) {
+							if ( ! ctype_digit( $value ) || (int) $value < 1 ) {
+								$field->set_error( esc_html__( 'Please enter a valid number greater than zero.', 'gravityforms' ) );
+							}
+						},
+					),
+					array(
+						'name'          => 'submitSpeedCheckMode',
+						'type'          => 'radio',
+						'default_value' => 'normal',
+						'label'         => esc_html__( 'Submission Speed Check: Mode', 'gravityforms' ),
+						'description'   => esc_html__( 'Submission speed is captured for each page of a multi-page form and for each submission attempt after a validation error. If there are multiple submission speeds for one submission, which mode should be used to evaluate the submission?', 'gravityforms' ),
+						'dependency'    => array(
+							'live'   => true,
+							'fields' => array(
+								array(
+									'field' => 'enableHoneypot',
+								),
+								array(
+									'field' => 'enableSubmitSpeedCheck',
+								),
+							),
+						),
+						'choices'       => array(
+							array(
+								'label' => esc_html__( 'Normal: at least one speed must be above the threshold.', 'gravityforms' ),
+								'value' => 'normal',
+							),
+							array(
+								'label' => esc_html__( 'Strict: all speeds must be above the threshold.', 'gravityforms' ),
+								'value' => 'strict',
+							),
+						),
+					),
+					array(
+						'name'          => 'enableSpamConfirmation',
+						'type'          => 'toggle',
+						'label'         => esc_html__( 'Custom Spam Confirmation', 'gravityforms' ),
+						'description'   => esc_html__( 'Allows customization of the confirmation used for spam submissions in the Confirmations area of the form.', 'gravityforms' ),
+						'default_value' => false,
+					),
+				),
+			),
+			'form_options'      => array(
+				'title'  => esc_html__( 'Form Options', 'gravityforms' ),
+				'fields' => array(
 					array(
 						'name'    => 'enableAnimation',
 						'type'    => 'toggle',
@@ -604,7 +686,7 @@ class GFFormSettings {
 		 */
 
 		if ( has_filter( 'gform_form_settings' ) ) {
-			trigger_error( 'gform_form_settings is deprecated and will be removed in version 3.0.', E_USER_DEPRECATED );
+			trigger_error( 'gform_form_settings is deprecated and will be removed in version 3.0.', E_USER_DEPRECATED ); // phpcs:ignore QITStandard.PHP.DebugCode.DebugFunctionFound
 		}
 		$legacy_settings = apply_filters( 'gform_form_settings', array(), $form );
 
@@ -726,7 +808,7 @@ class GFFormSettings {
 		    ></span>
 		    <div class="gform-alert__message-wrap">
 		        <p class="gform-alert__message">' . esc_html__( 'Legacy markup is incompatible with many new features, including the Orbital Theme.', 'gravityforms' ) . '</p>
-		        <p class="gform-alert__message">' . esc_html__( 'Legacy markup will be removed in Gravity Forms 3.1.0, and then all forms will use modern markup.  We recommend using modern markup on all forms.', 'gravityforms' ) . '</p>
+		        <p class="gform-alert__message">' . esc_html__( 'Legacy markup will be removed in Gravity Forms 4.0, and then all forms will use modern markup.  We recommend using modern markup on all forms.', 'gravityforms' ) . '</p>
 			    <a
 		            class="gform-alert__cta gform-button gform-button--white gform-button--size-xs"
 			        href="https://docs.gravityforms.com/about-legacy-markup"
@@ -772,7 +854,7 @@ class GFFormSettings {
 					return '<div class="gform-alert" data-js="gform-alert" style="grid-column: 1/-1;">
 						<span class="gform-alert__icon gform-icon gform-icon--campaign" aria-hidden="true"></span>
 						<div class="gform-alert__message-wrap">
-							<p class="gform-alert__message">' . esc_html__( 'This form uses a deprecated CSS Ready Class, which will be removed in Gravity Forms 3.1.', 'gravityforms' ) . '</p>
+							<p class="gform-alert__message">' . esc_html__( 'This form uses a deprecated CSS Ready Class, which will be removed in Gravity Forms 4.0.', 'gravityforms' ) . '</p>
 							<a class="gform-alert__cta gform-button gform-button--white gform-button--size-xs" href="https://docs.gravityforms.com/migrating-your-forms-from-ready-classes/" target="_blank">'
 						   	. esc_html__( 'Learn More', 'gravityforms' ) .
 						   	'<span class="screen-reader-text">' . esc_html__('about deprecated ready classes', 'gravityforms') . '</span>
@@ -795,7 +877,9 @@ class GFFormSettings {
 	 * Initialize Plugin Settings fields renderer.
 	 *
 	 * @since 2.5
-	 * @since 2.9.8 Updated honeypotAction default to spam.
+	 * @since 2.9.8  Updated honeypotAction default to spam.
+	 * @since 2.9.21 Updated to save the submission speed check fields.
+	 * @since 2.10.0   Updated to handle the enableSpamConfirmation toggle.
 	 */
 	public static function initialize_settings_renderer() {
 
@@ -859,9 +943,30 @@ class GFFormSettings {
 					$form['schedulePendingMessage'] = rgar( $values, 'schedulePendingMessage' );
 					$form['scheduleMessage']        = rgar( $values, 'scheduleMessage' );
 
-					// Form Options
-					$form['enableHoneypot']  = (bool) rgar( $values, 'enableHoneypot' );
-					$form['honeypotAction']  = GFCommon::whitelist( rgar( $values, 'honeypotAction' ), array( 'spam', 'abort' ) );
+					// Spam Detection.
+					$form['enableHoneypot'] = (bool) rgar( $values, 'enableHoneypot' );
+					$form['honeypotAction'] = GFCommon::whitelist(
+						rgar( $values, 'honeypotAction' ),
+						array(
+							'spam',
+							'abort',
+						)
+					);
+
+					$form['enableSubmitSpeedCheck']    = (bool) rgar( $values, 'enableSubmitSpeedCheck' );
+					$form['submitSpeedCheckThreshold'] = absint( rgar( $values, 'submitSpeedCheckThreshold' ) );
+					$form['submitSpeedCheckMode']      = GFCommon::whitelist(
+						rgar( $values, 'submitSpeedCheckMode' ),
+						array(
+							'normal',
+							'strict',
+						)
+					);
+
+					$form['enableSpamConfirmation'] = (bool) rgar( $values, 'enableSpamConfirmation' );
+					$form = self::toggle_spam_confirmation( $form );
+
+					// Form Options.
 					$form['enableAnimation'] = (bool) rgar( $values, 'enableAnimation' );
 					$form['markupVersion']   = rgar( $values, 'markupVersion' ) ? 1 : 2;
 
@@ -1487,6 +1592,47 @@ class GFFormSettings {
 		if ( $changed ) {
 			GFFormsModel::save_form_confirmations( $form_id, $form['confirmations'] );
 		}
+
+		return $form;
+	}
+
+	/**
+	 * Adds or removes the custom spam confirmation based on the value of the enableSpamConfirmation toggle.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param array $form The form being edited.
+	 *
+	 * @return array
+	 */
+	public static function toggle_spam_confirmation( $form ) {
+		$form_id          = rgar( $form, 'id' );
+		$enabled          = (bool) rgar( $form, 'enableSpamConfirmation' );
+		$confirmation_key = false;
+
+		if ( ! empty( $form['confirmations'] ) ) {
+			foreach ( $form['confirmations'] as $key => $confirmation ) {
+				if ( rgar( $confirmation, 'event' ) === 'spam' ) {
+					$confirmation_key = $key;
+					break;
+				}
+			}
+		}
+
+		if ( ( $enabled && $confirmation_key ) || ( ! $enabled && ! $confirmation_key ) ) {
+			return $form;
+		}
+
+		if ( $enabled ) {
+			$confirmation                                 = GFFormsModel::get_default_confirmation( 'spam' );
+			$form['confirmations'][ $confirmation['id'] ] = $confirmation;
+			GFFormsModel::save_form_confirmations( $form_id, $form['confirmations'] );
+
+			return $form;
+		}
+
+		unset( $form['confirmations'][ $confirmation_key ] );
+		GFFormsModel::save_form_confirmations( $form_id, $form['confirmations'] );
 
 		return $form;
 	}

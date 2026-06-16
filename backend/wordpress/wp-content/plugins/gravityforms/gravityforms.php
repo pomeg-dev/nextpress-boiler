@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms
 Plugin URI: https://gravityforms.com
 Description: Easily create web forms and manage form entries within the WordPress admin.
-Version: 2.9.19
+Version: 2.10.2
 Requires at least: 6.5
 Requires PHP: 7.4
 Author: Gravity Forms
@@ -13,7 +13,7 @@ Text Domain: gravityforms
 Domain Path: /languages
 
 ------------------------------------------------------------------------
-Copyright 2009-2025 Rocketgenius, Inc.
+Copyright 2009-2026 Rocketgenius, Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ define( 'GF_SUPPORTED_WP_VERSION', version_compare( get_bloginfo( 'version' ), G
  *
  * @var string GF_MIN_WP_VERSION_SUPPORT_TERMS The version number
  */
-define( 'GF_MIN_WP_VERSION_SUPPORT_TERMS', '6.7' );
+define( 'GF_MIN_WP_VERSION_SUPPORT_TERMS', '6.8' );
 
 /**
  * Defines the minimum version of PHP that is supported.
@@ -257,7 +257,7 @@ class GFForms {
 	 *
 	 * @var string $version The version number.
 	 */
-	public static $version = '2.9.19';
+	public static $version = '2.10.2';
 
 	/**
 	 * Handles background upgrade tasks.
@@ -330,12 +330,16 @@ class GFForms {
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Save_Form\GF_Save_Form_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Template_Library\GF_Template_Library_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Form_Editor\GF_Form_Editor_Service_Provider() );
+		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Post_Custom_Field_Select\GF_Post_Custom_Field_Select_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Splash_Page\GF_Splash_Page_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Query\Batch_Processing\GF_Batch_Operations_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Settings\GF_Settings_Service_Provider() );
+		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Author_Select\GF_Author_Select_Service_Provider() );
+		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Webapi\User_Select\GF_User_Select_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Assets\GF_Asset_Service_Provider( plugin_dir_path( __FILE__ ) ) );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Honeypot\GF_Honeypot_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Ajax\GF_Ajax_Service_Provider() );
+		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Notification\Payment_Stale_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Theme_Layers\GF_Theme_Layers_Provider( GFCommon::get_base_url(), 'gf_theme_layers' ) );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Blocks\GF_Blocks_Service_Provider() );
 		$container->add_provider( new \Gravity_Forms\Gravity_Forms\Setup_Wizard\GF_Setup_Wizard_Service_Provider() );
@@ -361,6 +365,7 @@ class GFForms {
 		require_once GF_PLUGIN_DIR_PATH . 'includes/util/class-gf-util-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/config/class-gf-config-service-provider.php';
         require_once GF_PLUGIN_DIR_PATH . 'includes/editor-button/class-gf-editor-service-provider.php';
+		require_once GF_PLUGIN_DIR_PATH . 'includes/post-custom-field-select/class-gf-post-custom-field-select-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/embed-form/class-gf-embed-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/form-editor/class-gf-form-editor-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/splash-page/class-gf-splash-page-service-provider.php';
@@ -368,9 +373,12 @@ class GFForms {
 		require_once GF_PLUGIN_DIR_PATH . 'includes/save-form/class-gf-save-form-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/merge-tags/class-gf-merge-tags-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/settings/class-gf-settings-service-provider.php';
+		require_once GF_PLUGIN_DIR_PATH . 'includes/author-select/class-gf-author-select-service-provider.php';
+		require_once GF_PLUGIN_DIR_PATH . 'includes/webapi/user-select/class-gf-user-select-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . 'includes/assets/class-gf-asset-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . '/includes/honeypot/class-gf-honeypot-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . '/includes/ajax/class-gf-ajax-service-provider.php';
+		require_once GF_PLUGIN_DIR_PATH . '/includes/notification/class-payment-stale-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . '/includes/theme-layers/class-gf-theme-layers-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . '/includes/blocks/class-gf-blocks-service-provider.php';
 		require_once GF_PLUGIN_DIR_PATH . '/includes/setup-wizard/class-gf-setup-wizard-service-provider.php';
@@ -812,14 +820,13 @@ class GFForms {
 	/**
 	 * Performs Gravity Forms deactivation tasks.
 	 *
-	 * @since  Unknown
-	 * @access public
-	 *
-	 * @uses   GFCache::flush()
+	 * @since Unknown
+	 * @since 2.9.24 Updated to delete the multifile upload page slug, so it will be regenerated on the next activation.
 	 *
 	 * @return void
 	 */
 	public static function deactivation_hook() {
+		delete_option( 'gform_upload_page_slug' );
 		GFCache::flush( true );
 		flush_rewrite_rules();
 	}
@@ -846,8 +853,9 @@ class GFForms {
 	 * @return array $plugins Supported plugins.
 	 */
 	public static function set_logging_supported( $plugins ) {
-		$plugins['gravityformsapi'] = 'Gravity Forms API';
-		$plugins['gravityforms']    = 'Gravity Forms Core';
+		$plugins['gravityformsapi']      = 'Gravity Forms API';
+		$plugins['gravityforms']         = 'Gravity Forms Core';
+		$plugins['gravityforms-browser'] = 'Gravity Forms Browser Session';
 
 		return $plugins;
 	}
@@ -920,13 +928,14 @@ class GFForms {
 
 		$is_legacy_upload_page = $_SERVER['REQUEST_METHOD'] == 'POST' && $page == 'upload'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 
-		if ( $is_legacy_upload_page && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
-			_doing_it_wrong( 'gf_page=upload', 'gf_page=upload is now deprecated. Use GFCommon::get_upload_page_slug() instead', '1.9.6.13' );
+		if ( $is_legacy_upload_page ) {
+			// Legacy endpoint was deprecated in 1.9.7, and switched from _doing_it_wrong() to wp_die() in 2.9.24.
+			wp_die( '', '', 400 );
 		}
 
 		$is_upload_page = $_SERVER['REQUEST_METHOD'] == 'POST' && $page == GFCommon::get_upload_page_slug(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 
-		if ( $is_upload_page || $is_legacy_upload_page ) {
+		if ( $is_upload_page ) {
 			require_once( GFCommon::get_base_path() . '/includes/upload.php' );
 			exit();
 		}
@@ -1570,7 +1579,7 @@ class GFForms {
 				}
 			}
 
-			if ( ! $has_gf_cap ) {
+			if ( ! $has_gf_cap && ! isset( $all_caps['gform_full_access'] ) ) {
 				//give full access to administrators if none of the GF permissions are active by the Members plugin
 				$all_caps['gform_full_access'] = true;
 			}
@@ -2694,7 +2703,7 @@ class GFForms {
 							/* translators: %1$s Plugin name %2$s and %3$s are link tag markup */
 							__( 'The %1$s is not available with the configured license; please visit the %2$sGravity Forms website%3$s to verify your license. ', 'gravityforms' ),
 								esc_html( rgar( $plugin_data, 'Name' ) ),
-								'<a href="https://www.gravityforms.com/my-account/licenses/?utm_source=gf-admin&utm_medium=purchase-link&utm_campaign=license-enforcement" target="_blank">',
+								'<a href="https://account.gravity.com/?utm_source=gf-admin&utm_medium=purchase-link&utm_campaign=license-enforcement" target="_blank">',
 								'<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'gravityforms' ) . '</span>&nbsp;<span class="gform-icon gform-icon--external-link" aria-hidden="true"></span></a>'
 							);
 			}
@@ -4335,9 +4344,7 @@ class GFForms {
 	 * Resends failed notifications
 	 *
 	 * @since  Unknown
-	 * @access public
-	 *
-	 * @uses   GFCommon::send_notification()
+	 * @since 2.10.0 Updated to use GFAPI::send_notification().
 	 */
 	public static function resend_notifications() {
 
@@ -4439,7 +4446,7 @@ class GFForms {
 				$abort_email = apply_filters( 'gform_disable_resend_notification', false, $notification, $form, $lead );
 
 				if ( ! $abort_email ) {
-					GFCommon::send_notification( $notification, $form, $lead );
+					GFAPI::send_notification( $notification, $form, $lead );
 				}
 
 				/**
@@ -5645,7 +5652,7 @@ class GFForms {
 		);
 
 		// Don't show in form editor toolbar as it is shown next to the update button.
-		if ( $page == 'form_list' || $page == 'new_form' ) {
+		if ( in_array( $page, array( 'form_list', 'imported_forms_list', 'new_form' ) ) ) {
 			$preview_args = array(
 				'array'      => true,
 				'form_id'    => $form_id,
@@ -5960,65 +5967,91 @@ class GFForms {
 	/**
 	 * Determines if automatic updating should be processed.
 	 *
-	 * @since   Unknown
-	 * @access  public
+	 * @since Unknown
+	 * @since 2.9.24 Added the optional $slug and $current_version params.
 	 *
 	 * @used-by WP_Automatic_Updater::should_update()
 	 * @uses    GFForms::is_auto_update_disabled()
 	 *
-	 * @param bool|null $update Whether or not to update.
-	 * @param object    $item   The update offer object.
+	 * @param bool|null $update          Whether to update.
+	 * @param object    $item            The update offer object.
+	 * @param string    $slug            The plugin or add-on slug. Optional. Defaults to gravityforms.
+	 * @param string    $current_version The current version. Optional. Defaults to the Gravity Forms version.
 	 *
 	 * @return bool|null
 	 */
-	public static function maybe_auto_update( $update, $item ) {
-
-		if ( ! isset( $item->slug ) || $item->slug !== 'gravityforms' || is_null( $update ) || ( function_exists( 'get_current_screen' ) && rgobj( get_current_screen(), 'id' ) === 'plugins' ) ) {
+	public static function maybe_auto_update( $update, $item, $slug = 'gravityforms', $current_version = null ) {
+		if ( is_null( $update ) || ! isset( $item->slug ) || ( function_exists( 'get_current_screen' ) && rgobj( get_current_screen(), 'id' ) === 'plugins' ) ) {
 			return $update;
 		}
 
-		GFCommon::log_debug( __METHOD__ . '(): Checking if auto-update available.' );
+		if ( $item->slug !== $slug ) {
+			return $update;
+		}
 
-		if ( self::is_auto_update_disabled( $update ) ) {
+		GFCommon::log_debug( __METHOD__ . sprintf( '(): Checking if auto-update available for %s.', $slug ) );
+
+		if ( self::is_auto_update_disabled( $update, $slug ) ) {
 			GFCommon::log_debug( __METHOD__ . '(): Aborting. Auto-update is disabled.' );
+
 			return false;
 		}
 
-		if ( version_compare( GFForms::$version, $item->new_version, '>=' ) ) {
-			GFCommon::log_debug( __METHOD__ . sprintf( '(): Aborting. Newer version not available. Installed: %s; Available: %s.', GFForms::$version, $item->new_version ) );
+		if ( is_null( $current_version ) ) {
+			if ( $slug === 'gravityforms' ) {
+				$current_version = GFForms::$version;
+			} else {
+				// translators: %s: Add-on slug.
+				_doing_it_wrong( __METHOD__, sprintf( esc_html__( 'The $current_version parameter is required when checking for auto-updates for %s.', 'gravityforms' ), esc_html( $slug ) ), '2.9.24' );
+				GFCommon::log_debug( __METHOD__ . '(): Aborting. $current_version was not provided.' );
+
+				return $update;
+			}
+		}
+
+		if ( version_compare( $current_version, $item->new_version, '>=' ) ) {
+			GFCommon::log_debug( __METHOD__ . sprintf( '(): Aborting. Newer %s version not available. Installed: %s; Available: %s.', $slug, $current_version, $item->new_version ) );
+
 			return false;
 		}
 
-		if ( self::should_update_to_version( $item->new_version ) ) {
-			GFCommon::log_debug( __METHOD__ . sprintf( '(): Updating from %s to %s is supported.', GFForms::$version, $item->new_version ) );
+		if ( ! self::should_update_to_version( $item->new_version, $current_version ) ) {
+			GFCommon::log_debug( __METHOD__ . sprintf( '(): Aborting. Automatically updating %s from %s to %s is not supported.', $slug, $current_version, $item->new_version ) );
 
-			return true;
+			return false;
 		}
 
-		GFCommon::log_debug( __METHOD__ . sprintf( '(): Aborting. Automatically updating from %s to %s is not supported.', GFForms::$version, $item->new_version ) );
+		GFCommon::log_debug( __METHOD__ . sprintf( '(): Automatically updating %s from %s to %s is supported.', $slug, $current_version, $item->new_version ) );
 
-		return false;
-
+		return true;
 	}
 
 	/**
 	 * Determines if the current version should update to the offered version.
 	 *
-	 * @since 2.4.22.4
+	 * Minor and patch versions should only be installed automatically when the major version component of the offered version is the same as the current version.
 	 *
-	 * @param string $offered_ver The version number to be compared against the installed version number.
+	 * @since 2.4.23
+	 * @since 2.9.24 Added the optional $current_ver param,
+	 *
+	 * @param string      $offered_version The version number to be compared against the installed version number.
+	 * @param null|string $current_version The current version number. If null, the installed Gravity Forms version number will be used.
 	 *
 	 * @return bool
 	 */
-	public static function should_update_to_version( $offered_ver ) {
-		if ( version_compare( GFForms::$version, $offered_ver, '>=' ) ) {
+	public static function should_update_to_version( $offered_version, $current_version = null ) {
+		if ( is_null( $current_version ) ) {
+			$current_version = GFForms::$version;
+		}
+
+		if ( version_compare( $current_version, $offered_version, '>=' ) ) {
 			return false;
 		}
 
-		$current_branch = implode( '.', array_slice( preg_split( '/[.-]/', GFForms::$version ), 0, 2 ) );
-		$new_branch     = implode( '.', array_slice( preg_split( '/[.-]/', $offered_ver ), 0, 2 ) );
+		$current_major = (int) explode( '.', $current_version, 2 )[0];
+		$new_major     = (int) explode( '.', $offered_version, 2 )[0];
 
-		return $current_branch == $new_branch;
+		return $current_major === $new_major;
 	}
 
 	/**
@@ -6031,28 +6064,33 @@ class GFForms {
 	 * @used-by GFForms::maybe_auto_update()
 	 *
 	 * @param bool|null $enabled Indicates if auto updates are enabled.
+	 * @param string    $slug    The plugin or add-on slug. Optional. Default is 'gravityforms'.
 	 *
 	 * @return bool True if auto update is disabled.  False otherwise.
 	 */
-	public static function is_auto_update_disabled( $enabled = null ) {
-		global $wp_version;
-		if ( is_null( $enabled ) || version_compare( $wp_version, '5.5', '<' ) ) {
+	public static function is_auto_update_disabled( $enabled = null, $slug = 'gravityforms' ) {
+		if ( is_null( $enabled ) ) {
 			// Check Gravity Forms Background Update Settings.
-			$enabled = get_option( 'gform_enable_background_updates' );
+			$enabled = (bool) get_option( 'gform_enable_background_updates' );
 		}
-		GFCommon::log_debug( 'GFForms::is_auto_update_disabled() - $enabled: ' . var_export( $enabled, true ) );
+
+		GFCommon::log_debug( __METHOD__ . '(): Enabled by toggle? ' . ( $enabled ? 'Yes.' : 'No.' ) );
 
 		/**
 		 * Filter to disable Gravity Forms Automatic updates
 		 *
-		 * @param bool $enabled Check if automatic updates are enabled, and then disable it
+		 * @since 1.9
+		 * @since 2.9.24 Added the $slug param.
+		 *
+		 * @param bool   $enabled Check if automatic updates are enabled, and then disable it.
+		 * @param string $slug    The plugin or add-on slug.
 		 */
-		$disabled = apply_filters( 'gform_disable_auto_update', ! $enabled );
-		GFCommon::log_debug( 'GFForms::is_auto_update_disabled() - $disabled: ' . var_export( $disabled, true ) );
+		$disabled = apply_filters( 'gform_disable_auto_update', ! $enabled, $slug );
+		GFCommon::log_debug( __METHOD__ . '(): Disabled after gform_disable_auto_update filter? ' . ( $disabled ? 'Yes.' : 'No.' ) );
 
 		if ( ! $disabled ) {
 			$disabled = defined( 'GFORM_DISABLE_AUTO_UPDATE' ) && GFORM_DISABLE_AUTO_UPDATE;
-			GFCommon::log_debug( 'GFForms::is_auto_update_disabled() - GFORM_DISABLE_AUTO_UPDATE: ' . var_export( $disabled, true ) );
+			GFCommon::log_debug( __METHOD__ . '(): Disabled by constant GFORM_DISABLE_AUTO_UPDATE? ' . ( $disabled ? 'Yes.' : 'No.' ) );
 		}
 
 		return $disabled;
@@ -7020,8 +7058,12 @@ class GFForms {
 	 * @return void
 	 */
 	public static function init_buffer() {
-		if( php_sapi_name() === 'cli' ) {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return;
+		}
+
+		if ( php_sapi_name() === 'cli' && ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
+		  return;
 		}
 
 		require_once GFCommon::get_base_path() . '/includes/libraries/class-dom-parser.php';
@@ -7049,6 +7091,73 @@ class GFForms {
 		$parser = new Dom_Parser( $content );
 
 		return $parser->get_injected_html();
+	}
+
+	/**
+	* Get information about all installed plugins.
+	*
+	* The returned array is keyed by the plugin slug (directory name)
+	* and contains plugin name, version, path, and whether it is active.
+	*
+	* @since 2.9.23
+	*
+	* @return array Array of plugin information.
+	*/
+	public static function get_installed_plugins() {
+		// Cache plugin data per blog.
+		static $cache = array();
+
+		$blog_id = function_exists( 'get_current_blog_id' ) ? get_current_blog_id() : 0;
+
+		// Disable cache when running in development mode.
+		$use_cache = ! ( defined( 'WP_DEBUG' ) && WP_DEBUG );
+
+		if ( $use_cache && isset( $cache[ $blog_id ] ) ) {
+			return $cache[ $blog_id ];
+		}
+
+		// Get all installed plugins.
+		$all_plugins    = get_plugins();
+		// Plugins active on the current site.
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		// Plugins active network-wide.
+		$network_active = array();
+		if ( is_multisite() ) {
+			$network_active = array_keys(
+				(array) get_site_option( 'active_sitewide_plugins', array() )
+			);
+		}
+
+		// Build the final list of active plugins.
+		$active_set = array_fill_keys(
+			array_merge( $active_plugins, $network_active ),
+		true
+		);
+
+		$plugins_info = array();
+
+		foreach ( $all_plugins as $plugin_path => $plugin ) {
+			$slug = dirname( $plugin_path );
+			// Handle single-file plugins.
+			if ( $slug === '.' ) {
+				$slug = preg_replace( '/\.php$/', '', basename( $plugin_path ) );
+			}
+
+			$plugins_info[ $slug ] = array(
+				'name'      => $plugin['Name'],
+				'version'   => $plugin['Version'],
+				'path'      => $plugin_path,
+				'is_active' => isset( $active_set[ $plugin_path ] ),
+			);
+		}
+
+		// Store cached results only outside of development mode.
+		if ( $use_cache ) {
+			$cache[ $blog_id ] = $plugins_info;
+		}
+
+		return $plugins_info;
 	}
 
 }
@@ -7166,6 +7275,9 @@ if ( ! function_exists( 'rgar' ) ) {
 			return $default;
 		}
 
+		// Normalize $prop to avoid deprecated notices in PHP 8.5+
+		$prop = $prop === null ? '' : (string) $prop;
+
 		if ( isset( $array[ $prop ] ) ) {
 			$value = $array[ $prop ];
 		} else {
@@ -7273,18 +7385,32 @@ if ( ! function_exists( 'rgexplode' ) ) {
 	/**
 	 * Converts a delimiter separated string to an array.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since Unknown
+	 * @since 2.9.30 Added the optional $on_last_sep param.
 	 *
-	 * @param string $sep The delimiter between values
-	 * @param string $string The string to convert
-	 * @param int $count The expected number of items in the resulting array
+	 * @param string $sep         The delimiter between values
+	 * @param string $string      The string to convert
+	 * @param int    $min_count   The minimum number of items in the resulting array
+	 * @param bool   $on_last_sep Optional. If true, the split occurs on the last instance of the delimiter. Defaults to false.
 	 *
 	 * @return array $ary The exploded array
 	 */
-	function rgexplode( $sep, $string, $count ) {
-		$ary = explode( (string) $sep, (string) $string );
-		while ( count( $ary ) < $count ) {
+	function rgexplode( $sep, $string, $min_count, $on_last_sep = false ) {
+		if ( $on_last_sep ) {
+			$last_sep_pos = strrpos( (string) $string, (string) $sep );
+			if ( $last_sep_pos === false ) {
+				$ary = [ (string) $string ];
+			} else {
+				$ary = [
+					substr( (string) $string, 0, $last_sep_pos ),
+					substr( (string) $string, $last_sep_pos + 1 ),
+				];
+			}
+		} else {
+			$ary = explode( (string) $sep, (string) $string );
+		}
+
+		while ( count( $ary ) < $min_count ) {
 			$ary[] = '';
 		}
 

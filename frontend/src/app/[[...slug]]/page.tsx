@@ -218,7 +218,8 @@ export async function generateMetadata(
   const path = slug ? slug.join("/") : "";
   const settings = await getSettings([
     'page_for_posts_slug',
-    'frontend_url'
+    'frontend_url',
+    'blog_public'
   ]);
   const frontendDomainURL = getFrontEndUrl(settings);
   let post;
@@ -265,13 +266,14 @@ export async function generateMetadata(
       }
     }
 
+    const robots = !settings?.blog_public || settings?.blog_public === '0'
+      ? "noindex, nofollow"
+      : `${post.yoastHeadJSON.robots.index}, ${post.yoastHeadJSON.robots.follow}`;
+
     return {
       title: post.yoastHeadJSON.title,
       description: post.yoastHeadJSON.description,
-      robots: post.yoastHeadJSON.robots ? {
-        index: post.yoastHeadJSON.robots.index === 'index',
-        follow: post.yoastHeadJSON.robots.follow === 'follow',
-      } : undefined,
+      robots,
       metadataBase: post.yoastHeadJSON.metadataBase,
       openGraph: {
         locale: post.yoastHeadJSON.og_locale,

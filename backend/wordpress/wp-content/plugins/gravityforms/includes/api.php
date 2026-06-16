@@ -417,7 +417,7 @@ class GFAPI {
 		}
 		$form_ids = array();
 		$failed_forms = array();
-		
+
 		foreach ( $forms as $form ) {
 			$result = self::add_form( $form );
 			if ( is_wp_error( $result ) ) {
@@ -430,11 +430,11 @@ class GFAPI {
 				} else {
 					return $result;
 				}
-				
+
 			} else {
 				$form_ids[] = $result;
 			}
-			
+
 		}
 		if ( $continue_on_error ) {
 			return array(
@@ -442,9 +442,9 @@ class GFAPI {
 				'failed_forms' => $failed_forms
 			);
 		}
-		
+
 		return $form_ids;
-		
+
 	}
 
 	/**
@@ -1713,14 +1713,20 @@ class GFAPI {
 
 		remove_filter( 'gform_pre_validation', array( 'GFAPI', 'submit_form_filter_gform_pre_validation' ), 50 );
 
-
-		if ( empty( GFFormDisplay::$submission ) ) {
-			return new WP_Error( 'error_processing_form', __( 'There was an error while processing the form:', 'gravityforms' ) );
+		$submission_details = rgar( GFFormDisplay::$submission, $form_id );
+		if ( empty( $submission_details ) ) {
+			return new WP_Error( 'error_processing_form', __( 'There was an error while processing the form.', 'gravityforms' ) );
 		}
 
-		$submissions_array = GFFormDisplay::$submission;
+		$form_restriction_error = rgar( $submission_details, 'form_restriction_error' );
+		if ( $form_restriction_error ) {
+			return new WP_Error( 'form_restriction_error', $form_restriction_error );
+		}
 
-		$submission_details = $submissions_array[ $form_id ];
+		$button_logic_error = rgar( $submission_details, 'button_logic_error' );
+		if ( $button_logic_error ) {
+			return new WP_Error( 'button_logic_error', $button_logic_error );
+		}
 
 		$result = array();
 
@@ -1741,15 +1747,15 @@ class GFAPI {
 
 			if ( is_array( $confirmation_message ) ) {
 				if ( isset( $confirmation_message['redirect'] ) ) {
-					$result['confirmation_message'] = '';
+					$result['confirmation_message']  = '';
 					$result['confirmation_redirect'] = $confirmation_message['redirect'];
-					$result['confirmation_type'] = 'redirect';
+					$result['confirmation_type']     = 'redirect';
 				} else {
 					$result['confirmation_message'] = $confirmation_message;
 				}
 			} else {
 				$result['confirmation_message'] = $confirmation_message;
-				$result['confirmation_type'] = 'message';
+				$result['confirmation_type']    = 'message';
 			}
 
 			$result['entry_id'] = rgars( $submission_details, 'lead/id' );
@@ -1813,7 +1819,6 @@ class GFAPI {
 			'validation_messages' => array(),
 			'page_number'         => $is_valid ? $target_page : $failed_validation_page,
 			'source_page_number'  => $source_page,
-			'form'                => $form,
 		);
 
 		if ( $is_valid ) {
@@ -1827,6 +1832,11 @@ class GFAPI {
 		$form_restriction_error = rgars( GFFormDisplay::$submission, $form_id . '/form_restriction_error' );
 		if ( $form_restriction_error ) {
 			return new WP_Error( 'form_restriction_error', $form_restriction_error );
+		}
+
+		$button_logic_error = rgars( GFFormDisplay::$submission, $form_id . '/button_logic_error' );
+		if ( $button_logic_error ) {
+			return new WP_Error( 'button_logic_error', $button_logic_error );
 		}
 
 		$result['validation_messages'] = self::get_field_validation_errors( $form );
@@ -1931,7 +1941,7 @@ class GFAPI {
 
 		self::normalize_post_keys();
 
-		$_POST[ 'is_submit_' . $form_id ]                = true;
+		$_POST[ 'is_submit_' . $form_id ]                = '1';
 		$_POST['gform_submit']                           = $form_id;
 		$_POST[ 'gform_target_page_number_' . $form_id ] = absint( $target_page );
 		$_POST[ 'gform_source_page_number_' . $form_id ] = absint( $source_page );
@@ -2265,6 +2275,18 @@ class GFAPI {
 			return new WP_Error( 'error_inserting', __( 'There was an error while inserting a feed', 'gravityforms' ), $wpdb->last_error );
 		}
 
+		/*
+		 * Action triggered after a feed is added.
+		 *
+		 * @since 2.9.20
+		 *
+		 * @param int    $feed_id    The ID of the newly created feed.
+		 * @param int    $form_id    The ID of the form to which the feed belongs.
+		 * @param array  $feed_meta  The feed meta.
+		 * @param string $addon_slug The slug of the add-on to which the feed belongs
+		 */
+		do_action( 'gform_post_add_feed', $wpdb->insert_id, $form_id, $feed_meta, $addon_slug );
+
 		return $wpdb->insert_id;
 	}
 
@@ -2308,7 +2330,7 @@ class GFAPI {
 	 *
 	 * @return false|array
 	 */
-	public static function maybe_process_feeds( $entry, $form, $addon_slug = '', $reset_meta = false ) {
+	public static function maybe_process_feeds( $entry, $form, $addon_slug = '', $reset_meta = false, $bypass_feed_delay = false ) {
 		if ( ! class_exists( 'GFFeedAddOn' ) || empty( $entry['id'] ) ) {
 			return false;
 		}
@@ -2325,6 +2347,7 @@ class GFAPI {
 				self::update_processed_feeds_meta( $entry['id'], $addon_slug, null );
 			}
 
+			$addon->set_bypass_feed_delay( $bypass_feed_delay );
 			$entry = $addon->maybe_process_feed( $entry, $form );
 		} else {
 			foreach ( $addons as $slug => $addon ) {
@@ -2336,11 +2359,12 @@ class GFAPI {
 					self::update_processed_feeds_meta( $entry['id'], $slug, null );
 				}
 
+				$addon->set_bypass_feed_delay( $bypass_feed_delay );
 				$entry = $addon->maybe_process_feed( $entry, $form );
 			}
 		}
 
-		gf_feed_processor()->save()->dispatch();
+		gf_feed_processor()->save()->dispatch_on_shutdown();
 
 		return $entry;
 	}
@@ -2603,12 +2627,64 @@ class GFAPI {
 				'event'         => $event,
 				'data'          => $data,
 			) );
-			$processor->save()->dispatch();
+			$processor->save()->dispatch_on_shutdown();
 		} else {
 			GFCommon::send_notifications( $notifications_to_send, $form, $entry, true, $event, $data );
 		}
 
 		return $notifications_to_send;
+	}
+
+	/**
+	 * Triggers sending of the given notification.
+	 *
+	 * @since 2.10.0
+	 *
+	 * @param array $notification The notification to be sent.
+	 * @param array $form         The form the notification belongs to.
+	 * @param array $entry        The entry the notification is being sent for.
+	 * @param array $data         Optional. Array of data which can be used in the notifications via the generic {object:property} merge tag. Defaults to empty array.
+	 *
+	 * @return void
+	 */
+	public static function send_notification( $notification, $form, $entry, $data = array() ) {
+		if ( empty( $notification ) || empty( $form ) || empty( $entry ) ) {
+			return;
+		}
+
+		$notification_id = rgar( $notification, 'id', 'custom' );
+		$event           = rgar( $notification, 'event', 'custom' );
+
+		/**
+		 * @var Async\GF_Notifications_Processor $processor
+		 */
+		$processor       = GFForms::get_service_container()->get( Async\GF_Background_Process_Service_Provider::NOTIFICATIONS );
+		$is_asynchronous = $processor->is_enabled( array( $notification_id ), $form, $entry, $event, $data );
+
+		if ( $is_asynchronous ) {
+			$task = array(
+				'notification' => $notification,
+				'form_id'      => absint( rgar( $form, 'id' ) ),
+				'event'        => $event,
+				'data'         => $data,
+			);
+
+			$entry_id = absint( rgar( $entry, 'id' ) );
+			if ( $entry_id ) {
+				// Entry with an integer ID, so we only store the ID in the task. The task processor will retrieve the latest version of the entry from the db.
+				$for_entry        = ' for entry #' . $entry_id;
+				$task['entry_id'] = $entry_id;
+			} else {
+				// The entry for a draft submission doesn't have an ID, so we need to pass the draft entry to the task processor.
+				$for_entry     = '';
+				$task['entry'] = $entry;
+			}
+
+			GFCommon::log_debug( __METHOD__ . sprintf( '(): Adding notification (#%s - %s) to the async processing queue%s.', $notification_id, rgar( $notification, 'name', 'custom' ), $for_entry ) );
+			$processor->push_to_queue( $task )->save()->dispatch_on_shutdown();
+		} else {
+			GFCommon::send_notification( $notification, $form, $entry, $data );
+		}
 	}
 
 

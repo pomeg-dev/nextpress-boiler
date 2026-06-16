@@ -8,5 +8,6 @@ export const SETTINGS_KEYS = [
   'page_404',
   'blogname',
   'favicon',
-  'blocks_theme'
+  'blocks_theme',
+  'blog_public'
 ];

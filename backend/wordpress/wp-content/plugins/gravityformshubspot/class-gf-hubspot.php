@@ -138,6 +138,15 @@ class GF_HubSpot extends GFFeedAddOn {
 	protected $api = null;
 
 	/**
+	 * An instance of the refresh lock handler
+	 *
+	 * @since 2.2.0
+	 *
+	 * @var GF_HubSpot_Refresh_Lock_Handler
+	 */
+	protected $refresh_lock_handler = null;
+
+	/**
 	 * The key used to cache the custom contact properties.
 	 *
 	 * @since 1.6
@@ -146,12 +155,28 @@ class GF_HubSpot extends GFFeedAddOn {
 	const CUSTOM_PROPERTIES_CACHE_KEY = 'gravityformshubspot_contact_properties';
 
 	/**
+	 * The key used to cache the custom contact properties.
+	 *
+	 * @since 3.0
+	 * @var   string
+	 */
+	const GROUPED_PROPERTIES_CACHE_KEY = 'gravityformshubspot_grouped_properties';
+
+	/**
 	 * The entry meta key used to store the hubspotutk cookie value.
 	 *
 	 * @since 1.9
 	 * @var   string
 	 */
 	const HUTK_COOKIE_META_KEY = 'gravityformshubspot_hubspotutk_cookie';
+
+	/**
+	 * The key used to cache the flag that indicates if the hubspot_owner_id property has been disabled for forms for the connected account.
+	 *
+	 * @since 3.0.1
+	 * @var string
+	 */
+	const OWNER_ID_DISABLED = 'gravityformshubspot_owner_id_field_disabled';
 
 	/**
 	 * Returns an instance of this class, and stores it in the $_instance property.
@@ -505,6 +530,7 @@ class GF_HubSpot extends GFFeedAddOn {
 
 			// Force the API to re-init using the new token.
 			$this->api = null;
+			$this->get_portal_id();
 
 			// Maybe recreate HubSpot Forms after having updated auth token.
 			$this->maybe_recreate_hubspot_forms();
@@ -563,7 +589,7 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		if ( ! is_array( $guids ) ) {
 			$forms = $this->api->get_forms();
-			$guids = is_wp_error( $forms ) || empty( $forms ) ? array() : wp_list_pluck( $forms, 'guid' );
+			$guids = is_wp_error( $forms ) || empty( $forms ) ? array() : wp_list_pluck( $forms, 'id' );
 		}
 
 		if ( empty( $guids ) ) {
@@ -593,7 +619,6 @@ class GF_HubSpot extends GFFeedAddOn {
 		if ( $result ) {
 			$feed['meta']['_hs_form']      = $this->get_hubspot_formname_without_warning( $result['name'] );
 			$feed['meta']['_hs_form_guid'] = $result['guid'];
-			$feed['meta']['_hs_portal_id'] = $result['portal_id'];
 			$this->log_debug( __METHOD__ . sprintf( '(): HubSpot form created for feed (#%d). Name: %s; GUID: %s.', $feed['id'], $feed['meta']['_hs_form'], $feed['meta']['_hs_form_guid'] ) );
 
 			if ( $reset_owner ) {
@@ -627,7 +652,7 @@ class GF_HubSpot extends GFFeedAddOn {
 		);
 		$description .= '</p>';
 
-		$settings =  array(
+		$settings = array(
 			array(
 				'title'       => '',
 				'description' => $description,
@@ -636,6 +661,10 @@ class GF_HubSpot extends GFFeedAddOn {
 						'name'              => 'auth_token',
 						'type'              => 'auth_token_button',
 						'feedback_callback' => array( $this, 'initialize_api' ),
+					),
+					array(
+						'name' => 'portal_id',
+						'type' => 'hidden',
 					),
 				),
 			),
@@ -780,8 +809,15 @@ class GF_HubSpot extends GFFeedAddOn {
 					</div>
 				</div>';
 		} else {
-			$html = '<p>' . esc_html__( 'Signed into HubSpot.', 'gravityformshubspot' );
-			$html .= '</p>';
+			$portal_id = $this->get_portal_id();
+			$html      = '<p class="connected_to_hubspot_text"><span class="gform-status-indicator gform-status-indicator--size-sm gform-status-indicator--theme-cosmos gform-status--active gform-status--no-icon gform-status--no-hover"><span class="gform-status-indicator-status gform-typography--weight-medium gform-typography--size-text-xs">';
+
+			$html .= $portal_id ? sprintf(
+				esc_html__( 'Signed into HubSpot with the Portal Id %s.', 'gravityformshubspot' ),
+				$portal_id
+			) : esc_html__( 'Signed into HubSpot.', 'gravityformshubspot' );
+			$html .= '</span></span></p>';
+
 			$html .= sprintf(
 				' <a href="#" class="button gform_hubspot_deauth_button">%1$s</a>',
 				esc_html__( 'Disconnect your HubSpot account', 'gravityformshubspot' )
@@ -860,11 +896,11 @@ class GF_HubSpot extends GFFeedAddOn {
 			wp_send_json_error();
 		}
 
-		if ( ! GFCache::delete( self::CUSTOM_PROPERTIES_CACHE_KEY ) ) {
+		if ( ! $this->clear_cache() ) {
 			$this->log_debug( __METHOD__ . '() : failed to clear cache' );
+		} else {
+			$this->log_debug( __METHOD__ . '() : cache cleared successfully' );
 		}
-
-		$this->log_debug( __METHOD__ . '() : cache cleared successfully' );
 
 		$settings                         = $this->get_plugin_settings();
 		$settings['last_cache_clearance'] = time();
@@ -876,6 +912,20 @@ class GF_HubSpot extends GFFeedAddOn {
 				'last_clearance' => date( 'Y-m-d H:i:s', $settings['last_cache_clearance'] ),
 			)
 		);
+	}
+
+	/**
+	 * Clears the transients set by the add-on.
+	 *
+	 * @since 3.0.1
+	 *
+	 * @return bool
+	 */
+	private function clear_cache() {
+		GFCache::delete( self::OWNER_ID_DISABLED );
+		GFCache::delete( self::GROUPED_PROPERTIES_CACHE_KEY );
+
+		return GFCache::delete( self::CUSTOM_PROPERTIES_CACHE_KEY );
 	}
 
 	/**
@@ -928,22 +978,23 @@ class GF_HubSpot extends GFFeedAddOn {
 			return true;
 		}
 
-		// From 2021-11-08 HubSpot reduced the token lifespan from 6 hours to 30 minutes.
-		if ( time() > ( $auth_token['date_created'] + rgar( $auth_token, 'expires_in', 1800 ) ) ) {
+		if ( ! class_exists( 'GF_HubSpot_Refresh_Lock_Handler' ) ) {
+			require_once 'includes/class-gf-hubspot-refresh-lock-handler.php';
+		}
+
+		$refresh_lock_handler = new GF_HubSpot_Refresh_Lock_Handler( $this );
+
+		if ( $this->is_token_expired( $auth_token ) ) {
 			// Log that authentication test failed.
 			$this->log_debug( __METHOD__ . '(): API tokens expired, start refreshing.' );
 
-			$lock_cache_key = $this->get_slug() . '_refresh_lock';
-
-			$locked = GFCache::get( $lock_cache_key, $found );
-			if ( $found && $locked ) {
+			if ( $refresh_lock_handler->can_refresh_token() === false ) {
+				$this->log_debug( __METHOD__ . '():  Aborting; ' . $refresh_lock_handler->refresh_lock_reason );
 				$this->api = false;
-				$this->log_debug( __METHOD__ . '(): Aborting; refresh already in progress.' );
-
 				return false;
 			}
 
-			GFCache::set( $lock_cache_key, true, true, MINUTE_IN_SECONDS );
+			$refresh_lock_handler->lock();
 
 			// refresh token.
 			$auth_token = $this->api->refresh_token();
@@ -958,17 +1009,19 @@ class GF_HubSpot extends GFFeedAddOn {
 				// Save plugin settings.
 				$this->update_plugin_settings( $settings );
 				$this->log_debug( __METHOD__ . '(): API access token has been refreshed.' );
-				GFCache::delete( $lock_cache_key );
+				$refresh_lock_handler->release_lock();
+				$refresh_lock_handler->reset_rate_limit();
 
 			} else {
 				$message   = $auth_token->get_error_message();
 				$this->api = false;
 				$this->log_debug( __METHOD__ . '(): API access token failed to be refreshed; ' . $message );
-				GFCache::delete( $lock_cache_key );
-
+				$refresh_lock_handler->release_lock();
+				$refresh_lock_handler->increment_rate_limit();
 				if ( $message === 'BAD_REFRESH_TOKEN' ) {
 					delete_option( 'gravityformsaddon_' . $this->_slug . '_settings' );
 					$this->log_debug( __METHOD__ . '(): This website has been disconnected from HubSpot.' );
+					$this->clear_cache();
 					$this->api = null;
 				}
 
@@ -979,6 +1032,21 @@ class GF_HubSpot extends GFFeedAddOn {
 		return true;
 
 	}
+
+	/**
+	 * Checks if the token has been expired.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param array $auth_token The authentication token array.
+	 *
+	 * @return bool
+	 */
+	protected function is_token_expired( $auth_token ) {
+		// From 2021-11-08 HubSpot reduced the token lifespan from 6 hours to 30 minutes.
+		return time() > ( $auth_token['date_created'] + rgar( $auth_token, 'expires_in', 1800 ) );
+	}
+
 
 	/**
 	 * Revoke token and remove them from Settings.
@@ -1004,9 +1072,6 @@ class GF_HubSpot extends GFFeedAddOn {
 			wp_send_json_error();
 		}
 
-		// Delete all HubSpot forms associated with existing HubSpot feeds.
-		$this->delete_hubspot_forms();
-
 		if ( $scope === 'account' ) {
 			$result = $this->api->revoke_token();
 
@@ -1021,6 +1086,7 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		// Remove access token from settings.
 		delete_option( 'gravityformsaddon_' . $this->_slug . '_settings' );
+		$this->clear_cache();
 
 		// Log that we revoked the access token.
 		$this->log_debug( __METHOD__ . '(): This website has been disconnected from HubSpot.' );
@@ -1028,24 +1094,6 @@ class GF_HubSpot extends GFFeedAddOn {
 		// Return success response.
 		wp_send_json_success();
 	}
-
-	/**
-	 * Deletes all HubSpot forms associated with feeds. This function is called during the process of de-authorizing a HubSpot account
-	 * and serves as a clean up routine so that Gravity Forms created forms aren't lingering around on a disconnected HubSpot account.
-	 *
-	 * @since 1.0
-	 */
-	public function delete_hubspot_forms() {
-
-		//Getting all HubSpot feeds across all forms
-		$feeds = $this->get_feeds_by_slug( $this->_slug );
-
-		//Deleting all associated HubSpot forms
-		foreach ( $feeds as $feed ) {
-			$this->delete_hubspot_form( $feed );
-		}
-	}
-
 
 	/**
 	 * Deletes the HubSpot form associated with the specified feed
@@ -1114,7 +1162,7 @@ class GF_HubSpot extends GFFeedAddOn {
 						esc_html__( 'HubSpot Form Name', 'gravityformshubspot' ),
 						esc_html__( 'Enter the name for the form that will be automatically created in your HubSpot account to work in conjunction with this feed. This HubSpot form will be configured to match your mapped fields below and is required. Once created, please don\'t remove or edit it.', 'gravityformshubspot' )
 					),
-					'default_value'       => 'Gravity Forms - ' . $form['title'],
+					'default_value'       => 'Gravity Forms - ' . rgar( $form, 'title' ),
 					'validation_callback' => array( $this, 'validate_hubspot_form' ),
 				),
 			),
@@ -1135,75 +1183,69 @@ class GF_HubSpot extends GFFeedAddOn {
 			}
 		}
 
-		$basic_section['fields'][] = array(
-			'name'          => 'contact_owner',
-			'label'         => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
-			'type'          => 'radio',
-			'horizontal'    => true,
-			'default_value' => 'none',
-			'choices'       => array(
-				array(
-					'label' => __( 'None&nbsp;&nbsp;', 'gravityformshubspot' ),
-					'value' => 'none',
-				),
-				array(
-					'label' => __( 'Select Owner&nbsp;&nbsp;', 'gravityformshubspot' ),
-					'value' => 'select',
-				),
-				array(
-					'label' => __( 'Assign Conditionally', 'gravityformshubspot' ),
-					'value' => 'conditional',
-				),
-			),
-			'tooltip'       => '<h6>' . esc_html__( 'Contact Owner', 'gravityforms' ) . '</h6>' . esc_html__( 'Select a HubSpot user that will be assigned as the owner of the newly created Contact.', 'gravityformshubspot' ),
-		);
-
-		$contact_owner_section = array(
-			'id'         => 'contact_owner_section',
-			'title'      => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
-			'class'      => 'contact_owner_section',
-			'dependency' => version_compare( GFForms::$version, '2.5-dev-1', '<' ) ? null : array(
-				'live'   => true,
+		if ( GFCache::get( self::OWNER_ID_DISABLED ) ) {
+			$contact_owner_section = array();
+		} else {
+			$contact_owner_section = array(
+				'id'     => 'contact_owner_section',
+				'title'  => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
+				'class'  => 'contact_owner_section',
 				'fields' => array(
 					array(
-						'field'  => 'contact_owner',
-						'values' => array( 'select', 'conditional' ),
-					),
-				),
-			),
-			'fields'     => array(
-				array(
-					'name'       => 'contact_owner_select',
-					'label'      => esc_html__( 'Select Owner', 'gravityformshubspot' ),
-					'type'       => 'select',
-					'choices'    => $this->get_hubspot_owners(),
-					'dependency' => version_compare( GFForms::$version, '2.5-dev-1', '<' ) ? null : array(
-						'live'   => true,
-						'fields' => array(
+						'name'          => 'contact_owner',
+						'label'         => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
+						'type'          => 'radio',
+						'horizontal'    => true,
+						'default_value' => 'none',
+						'choices'       => array(
 							array(
-								'field'  => 'contact_owner',
-								'values' => array( 'select' ),
+								'label' => __( 'None&nbsp;&nbsp;', 'gravityformshubspot' ),
+								'value' => 'none',
+							),
+							array(
+								'label' => __( 'Select Owner&nbsp;&nbsp;', 'gravityformshubspot' ),
+								'value' => 'select',
+							),
+							array(
+								'label' => __( 'Assign Conditionally', 'gravityformshubspot' ),
+								'value' => 'conditional',
+							),
+						),
+						'tooltip'       => '<h6>' . esc_html__( 'Contact Owner', 'gravityforms' ) . '</h6>' . esc_html__( 'Select a HubSpot user that will be assigned as the owner of the newly created Contact.', 'gravityformshubspot' ),
+					),
+					array(
+						'name'       => 'contact_owner_select',
+						'label'      => esc_html__( 'Select Owner', 'gravityformshubspot' ),
+						'type'       => 'select',
+						'choices'    => $this->get_hubspot_owners(),
+						'dependency' => array(
+							'live'   => true,
+							'fields' => array(
+								array(
+									'field'  => 'contact_owner',
+									'values' => array( 'select' ),
+								),
+							),
+						),
+					),
+					array(
+						'name'       => 'contact_owner_conditional',
+						'label'      => '',
+						'class'      => 'large',
+						'type'       => 'conditions',
+						'dependency' => array(
+							'live'   => true,
+							'fields' => array(
+								array(
+									'field'  => 'contact_owner',
+									'values' => array( 'conditional' ),
+								),
 							),
 						),
 					),
 				),
-				array(
-					'name'       => 'contact_owner_conditional',
-					'label'      => '',
-					'class'      => 'large',
-					'type'       => 'conditions',
-					'dependency' => version_compare( GFForms::$version, '2.5-dev-1', '<' ) ? null : array(
-						'live'   => true,
-						'fields' => array(
-							array(
-								'field'  => 'contact_owner',
-								'values' => array( 'conditional' ),
-							),
-						),
-					),
-				),
-			),
-		);
+			);
+		}
 
 		$field_map_section = array(
 			'title'  => 'Map Contact Fields',
@@ -1216,11 +1258,16 @@ class GF_HubSpot extends GFFeedAddOn {
 				array(
 					'name'              => 'additional_fields',
 					'label'             => '',
-					'type'              => 'dynamic_field_map',
-					'key_field_title'   => 'HubSpot',
-					'value_field_title' => 'Gravity Forms',
-					'enable_custom_key' => false,
-					'field_map'         => rgar( $contact_properties, 'grouped', array() ),
+					'type'              => 'generic_map',
+					'key_field'         => array(
+						'title'         => 'HubSpot',
+						'allow_custom'  => false,
+						'choices'       => rgar( $contact_properties, 'grouped', array() ),
+					),
+					'value_field'       => array(
+						'title'         => 'Gravity Forms',
+						'allow_custom'  => false,
+					),
 				),
 			),
 		);
@@ -1237,9 +1284,13 @@ class GF_HubSpot extends GFFeedAddOn {
 			),
 		);
 
-		$settings_fields = array( $basic_section, $contact_owner_section, $field_map_section, $additional_fields_section, $other_fields_section );
-
-		return $settings_fields;
+		return array_filter( array(
+			$basic_section,
+			$contact_owner_section,
+			$field_map_section,
+			$additional_fields_section,
+			$other_fields_section,
+		) );
 	}
 
 	/***
@@ -1353,7 +1404,6 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		// Update the HubSpot form data.
 		$_gaddon_posted_settings['_hs_form_guid'] = $result['guid'];
-		$_gaddon_posted_settings['_hs_portal_id'] = $result['portal_id'];
 
 	}
 
@@ -1372,7 +1422,7 @@ class GF_HubSpot extends GFFeedAddOn {
 		$form_name  = $field_value . $this->get_hubspot_formname_warning();
 		$unique     = true;
 		foreach ( $forms as $form ) {
-			if ( $form['name'] === $form_name && $settings['_hs_form_guid'] !== $form['guid'] ) {
+			if ( rgar( $form, 'name' ) === $form_name && $settings['_hs_form_guid'] !== rgar( $form, 'id' ) ) {
 				$unique = false;
 			}
 		}
@@ -1442,7 +1492,6 @@ class GF_HubSpot extends GFFeedAddOn {
 		global $_gaddon_posted_settings;
 
 		$settings['_hs_form_guid'] = $_gaddon_posted_settings['_hs_form_guid'];
-		$settings['_hs_portal_id'] = $_gaddon_posted_settings['_hs_portal_id'];
 
 		// Saving feed.
 		return parent::save_feed_settings( $feed_id, $form_id, $settings );
@@ -1487,9 +1536,8 @@ class GF_HubSpot extends GFFeedAddOn {
 		}
 
 		return array(
-			'name'      => $api_result['name'],
-			'guid'      => $api_result['guid'],
-			'portal_id' => $api_result['portalId'],
+			'name' => $api_result['name'],
+			'guid' => $api_result['id'],
 		);
 	}
 
@@ -1522,7 +1570,7 @@ class GF_HubSpot extends GFFeedAddOn {
 		} else {
 
 			// Form exists. Update it.
-			$form       = $this->generate_hubspot_form_object( $settings, $form_id );
+			$form       = $this->generate_hubspot_form_object( $settings, $form_id, $existing_form );
 			$api_result = $this->api->update_form( $guid, $form );
 
 			if ( is_wp_error( $api_result ) ) {
@@ -1530,134 +1578,268 @@ class GF_HubSpot extends GFFeedAddOn {
 			}
 
 			return array(
-				'name'      => $api_result['name'],
-				'guid'      => $api_result['guid'],
-				'portal_id' => $api_result['portalId'],
+				'name' => $api_result['name'],
+				'guid' => $api_result['id'],
 			);
 		}
 	}
 
 	/**
-	 * Based on the fields mapped in the feed settings ( i.e. $settings variable ), creates a HubSpot form object to create or update a HubSpot form.
+	 * Based on the fields mapped in the feed settings ( i.e. $settings variable ), prepares the payload that will be sent to HubSpot to create or update the HubSpot form.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Added the $existing_form param and updated for the v3 endpoints.
 	 *
-	 * @param array $feed_meta Current feed settings.
-	 * @param int   $form_id   The ID of the form the feed belongs to.
+	 * @param array      $feed_meta     Current feed settings.
+	 * @param int        $form_id       The ID of the form the feed belongs to.
+	 * @param null|array $existing_form The existing HubSpot form.
 	 *
-	 * @return array Returns a HubSpot form object based on specified settings.
+	 * @return array
 	 */
-	public function generate_hubspot_form_object( $feed_meta, $form_id ) {
+	public function generate_hubspot_form_object( $feed_meta, $form_id, $existing_form = null ) {
+		if ( empty( $existing_form ) ) {
+			$hs_form              = $this->get_new_hs_form_defaults();
+			$hs_form['createdAt'] = date( 'c' );
+			$hs_form['updatedAt'] = $hs_form['createdAt'];
 
-		$fields           = array();
-		$properties       = $this->get_hubspot_contact_properties();
-		$settings_fields  = array_merge(
-			rgar( $properties, 'basic', array() ),
-			rgar( $properties, 'additional', array() ),
-			rgar( $properties, 'selection', array() )
-		);
-		$external_options = array();
+			// Apply lifecycle stages at the form level based on the feed setting.
+			$lifecycle_stage = rgar( $feed_meta, '_hs_customer_lifecyclestage' );
+			if ( ! empty( $lifecycle_stage ) ) {
+				$hs_form['configuration']['lifecycleStages'] = array(
+					array(
+						'objectTypeId' => '0-1',
+						'value'        => $lifecycle_stage,
+					),
+					array(
+						'objectTypeId' => '0-2',
+						'value'        => $lifecycle_stage,
+					),
+				);
+			}
+		} else {
+			$hs_form = array( 'fieldGroups' => array() );
+		}
+
+		$hs_form['name'] = rgar( $feed_meta, '_hs_form' ) . $this->get_hubspot_formname_warning();
+
+		$fields = array();
 
 		// Build basic fields.
 		foreach ( $feed_meta as $setting_name => $setting_value ) {
+			if ( empty( $setting_value ) ) {
+				continue;
+			}
 
 			$field_name = $this->get_hubspot_contact_property_name( $setting_name );
-			if ( empty( $setting_value ) || ! $field_name ) {
+			if ( empty( $field_name ) || $field_name === 'lifecyclestage' ) {
 				continue;
 			}
 
-			$setting_field = $this->find_setting_field( $setting_name, $settings_fields );
-			if ( ! $setting_field ) {
+			$existing_field = $this->get_existing_contact_field( $field_name, $existing_form );
+			if ( ! empty( $existing_field ) ) {
+				$fields[] = $existing_field;
 				continue;
 			}
 
-			// Lifecycle stages don't work as fields; add them as external_options instead.
-			// Lifecycle stage has to be set for both contacts and companies.
-			if ( $field_name === 'lifecyclestage' ) {
-				// Set the lifescycle state for contact.
-				$opt = array(
-					'referenceType' => 'PIPELINE_STAGE',
-					'objectTypeId'  => '0-1',
-					'propertyName'  => 'lifecyclestage',
-					'id'            => $setting_value,
-				);
-
-				$external_options[] = $opt;
-
-				// Set the lifescycle state for company.
-				$opt['objectTypeId'] = '0-2';
-				$external_options[]  = $opt;
+			$field = $this->create_contact_field_from_property( $field_name );
+			if ( empty( $field ) ) {
 				continue;
 			}
 
-			$field_arr = array(
-				'name'      => $field_name,
-				'label'     => $setting_field['label'],
-				'type'      => $setting_field['_hs_type'],
-				'fieldType' => $setting_field['_hs_field_type'],
-			);
-
-			// Choice-based fields should use the options available in Hubspot
-			if ( ! empty( $setting_field['choices'] ) ) {
-				$field_arr['options'] = $setting_field['choices'];
-				$field_arr['selectedOptions'] = array( $setting_value );
-			}
-
-			$fields[] = $field_arr;
+			$fields[] = $field;
 		}
 
-
-		// Adding Contact Owner field.
-		$fields[] = array(
-			'name'      => 'hubspot_owner_id',
-			'label'     => 'Contact Owner',
-			'type'      => 'enumeration',
-			'fieldType' => 'hidden',
-		);
+		// Adding optional Contact Owner field.
+		if ( ( rgar( $feed_meta, 'contact_owner' ) === 'select' && ! empty( $feed_meta['contact_owner_select'] ) ) || ( rgar( $feed_meta, 'contact_owner' ) === 'conditional' && ! empty( $feed_meta['conditions'] ) ) ) {
+			$existing_field = $this->get_existing_contact_field( 'hubspot_owner_id', $existing_form );
+			if ( ! empty( $existing_field ) ) {
+				$fields[] = $existing_field;
+			} else {
+				$fields[] = array(
+					'objectTypeId' => '0-1',
+					'name'         => 'hubspot_owner_id',
+					'label'        => 'Contact Owner',
+					'fieldType'    => 'single_line_text',
+					'hidden'       => true,
+				);
+			}
+		}
 
 		// Build additional fields.
 		if ( is_array( $feed_meta['additional_fields'] ) ) {
 			foreach ( $feed_meta['additional_fields'] as $setting ) {
-				if ( rgar( $setting, 'custom_key' ) !== '' ) {
-					$setting['key'] = $setting['custom_key'];
-				}
-
-				$setting_field = $this->find_setting_field( $setting['key'], $settings_fields );
-				if ( ! $setting_field ) {
+				$field_name = rgar( $setting, 'custom_key' ) ?: rgar( $setting, 'key' );
+				if ( empty( $field_name ) ) {
 					continue;
 				}
 
-				$field_name = $this->get_hubspot_contact_property_name( $setting_field['name'] );
-				if ( ! $field_name ) {
+				$field_name = $this->get_hubspot_contact_property_name( $field_name );
+				if ( empty( $field_name ) ) {
 					continue;
 				}
+
+				$existing_field = $this->get_existing_contact_field( $field_name, $existing_form );
+				if ( ! empty( $existing_field ) ) {
+					$fields[] = $existing_field;
+					continue;
+				}
+
+				$field = $this->create_contact_field_from_property( $field_name );
+				if ( empty( $field ) ) {
+					continue;
+				}
+
 
 				// Ensures File upload fields aren't named the same as the contact property.
 				// Gets around strange HubSpot behavior that causes file URL to be wiped out when form field and contact property have the same label.
-				$field_label = $setting_field['_hs_field_type'] == 'file' ? $setting_field['label'] . ' - ' . uniqid() : $setting_field['label'];
+				if ( rgar( $field, 'fieldType' ) === 'file' ) {
+					$field['label'] .= ' - ' . uniqid();
+				}
 
-				$fields[] = array(
-					'name'      => $field_name,
-					'label'     => $field_label,
-					'type'      => $setting_field['_hs_type'],
-					'fieldType' => $setting_field['_hs_field_type'],
-				);
+				$fields[] = $field;
 			}
 		}
 
-		$form_name = $feed_meta['_hs_form'] . $this->get_hubspot_formname_warning();
-		$hs_form = array(
-			'name'            => $form_name,
-			'formFieldGroups' => array(
-				array(
-					'fields' => $fields,
+		// Not documented, but HubSpot returns an error if a group contains more than 3 fields.
+		$chunks = array_chunk( $fields, 3 );
+		foreach ( $chunks as $chunk ) {
+			$hs_form['fieldGroups'][] = array(
+				'groupType'    => 'default_group',
+				'richTextType' => 'text',
+				'richText'     => '',
+				'fields'       => $chunk,
+			);
+		}
+
+		return $this->filter_hs_form( $hs_form, $feed_meta, $form_id, $existing_form );
+	}
+
+	/**
+	 * Returns the default HubSpot form properties.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array
+	 */
+	private function get_new_hs_form_defaults() {
+		return array(
+			'formType'            => 'hubspot',
+			'name'                => '',
+			'createdAt'           => null,
+			'updatedAt'           => null,
+			'archived'            => false,
+			'fieldGroups'         => array(),
+			'configuration'       => array(
+				'createNewContactForNewEmail' => true,
+				'editable'                    => true,
+				'postSubmitAction'            => array(
+					'type'  => 'thank_you',
+					'value' => esc_html__( 'The form was submitted successfully.', 'gravityformshubspot' ),
 				),
+				'language'                    => $this->get_config_language(),
+				'prePopulateKnownValues'      => false,
+				'cloneable'                   => true,
+				'notifyContactOwner'          => false,
+				'recaptchaEnabled'            => false,
+				'archivable'                  => true,
+				'notifyRecipients'            => array(),
+			),
+			'displayOptions'      => array(
+				'renderRawHtml'    => false,
+				'theme'            => 'default_style',
+				'submitButtonText' => esc_html__( 'Submit', 'gravityformshubspot' ),
+				'style'            => null,
+				'cssClass'         => '',
+			),
+			'legalConsentOptions' => array(
+				'type' => 'none',
 			),
 		);
+	}
 
-		// Field has externalOptions (lifecyclestage, probably). Add to form.
-		if ( ! empty( $external_options ) ) {
-			$hs_form['selectedExternalOptions'] = $external_options;
+	/**
+	 * Returns the value to be used for the HubSpot form configuration language property.
+	 *
+	 * @since 3.0.1
+	 *
+	 * @return string
+	 */
+	private function get_config_language() {
+		$supported = array(
+			'af',
+			'ar-eg',
+			'bg',
+			'bn',
+			'ca-es',
+			'cs',
+			'da',
+			'de',
+			'el',
+			'en',
+			'es',
+			'es-mx',
+			'fi',
+			'fr',
+			'fr-ca',
+			'he-il',
+			'hr',
+			'hu',
+			'id',
+			'it',
+			'ja',
+			'ko',
+			'lt',
+			'ms',
+			'nl',
+			'no-no',
+			'pl',
+			'pt',
+			'pt-br',
+			'ro',
+			'ru',
+			'sk',
+			'sl',
+			'sv',
+			'th',
+			'tl',
+			'tr',
+			'uk',
+			'vi',
+			'zh-cn',
+			'zh-hk',
+			'zh-tw',
+		);
+
+		$locale = str_replace( '_', '-', strtolower( get_locale() ) );
+		if ( in_array( $locale, $supported ) ) {
+			return $locale;
+		}
+
+		if ( ! str_contains( $locale, '-' ) ) {
+			return 'en';
+		}
+
+		$lang = substr( $locale, 0, 2 );
+
+		return in_array( $lang, $supported ) ? $lang : 'en';
+	}
+
+	/**
+	 * Passes $hs_form through a filter to allow for customizations, and migrates any v2 params added via the filter.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array      $hs_form       The create or update form payload.
+	 * @param array      $feed_meta     The feed meta.
+	 * @param int        $form_id       The ID of the current form.
+	 * @param null|array $existing_form Null or the existing HubSpot form.
+	 *
+	 * @return array
+	 */
+	public function filter_hs_form( $hs_form, $feed_meta, $form_id, $existing_form ) {
+		$filter_args = array( 'gform_hubspot_form_object_pre_save_feed', $form_id );
+		if ( ! gf_has_filter( $filter_args ) ) {
+			return $hs_form;
 		}
 
 		// Only available when run from the form settings area.
@@ -1667,17 +1849,228 @@ class GF_HubSpot extends GFFeedAddOn {
 			$form = GFAPI::get_form( $form_id );
 		}
 
+		$this->log_debug( __METHOD__ . '(): Executing functions hooked to gform_hubspot_form_object_pre_save_feed.' );
+
 		/**
 		 * Allows the HubSpot form object to be filtered before saving the feed.
 		 *
 		 * @since 1.0
+		 * @since 3.0 Added the $existing_form param.
 		 *
-		 * @param array $hs_form   The HubSpot form object to be filtered.
-		 * @param array $feed_meta The current feed settings object.
-		 * @param array $form      The current Gravity Form Object.
+		 * @param array      $hs_form       The new HubSpot form to be created or the properties to be updated for an existing HubSpot form.
+		 * @param array      $feed_meta     The current feed settings object.
+		 * @param array      $form          The current Gravity Form Object.
+		 * @param null|array $existing_form Null or the existing HubSpot form.
 		 */
-		return gf_apply_filters( array( 'gform_hubspot_form_object_pre_save_feed', $form_id ), $hs_form, $feed_meta, $form );
+		$hs_form = gf_apply_filters( $filter_args, $hs_form, $feed_meta, $form, $existing_form );
 
+		return $this->migrate_filtered_hs_form( $hs_form, $existing_form );
+	}
+
+	/**
+	 * Migrates any legacy v2 properties added via the gform_hubspot_form_object_pre_save_feed filter.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array      $hs_form       The new HubSpot form to be created or the properties to be updated for an existing HubSpot form.
+	 * @param null|array $existing_form Null or the existing HubSpot form.
+	 *
+	 * @return array
+	 */
+	private function migrate_filtered_hs_form( $hs_form, $existing_form ) {
+		$add_config  = false;
+		$add_display = false;
+
+		if ( empty( $existing_form ) ) {
+			$existing_form = $this->get_new_hs_form_defaults();
+		}
+
+		if ( ! empty( $hs_form['cssClass'] ) ) {
+			$existing_form['displayOptions']['cssClass'] = $hs_form['cssClass'];
+			$add_display                                 = true;
+		}
+
+		if ( ! empty( $hs_form['redirect'] ) ) {
+			$existing_form['configuration']['postSubmitAction'] = array(
+				'type'  => 'redirect_url',
+				'value' => $hs_form['redirect'],
+			);
+			$add_config                                         = true;
+		}
+
+		if ( ! empty( $hs_form['submitText'] ) ) {
+			$existing_form['displayOptions']['submitButtonText'] = $hs_form['submitText'];
+			$add_display                                         = true;
+		}
+
+		if ( isset( $hs_form['ignoreCurrentValues'] ) ) {
+			$existing_form['configuration']['createNewContactForNewEmail'] = (bool) $hs_form['ignoreCurrentValues'];
+			$add_config                                                    = true;
+		}
+
+		if ( ! empty( $hs_form['metaData'] ) ) {
+			foreach ( $hs_form['metaData'] as $meta_data ) {
+				if ( rgar( $meta_data, 'name' ) === 'disableCookieSubmission' ) {
+					$existing_form['configuration']['prePopulateKnownValues'] = (bool) rgar( $meta_data, 'value' );
+					$add_config                                               = true;
+				}
+			}
+		}
+
+		if ( $add_config ) {
+			$hs_form['configuration'] = $existing_form['configuration'];
+		}
+
+		if ( $add_display ) {
+			$hs_form['displayOptions'] = $existing_form['displayOptions'];
+		}
+
+		unset(
+			$hs_form['cssClass'],
+			$hs_form['redirect'],
+			$hs_form['submitText'],
+			$hs_form['ignoreCurrentValues'],
+			$hs_form['metaData'],
+			$hs_form['action'],
+			$hs_form['method'],
+			$hs_form['followUpId'],
+			$hs_form['leadNurturingCampaignId'],
+			$hs_form['selectedExternalOptions'],
+			$hs_form['notifyRecipients']
+		);
+
+		return $hs_form;
+	}
+
+	/**
+	 * Gets the specified field from the existing form.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $field_name    The name of the existing field.
+	 * @param array  $existing_form The existing form.
+	 *
+	 * @return array
+	 */
+	public function get_existing_contact_field( $field_name, $existing_form ) {
+		if ( empty( $existing_form['fieldGroups'] ) ) {
+			return array();
+		}
+
+		foreach ( $existing_form['fieldGroups'] as $group ) {
+			if ( empty( $group['fields'] ) ) {
+				continue;
+			}
+
+			foreach ( $group['fields'] as $field ) {
+				if ( rgar( $field, 'name' ) === $field_name ) {
+					if ( ! empty( $field['options'] ) ) {
+						foreach ( $field['options'] as &$option ) {
+							// The API can omit these keys from the field in the retrieved form but will return an error if they aren't passed in the patch/update request.
+							foreach ( array( 'label', 'value' ) as $key ) {
+								if ( ! isset( $option[ $key ] ) ) {
+									$option[ $key ] = '';
+								}
+							}
+						}
+					}
+
+					return $field;
+				}
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Gets the specified property.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $property_name The name of the property.
+	 *
+	 * @return array
+	 */
+	public function get_property( $property_name ) {
+		static $grouped_properties;
+
+		if ( ! is_array( $grouped_properties ) ) {
+			$grouped_properties = $this->get_grouped_properties();
+		}
+
+		foreach ( $grouped_properties as $group ) {
+			if ( empty( $group['properties'] ) ) {
+				continue;
+			}
+
+			foreach ( $group['properties'] as $property ) {
+				if ( rgar( $property, 'name' ) === $property_name ) {
+					return $property;
+				}
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Creates a HubSpot contact property from the specified property.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $property_name The name of the property.
+	 *
+	 * @return array
+	 */
+	public function create_contact_field_from_property( $property_name ) {
+		$property = $this->get_property( $property_name );
+		if ( empty( $property ) ) {
+			return array();
+		}
+
+		$required_args = array(
+			'objectTypeId',
+			'hidden',
+			'name',
+			'dependentFields',
+			'label',
+			'fieldType',
+			'required',
+			'validation',
+			'useCountryCodeSelect',
+			'options',
+			'allowMultipleFiles',
+		);
+
+		$field = array_intersect_key( $property, array_flip( $required_args ) );
+
+		if ( empty( $field['objectTypeId'] ) ) {
+			$field['objectTypeId'] = '0-1'; // The ID for contact fields.
+		}
+
+		// Changing some unsupported property fieldTypes or the API will return an error.
+		$type_map = array(
+			'text'            => 'single_line_text',
+			'textarea'        => 'multi_line_text',
+			'hidden'          => 'single_line_text',
+			'select'          => 'dropdown',
+			'phonenumber'     => 'phone',
+			'date'            => 'datepicker',
+			'booleancheckbox' => 'single_checkbox',
+			'checkbox'        => 'multiple_checkboxes',
+		);
+
+		$property_type = rgar( $property, 'fieldType' );
+		if ( isset( $type_map[ $property_type ] ) ) {
+			if ( $property_type === 'hidden' ) {
+				$field['hidden'] = true;
+			}
+
+			$field['fieldType'] = $type_map[ $property_type ];
+		}
+
+		return $field;
 	}
 
 	/**
@@ -2001,7 +2394,7 @@ class GF_HubSpot extends GFFeedAddOn {
 			$_owner_choices = array();
 			foreach ( $owners as $owner ) {
 
-				if ( ! rgar( $owner, 'ownerId' ) ) {
+				if ( empty( $owner['id'] ) ) {
 					continue;
 				}
 
@@ -2013,9 +2406,11 @@ class GF_HubSpot extends GFFeedAddOn {
 
 				$_owner_choices[] = array(
 					'label' => $owner_label,
-					'value' => $owner['ownerId'],
+					'value' => $owner['id'],
 				);
 			}
+
+			$_owner_choices = wp_list_sort( $_owner_choices, 'label' );
 		}
 
 		return $_owner_choices;
@@ -2045,7 +2440,7 @@ class GF_HubSpot extends GFFeedAddOn {
 		$basic_field_names = array( 'firstname', 'lastname', 'email' );
 
 		// Only the following supported property types will be supported for mapping.
-		$supported_property_types = array( 'string', 'number', 'date', 'enumeration' );
+		$supported_property_types = array( 'string', 'number', 'date', 'enumeration', 'bool' );
 
 		$enum_properties = $this->get_enumeration_properties();
 
@@ -2064,16 +2459,20 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		$labels = array();
 
-		$property_groups   = $this->api->get_contact_properties();
-		$is_props_wp_error = is_wp_error( $property_groups );
+		$grouped_properties = $this->get_grouped_properties();
 
-		if ( $is_props_wp_error ) {
-			$this->log_debug( __METHOD__ . '(): Unable to get contact properties; ' . $property_groups->get_error_message() );
-		} else {
-			foreach ( $property_groups as $property_group ) {
-				$group = array( 'label' => $property_group['displayName'], 'choices' => array() );
+		if ( ! empty( $grouped_properties ) ) {
+			foreach ( $grouped_properties as $property_group ) {
+				$group = array(
+					'label'   => rgar( $property_group, 'label' ),
+					'choices' => array(),
+				);
 
 				foreach ( $property_group['properties'] as $property ) {
+					// Don't include properties that are not supported for use with HubSpot forms.
+					if ( ! rgar( $property, 'formField' ) ) {
+						continue;
+					}
 
 					$field = array(
 						'type'           => 'field_select',
@@ -2083,7 +2482,7 @@ class GF_HubSpot extends GFFeedAddOn {
 						'value'          => '_hs_customer_' . $property['name'],
 						'_hs_type'       => $property['type'],
 						'_hs_field_type' => $property['fieldType'],
-						'required'       => $property['name'] == 'email',
+						'required'       => $property['name'] === 'email',
 					);
 
 					$labels[ $property['label'] ][] = $property;
@@ -2103,13 +2502,14 @@ class GF_HubSpot extends GFFeedAddOn {
 								'value' => '',
 								'label' => esc_html__( 'Select an Option', 'gravityformshubspot' ),
 							),
-							array( 'value' => ' ', 'label' => '' ),
+							array(
+								'value' => ' ',
+								'label' => '',
+							),
 						) : array();
-						$field['choices']       = array_merge( $field['choices'], $property['options'] );
-
-						$selection_fields[] = $field;
-					} elseif ( $supported_in_additional_fields && $property['readOnlyValue'] === false ) {
-
+						$field['choices']       = array_merge( $field['choices'], rgar( $property, 'options', array() ) );
+						$selection_fields[]     = $field;
+					} elseif ( $supported_in_additional_fields && rgars( $property, 'modificationMetadata/readOnlyValue' ) === false ) {
 						$additional_fields[] = $field;
 						$group['choices'][]  = $field;
 
@@ -2131,14 +2531,81 @@ class GF_HubSpot extends GFFeedAddOn {
 			'basic'      => $basic_fields,
 			'additional' => $additional_fields,
 			'selection'  => $selection_fields,
-			'grouped'    => $groups
+			'grouped'    => $groups,
 		);
 
-		if ( ! $is_props_wp_error ) {
-			GFCache::set( self::CUSTOM_PROPERTIES_CACHE_KEY , $contact_properties, true, HOUR_IN_SECONDS );
+		if ( ! empty( $grouped_properties ) ) {
+			GFCache::set( self::CUSTOM_PROPERTIES_CACHE_KEY, $contact_properties, true, HOUR_IN_SECONDS );
 		}
 
 		return $contact_properties;
+	}
+
+	/**
+	 * Returns the grouped properties.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array
+	 */
+	public function get_grouped_properties() {
+		$grouped_properties = GFCache::get( self::GROUPED_PROPERTIES_CACHE_KEY );
+		if ( ! empty( $grouped_properties ) ) {
+			return $grouped_properties;
+		}
+
+		$groups = $this->api->get_property_groups();
+		if ( is_wp_error( $groups ) ) {
+			$this->log_debug( __METHOD__ . '(): Unable to get contact property groups: ' . $groups->get_error_message() );;
+
+			return array();
+		}
+
+		$properties = $this->api->get_properties();
+		if ( is_wp_error( $properties ) ) {
+			$this->log_debug( __METHOD__ . '(): Unable to get contact properties: ' . $properties->get_error_message() );;
+
+			return array();
+		}
+
+		$grouped_properties = $this->get_property_groups( $groups, $properties );
+		GFCache::set( self::GROUPED_PROPERTIES_CACHE_KEY, $grouped_properties, true, HOUR_IN_SECONDS );
+
+		return $grouped_properties;
+	}
+
+	/**
+	 * Organizes properties into their corresponding property groups.
+	 *
+	 * @since 2.3
+	 *
+	 * @param array $groups     Array of property groups.
+	 * @param array $properties Array of properties to be grouped.
+	 *
+	 * @return array Organized array of property groups with their properties.
+	 */
+	public function get_property_groups( $groups, $properties ) {
+		$property_groups = array();
+
+		foreach ( $properties as $property ) {
+			$group_name = rgar( $property, 'groupName' );
+
+			if ( ! isset( $property_groups[ $group_name ] ) ) {
+				$property_groups[ $group_name ]               = rgar( $groups, $group_name, array() );
+				$property_groups[ $group_name ]['properties'] = array();
+			}
+
+			$property_groups[ $group_name ]['properties'][] = $property;
+		}
+
+		foreach ( $groups as $group ) {
+			$group_name = rgar( $group, 'name' );
+			if ( isset( $property_groups[ $group_name ] ) ) {
+				$property_groups[ $group_name ]['label'] = rgar( $group, 'label' );
+			}
+		}
+
+		return $property_groups;
 	}
 
 	/**
@@ -2221,10 +2688,13 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * Process the HubSpot feed.
 	 *
 	 * @since  1.0
+	 * @since  2.2 Updated return value for consistency with other add-ons, so the framework can save the feed status to the entry meta.
 	 *
-	 * @param  array $feed  Feed object.
-	 * @param  array $entry Entry object.
-	 * @param  array $form  Form object.
+	 * @param array $feed  Feed object.
+	 * @param array $entry Entry object.
+	 * @param array $form  Form object.
+	 *
+	 * @return WP_Error|array
 	 */
 	public function process_feed( $feed, $entry, $form ) {
 
@@ -2245,12 +2715,26 @@ class GF_HubSpot extends GFFeedAddOn {
 			return new WP_Error( 'api_not_initialized', 'API not initialized.' );
 		}
 
-		$response = $this->api->submit_form( $feed['meta']['_hs_portal_id'], $feed['meta']['_hs_form_guid'], $submission_data );
+		$portal_id = $this->get_portal_id();
+		if ( empty( $portal_id ) ) {
+			$this->add_feed_error( esc_html__( 'Feed was not processed because the portal ID is not available.', 'gravityformshubspot' ), $feed, $entry, $form );
+
+			return new WP_Error( 'portal_id_empty', 'Portal ID is not available.' );
+		}
+
+		$response = $this->api->submit_form( $portal_id, $feed['meta']['_hs_form_guid'], $submission_data );
 
 		if ( is_wp_error( $response ) ) {
 			$this->add_feed_error( sprintf( esc_html__( 'There was an error when creating the contact in HubSpot. %s', 'gravityformshubspot' ), $response->get_error_message() ), $feed, $entry, $form );
 			$this->log_error( __METHOD__ . '(): Unable to create the contact; error data: ' . print_r( $response->get_error_data(), true ) );
+
+			return $response;
 		}
+
+		$this->log_debug( __METHOD__ . '(): The HubSpot form accepted the submission. ' . json_encode( $response ) );
+		$this->add_note( rgar( $entry, 'id' ), sprintf( esc_html__( 'Submission accepted by Form ID %s.', 'gravityformshubspot' ), $feed['meta']['_hs_form_guid'] ), 'success' );
+
+		return $entry;
 	}
 
 	/**
@@ -2372,17 +2856,22 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * Add tracking JS snippet to footer if there are any Hubspot feeds.
 	 *
 	 * @since 1.0
+	 * @since 3.0 Updated not to output script when the site is also using the official HubSpot plugin.
 	 */
 	public function action_wp_footer() {
 
 		$add_tracking = true;
+
+		if ( class_exists( '\Leadin\AssetsManager' ) && wp_script_is( \Leadin\AssetsManager::TRACKING_CODE ) ) {
+			$add_tracking = false;
+		}
 
 		/**
 		 * Allows the tracking script to be removed.
 		 *
 		 * @since 1.0
 		 *
-		 * @param true $add_tracking Whether to output the tracking script.
+		 * @param bool $add_tracking Whether to output the tracking script.
 		 */
 		$add_tracking = apply_filters( 'gform_hubspot_output_tracking_script', $add_tracking );
 
@@ -2395,23 +2884,78 @@ class GF_HubSpot extends GFFeedAddOn {
 			return;
 		}
 
-		$portal_id = rgars( $feeds, '0/meta/_hs_portal_id' );
+		$portal_id = $this->get_portal_id();
 
-		if ( $portal_id && strlen( $portal_id ) > 0 ) {
+		if ( ! empty( $portal_id ) ) {
 			if ( ! is_admin() ) {
 				?>
-<!-- Start of Async HubSpot Analytics Code -->
-<script type="text/javascript">
-(function(d,s,i,r) {
-if (d.getElementById(i)){return;}
-var n=d.createElement(s),e=d.getElementsByTagName(s)[0];
-n.id=i;n.src='//js.hs-analytics.net/analytics/'+(Math.ceil(new Date()/r)*r)+'/<?php echo $portal_id; ?>.js';
-e.parentNode.insertBefore(n, e);
-})(document,"script","hs-analytics",300000);
-</script>
-<!-- End of Async HubSpot Analytics Code -->
-<?php
+					<!-- Start of Async HubSpot Analytics Code -->
+					<script type="text/javascript">
+					(function(d,s,i,r) {
+					if (d.getElementById(i)){return;}
+					var n=d.createElement(s),e=d.getElementsByTagName(s)[0];
+					n.id=i;n.src='//js.hs-analytics.net/analytics/'+(Math.ceil(new Date()/r)*r)+'/<?php echo $portal_id; ?>.js';
+					e.parentNode.insertBefore(n, e);
+					})(document,"script","hs-analytics",300000);
+					</script>
+					<!-- End of Async HubSpot Analytics Code -->
+				<?php
 			}
 		}
 	}
+
+	/**
+	 * Returns the HubSpot portal id.
+	 *
+	 * @since 3.0
+	 *
+	 * @return int
+	 */
+	public function get_portal_id() {
+		$portal_id = $this->get_plugin_setting( 'portal_id' );
+		if ( ! empty( $portal_id ) ) {
+			return absint( $portal_id );
+		}
+
+		if ( ! $this->initialize_api() ) {
+			return 0;
+		}
+
+		$account = $this->api->get_account_info();
+		if ( is_wp_error( $account ) ) {
+			$this->log_debug( __METHOD__ . '(): Unable to get account info; ' . $account->get_error_message() );
+
+			return 0;
+		} elseif ( empty( $account['portalId'] ) ) {
+			$this->log_debug( __METHOD__ . '(): Unable to get account portalId.' );
+
+			return 0;
+		}
+
+		$portal_id = absint( $account['portalId'] );
+		$this->log_debug( __METHOD__ . '(): Saving portalId: ' . $portal_id );
+		$settings              = $this->get_plugin_settings();
+		$settings['portal_id'] = $portal_id;
+		$this->update_plugin_settings( $settings );
+
+		return $portal_id;
+	}
+
+	/**
+	 * Saves the HubSpot portal ID to the plugin settings on upgrade of an existing installation..
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $previous_version The previously installed version.
+	 *
+	 * @return void
+	 */
+	public function upgrade( $previous_version ) {
+		if ( empty( $previous_version ) ) {
+			return;
+		}
+
+		$this->get_portal_id();
+	}
+
 }
