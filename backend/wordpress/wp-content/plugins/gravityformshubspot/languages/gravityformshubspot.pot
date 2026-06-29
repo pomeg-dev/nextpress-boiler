@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Gravity Forms HubSpot Add-On 3.0.2\n"
+"Project-Id-Version: Gravity Forms HubSpot Add-On 3.0.3\n"
 "Report-Msgid-Bugs-To: https://gravityforms.com/support\n"
 "Last-Translator: Gravity Forms <support@gravityforms.com>\n"
 "Language-Team: Gravity Forms <support@gravityforms.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-19T09:07:30+00:00\n"
+"POT-Creation-Date: 2026-06-16T17:17:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: gravityformshubspot\n"
@@ -196,87 +196,125 @@ msgid "Add Additional Contact Fields"
 msgstr ""
 
 #: class-gf-hubspot.php:1276
+msgid "HubSpot Form Options"
+msgstr ""
+
+#: class-gf-hubspot.php:1277
+msgid "The following settings control the HubSpot form options automatically created and managed by this feed."
+msgstr ""
+
+#: class-gf-hubspot.php:1281
+#: class-gf-hubspot.php:1284
+msgid "Always create contact for new email address"
+msgstr ""
+
+#: class-gf-hubspot.php:1284
+msgid "Controls how HubSpot handles contact creation when a form is submitted. When enabled, a new contact record is created for every unique email address. When disabled, HubSpot may associate the submission with an existing contact based on browser cookies, which could overwrite or merge existing contact records."
+msgstr ""
+
+#: class-gf-hubspot.php:1287
+msgid "Use default/existing HubSpot setting"
+msgstr ""
+
+#: class-gf-hubspot.php:1291
+msgid "Enable"
+msgstr ""
+
+#: class-gf-hubspot.php:1295
+msgid "Disable"
+msgstr ""
+
+#: class-gf-hubspot.php:1302
+#: class-gf-hubspot.php:1304
+msgid "Exclude HubSpot tracking cookie for this feed"
+msgstr ""
+
+#: class-gf-hubspot.php:1304
+msgid "When enabled, prevents the HubSpot tracking cookie from being included in the form submission for this feed."
+msgstr ""
+
+#: class-gf-hubspot.php:1310
 msgid "Additional Options"
 msgstr ""
 
-#: class-gf-hubspot.php:1377
+#: class-gf-hubspot.php:1412
 msgid "There was an error connecting to Hubspot."
 msgstr ""
 
-#: class-gf-hubspot.php:1384
+#: class-gf-hubspot.php:1419
 msgid "There was an error validating the form name. Please try saving again"
 msgstr ""
 
-#: class-gf-hubspot.php:1389
+#: class-gf-hubspot.php:1424
 msgid "This form name is already in use in HubSpot. Please enter a unique form name."
 msgstr ""
 
-#: class-gf-hubspot.php:1398
+#: class-gf-hubspot.php:1433
 msgid "edit"
 msgstr ""
 
-#: class-gf-hubspot.php:1398
+#: class-gf-hubspot.php:1433
 msgid "add"
 msgstr ""
 
 #. translators: Action to perform on the form.
-#: class-gf-hubspot.php:1400
+#: class-gf-hubspot.php:1435
 msgid "Could not %s HubSpot form. Please try again later."
 msgstr ""
 
-#: class-gf-hubspot.php:1737
+#: class-gf-hubspot.php:1780
 msgid "The form was submitted successfully."
 msgstr ""
 
-#: class-gf-hubspot.php:1750
+#: class-gf-hubspot.php:1793
 msgid "Submit"
 msgstr ""
 
-#: class-gf-hubspot.php:2388
+#: class-gf-hubspot.php:2435
 msgid "Error retrieving HubSpot owners"
 msgstr ""
 
-#: class-gf-hubspot.php:2404
+#: class-gf-hubspot.php:2451
 msgid "No Name"
 msgstr ""
 
-#: class-gf-hubspot.php:2455
+#: class-gf-hubspot.php:2502
 msgid "Select a Contact Property"
 msgstr ""
 
-#: class-gf-hubspot.php:2503
+#: class-gf-hubspot.php:2550
 msgid "Select an Option"
 msgstr ""
 
-#: class-gf-hubspot.php:2632
+#: class-gf-hubspot.php:2679
 msgid "<h6>Lead Status</h6>Select the lead status value the newly added contact should be set to."
 msgstr ""
 
-#: class-gf-hubspot.php:2633
+#: class-gf-hubspot.php:2680
 msgid "<h6>Lifecycle Stage</h6>Select the lifecycle stage value the newly added contact should be set to."
 msgstr ""
 
-#: class-gf-hubspot.php:2704
+#: class-gf-hubspot.php:2751
 msgid "Feed was not processed because the submission object was empty."
 msgstr ""
 
-#: class-gf-hubspot.php:2713
+#: class-gf-hubspot.php:2760
 msgid "Feed was not processed because API was not initialized."
 msgstr ""
 
-#: class-gf-hubspot.php:2720
+#: class-gf-hubspot.php:2767
 msgid "Feed was not processed because the portal ID is not available."
 msgstr ""
 
-#: class-gf-hubspot.php:2728
+#: class-gf-hubspot.php:2775
 msgid "There was an error when creating the contact in HubSpot. %s"
 msgstr ""
 
-#: class-gf-hubspot.php:2735
+#: class-gf-hubspot.php:2782
 msgid "Submission accepted by Form ID %s."
 msgstr ""
 
-#: class-gf-hubspot.php:2824
+#: class-gf-hubspot.php:2871
 msgid "Do not delete or edit"
 msgstr ""
 

@@ -8586,7 +8586,8 @@ class GFFormsModel {
 	 * $_POST['gform_uploaded_files'] and caches them in GFFormsModel::$uploaded_files.
 	 *
 	 * @since 2.4.3.5
-	 * @since 2.9.18 Deprecated the string-based (file/basename) input value. Added support for dynamically populated file URLs using the `url` key.
+	 * @since 2.9.18 Added support for dynamically populated file URLs using the `url` key.
+	 * @since 2.10.3 Deprecated the string-based (file/basename) input value.
 	 *
 	 * @param int $form_id The ID of the form the submission is being processed for.
 	 *
@@ -8602,6 +8603,14 @@ class GFFormsModel {
 			if ( empty( $input_files ) ) {
 				unset( $files[ $input_name ] );
 				continue;
+			}
+
+			$field = null;
+			if ( preg_match( '/^input_(\d+)$/', $input_name, $matches ) ) {
+				$field = GFFormsModel::get_field( $form_id, $matches[1] );
+				if ( $field instanceof GF_Field_FileUpload ) {
+					$field->formId = (int) $form_id;
+				}
 			}
 
 			if ( is_array( $input_files ) ) {
@@ -8622,20 +8631,37 @@ class GFFormsModel {
 							$file['temp_filename'] = sanitize_file_name( wp_basename( $file['temp_filename'] ) );
 						}
 
-						// Used when the field is dynamically populated on initial form display.
-						if ( isset( $file['url'] ) ) {
-							$file['url'] = esc_url_raw( $file['url'] );
-						}
-
 						// Sanitize or generate the UUID to be used by the file preview and error messages markup.
 						if ( isset( $file['id'] ) ) {
 							$file['id'] = sanitize_key( $file['id'] );
 						} else {
 							$file['id'] = GFFormsModel::get_uuid();
 						}
+
+						if ( isset( $file['url'] ) ) {
+							$file['url']  = esc_url_raw( $file['url'] );
+							$file['hash'] = isset( $file['hash'] ) ? sanitize_text_field( $file['hash'] ) : '';
+
+							if ( ! $field instanceof GF_Field_FileUpload || ! $field->is_valid_populated_file_url( $file ) ) {
+								GFCommon::log_debug( __METHOD__ . sprintf( '(): Removing URL %s. File uploads must be submitted as binary uploads.', $input_name ) );
+								unset( $input_files[ $key ] );
+								continue;
+							}
+						}
+					}
+
+					$input_files = array_values( $input_files );
+					if ( empty( $input_files ) ) {
+						unset( $files[ $input_name ] );
 					}
 				}
 			} else {
+				if ( GFCommon::is_valid_url( $input_files ) ) {
+					GFCommon::log_debug( __METHOD__ . sprintf( '(): Removing URL %s. File uploads must be submitted as binary uploads.', $input_name ) );
+					unset( $files[ $input_name ] );
+					continue;
+				}
+
 				// Deprecated, retaining for backwards compatibility with third-party integrations.
 				$input_files = wp_basename( $input_files );
 			}

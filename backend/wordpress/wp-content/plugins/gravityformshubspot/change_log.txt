@@ -1,4 +1,5 @@
-### 3.0.2.1
+### 3.0.3 | 2026-06-16
+- Added HubSpot Form Options section to the feed settings with options to always create a contact for new email addresses and to exclude the HubSpot tracking cookie from form submissions.
 - Updated the addon to show which Portal Id the user is connected to.
 - Fixed an issue where single checkbox type HubSpot properties are missing from the feed field mapping.
 

@@ -1272,6 +1272,40 @@ class GF_HubSpot extends GFFeedAddOn {
 			),
 		);
 
+		$hubspot_form_options_section = array(
+			'title'       => esc_html__( 'HubSpot Form Options', 'gravityformshubspot' ),
+			'description' => '<p>' . esc_html__( 'The following settings control the HubSpot form options automatically created and managed by this feed.', 'gravityformshubspot' ) . '</p>',
+			'fields'      => array(
+				array(
+					'name'          => 'contact_creation_behavior',
+					'label'         => esc_html__( 'Always create contact for new email address', 'gravityformshubspot' ),
+					'type'          => 'select',
+					'default_value' => 'default',
+					'tooltip'       => '<h6>' . esc_html__( 'Always create contact for new email address', 'gravityformshubspot' ) . '</h6>' . esc_html__( 'Controls how HubSpot handles contact creation when a form is submitted. When enabled, a new contact record is created for every unique email address. When disabled, HubSpot may associate the submission with an existing contact based on browser cookies, which could overwrite or merge existing contact records.', 'gravityformshubspot' ),
+					'choices'       => array(
+						array(
+							'label' => esc_html__( 'Use default/existing HubSpot setting', 'gravityformshubspot' ),
+							'value' => 'default',
+						),
+						array(
+							'label' => esc_html__( 'Enable', 'gravityformshubspot' ),
+							'value' => 'enabled',
+						),
+						array(
+							'label' => esc_html__( 'Disable', 'gravityformshubspot' ),
+							'value' => 'disabled',
+						),
+					),
+				),
+				array(
+					'name'    => 'disable_cookie_submission',
+					'label'   => esc_html__( 'Exclude HubSpot tracking cookie for this feed', 'gravityformshubspot' ),
+					'type'    => 'toggle',
+					'tooltip' => '<h6>' . esc_html__( 'Exclude HubSpot tracking cookie for this feed', 'gravityformshubspot' ) . '</h6>' . esc_html__( 'When enabled, prevents the HubSpot tracking cookie from being included in the form submission for this feed.', 'gravityformshubspot' ),
+				),
+			),
+		);
+
 		$other_fields_section = array(
 			'title'  => esc_html__( 'Additional Options', 'gravityformshubspot' ),
 			'fields' => array(
@@ -1289,6 +1323,7 @@ class GF_HubSpot extends GFFeedAddOn {
 			$contact_owner_section,
 			$field_map_section,
 			$additional_fields_section,
+			$hubspot_form_options_section,
 			$other_fields_section,
 		) );
 	}
@@ -1618,9 +1653,17 @@ class GF_HubSpot extends GFFeedAddOn {
 			}
 		} else {
 			$hs_form = array( 'fieldGroups' => array() );
+			$hs_form['configuration'] = rgar( $existing_form, 'configuration', array() );
 		}
 
 		$hs_form['name'] = rgar( $feed_meta, '_hs_form' ) . $this->get_hubspot_formname_warning();
+
+		$contact_creation_behavior = rgar( $feed_meta, 'contact_creation_behavior', 'default' );
+		if ( $contact_creation_behavior === 'enabled' ) {
+			$hs_form['configuration']['createNewContactForNewEmail'] = true;
+		} elseif ( $contact_creation_behavior === 'disabled' ) {
+			$hs_form['configuration']['createNewContactForNewEmail'] = false;
+		}
 
 		$fields = array();
 
@@ -1918,7 +1961,7 @@ class GF_HubSpot extends GFFeedAddOn {
 		}
 
 		if ( $add_config ) {
-			$hs_form['configuration'] = $existing_form['configuration'];
+			$hs_form['configuration'] = array_merge( $existing_form['configuration'], $hs_form['configuration'] );
 		}
 
 		if ( $add_display ) {
@@ -2159,7 +2202,11 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		$hutk = $this->get_hutk_cookie_value( rgar( $entry, 'id' ) );
 		if ( ! empty( $hutk ) ) {
-			$context['hutk'] = $hutk;
+			if ( rgar( $feed['meta'], 'disable_cookie_submission' ) ) {
+				$this->log_debug( __METHOD__ . '(): hutk cookie excluded in submission due to configured feed setting.' );
+			} else {
+				$context['hutk'] = $hutk;
+			}
 		}
 
 		// Pass entry IP to HubSpot unless personal data settings for a form are set to not save the submitter's IP address.
