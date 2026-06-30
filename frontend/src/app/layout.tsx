@@ -27,6 +27,9 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
       'enable_user_flow', 
       'google_tag_manager_enabled', 
       'google_tag_manager_id',
+      'head_scripts',
+      'body_opening',
+      'body_closing',
       'default_language',
       'blogname'
     ]
@@ -60,7 +63,7 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
         </head>
         <body>
           <Suspense>
-            <CookieManager 
+            <CookieManager
               settings={settings}
             />
           </Suspense>

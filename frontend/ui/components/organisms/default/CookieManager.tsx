@@ -5,6 +5,7 @@ import { getCookie } from '@ui/utils/cookies';
 import { CookiePreferences } from '@/lib/types';
 import { usePathname, useSearchParams } from 'next/navigation';
 import CookieBanner from './CookieBanner';
+import { RawHtml } from './RawHtml';
 
 declare global {
   interface Window {
@@ -18,6 +19,9 @@ interface CookieManagerProps {
     blogname?: string,
     google_tag_manager_enabled: boolean;
     google_tag_manager_id: string;
+    head_scripts?: string;
+    body_opening?: string;
+    body_closing?: string;
   };
 }
 
@@ -130,11 +134,21 @@ export function CookieManager({ settings }: CookieManagerProps) {
   };
 
   return (
-    <CookieBanner
-      companyName={settings.blogname || "ORAPortal"}
-      onAcceptAll={handleConsentChange}
-      onDecline={handleConsentChange}
-      onSavePreferences={handleConsentChange}
-    />
+    <>
+      {/* Admin-supplied scripts run only once the user grants functional consent. */}
+      {preferences?.functional && (
+        <>
+          <RawHtml html={settings.head_scripts} target="head" />
+          <RawHtml html={settings.body_opening} target="body-start" />
+          <RawHtml html={settings.body_closing} target="body-end" />
+        </>
+      )}
+      <CookieBanner
+        companyName={settings.blogname || "Nextpress"}
+        onAcceptAll={handleConsentChange}
+        onDecline={handleConsentChange}
+        onSavePreferences={handleConsentChange}
+      />
+    </>
   );
 }

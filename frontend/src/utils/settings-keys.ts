@@ -1,6 +1,9 @@
 export const SETTINGS_KEYS = [
   'google_tag_manager_enabled', 
   'google_tag_manager_id',
+  'head_scripts',
+  'body_opening',
+  'body_closing',
   'page_for_posts_slug',
   'frontend_url',
   'before_content',
