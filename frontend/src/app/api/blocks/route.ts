@@ -88,6 +88,7 @@ async function getBlockInfo(theme: string, file: string): Promise<Block> {
   try {
     const fieldsJsonContent = await fs.readFile(fieldsJsonPath, "utf-8");
     fields = JSON.parse(fieldsJsonContent);
+    fields = await resolveFieldRefs(fields, theme);
   } catch (error) {
     // If there's an error reading the file, we'll return an empty array for fields
   }
@@ -97,4 +98,55 @@ async function getBlockInfo(theme: string, file: string): Promise<Block> {
     blockName: path.basename(file),
     fields: fields,
   };
+}
+
+/**
+ * Expand any `{ "$ref": "name" }` entries in a fields array by inlining the
+ * matching partial from `themes/<theme>/_partials/<name>.json`. This lets
+ * repeated field groups (e.g. the buttons repeater) be maintained in one place.
+ * A partial may resolve to a single field object or an array of fields.
+ */
+async function resolveFieldRefs(
+  fields: any[],
+  theme: string
+): Promise<any[]> {
+  if (!Array.isArray(fields)) {
+    return fields;
+  }
+
+  const resolved: any[] = [];
+  for (const field of fields) {
+    if (field && typeof field === "object" && typeof field.$ref === "string") {
+      const partial = await loadPartial(theme, field.$ref);
+      if (Array.isArray(partial)) {
+        resolved.push(...partial);
+      } else if (partial) {
+        resolved.push(partial);
+      }
+      // If the partial failed to load it is skipped (and logged in loadPartial).
+    } else {
+      resolved.push(field);
+    }
+  }
+  return resolved;
+}
+
+async function loadPartial(theme: string, name: string): Promise<any> {
+  const partialPath = path.join(
+    process.cwd(),
+    "themes",
+    theme,
+    "_partials",
+    `${name}.json`
+  );
+  try {
+    const content = await fs.readFile(partialPath, "utf-8");
+    return JSON.parse(content);
+  } catch (error) {
+    console.error(
+      `Unable to resolve field $ref "${name}" for theme "${theme}":`,
+      error
+    );
+    return null;
+  }
 }
