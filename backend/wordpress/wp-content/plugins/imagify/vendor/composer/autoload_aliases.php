@@ -17,7 +17,8 @@ namespace Imagify\Dependencies {
      * @phpstan-type ClassAliasArray array{'type':'class',isabstract:bool,classname:string,namespace?:string,extends:string,implements:array<string>}
      * @phpstan-type InterfaceAliasArray array{'type':'interface',interfacename:string,namespace?:string,extends:array<string>}
      * @phpstan-type TraitAliasArray array{'type':'trait',traitname:string,namespace?:string,use:array<string>}
-     * @phpstan-type AutoloadAliasArray array<string,ClassAliasArray|InterfaceAliasArray|TraitAliasArray>
+     * @phpstan-type EnumAliasArray array{'type':'enum',enumname:string,namespace?:string,concrete:string}
+     * @phpstan-type AutoloadAliasArray array<string,ClassAliasArray|InterfaceAliasArray|TraitAliasArray|EnumAliasArray>
      */
     class AliasAutoloader
     {
@@ -319,6 +320,160 @@ namespace Imagify\Dependencies {
     array (
     ),
   ),
+  'WPMedia_Base_MixpanelBase' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Base_MixpanelBase',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Base_MixpanelBase',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_ConsumerStrategies_AbstractConsumer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_ConsumerStrategies_AbstractConsumer',
+    'isabstract' => true,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_ConsumerStrategies_AbstractConsumer',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_ConsumerStrategies_CurlConsumer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_ConsumerStrategies_CurlConsumer',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_ConsumerStrategies_CurlConsumer',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_ConsumerStrategies_FileConsumer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_ConsumerStrategies_FileConsumer',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_ConsumerStrategies_FileConsumer',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_ConsumerStrategies_SocketConsumer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_ConsumerStrategies_SocketConsumer',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_ConsumerStrategies_SocketConsumer',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_Mixpanel' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Mixpanel',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Mixpanel',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_Producers_MixpanelBaseProducer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Producers_MixpanelBaseProducer',
+    'isabstract' => true,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Producers_MixpanelBaseProducer',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_Producers_MixpanelEvents' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Producers_MixpanelEvents',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Producers_MixpanelEvents',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_Producers_MixpanelGroups' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Producers_MixpanelGroups',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Producers_MixpanelGroups',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia_Producers_MixpanelPeople' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPMedia_Producers_MixpanelPeople',
+    'isabstract' => false,
+    'namespace' => '\\',
+    'extends' => 'Imagify_WPMedia_Producers_MixpanelPeople',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia\\Mixpanel\\Optin' => 
+  array (
+    'type' => 'class',
+    'classname' => 'Optin',
+    'isabstract' => false,
+    'namespace' => 'WPMedia\\Mixpanel',
+    'extends' => 'Imagify\\Dependencies\\WPMedia\\Mixpanel\\Optin',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia\\Mixpanel\\Tracking' => 
+  array (
+    'type' => 'class',
+    'classname' => 'Tracking',
+    'isabstract' => false,
+    'namespace' => 'WPMedia\\Mixpanel',
+    'extends' => 'Imagify\\Dependencies\\WPMedia\\Mixpanel\\Tracking',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia\\Mixpanel\\TrackingPlugin' => 
+  array (
+    'type' => 'class',
+    'classname' => 'TrackingPlugin',
+    'isabstract' => false,
+    'namespace' => 'WPMedia\\Mixpanel',
+    'extends' => 'Imagify\\Dependencies\\WPMedia\\Mixpanel\\TrackingPlugin',
+    'implements' => 
+    array (
+    ),
+  ),
+  'WPMedia\\Mixpanel\\WPConsumer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'WPConsumer',
+    'isabstract' => false,
+    'namespace' => 'WPMedia\\Mixpanel',
+    'extends' => 'Imagify\\Dependencies\\WPMedia\\Mixpanel\\WPConsumer',
+    'implements' => 
+    array (
+    ),
+  ),
   'League\\Container\\Argument\\ArgumentResolverTrait' => 
   array (
     'type' => 'trait',
@@ -554,6 +709,18 @@ namespace Imagify\Dependencies {
                         $this->traitTemplate(
                             $this->autoloadAliases[$class]
                         )
+                    );
+                    break;
+                case 'enum':
+                    // Enums are final so cannot be aliased with an `extends` shim like classes are; `class_alias()`
+                    // makes the original name a true alias of the renamed enum, preserving case identity (`===`),
+                    // `match` arms, `::cases()`, `::from()` and `instanceof` the enum itself. Unlike the class shim,
+                    // the alias does not implement the enum's original interface names, so `instanceof` against an
+                    // original interface name is false. Enums require PHP 8.1, but this only executes when an enum
+                    // is autoloaded by its original name, i.e. on a runtime already using enums.
+                    \class_alias(
+                        $this->autoloadAliases[$class]['concrete'],
+                        $class
                     );
                     break;
                 default:

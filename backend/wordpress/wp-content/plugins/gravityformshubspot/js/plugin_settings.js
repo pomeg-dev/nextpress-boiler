@@ -12,6 +12,7 @@ window.GFHubSpotSettings = null;
 
             this.bindDeauthorize();
             this.bindClearCache();
+			this.bindToggleTrackingScript();
         }
 
         this.bindDeauthorize = function () {
@@ -93,6 +94,74 @@ window.GFHubSpotSettings = null;
 					complete: function () {
 						$button.attr( 'disabled', false );
 						setTimeout( function () { jQuery('.alert-container').fadeOut(); }, 10000 );
+					}
+				});
+			});
+		};
+
+		/**
+		 * @function bindToggleTrackingScript
+		 * @description Binds the change event for the disable_tracking_script toggle, saving it via AJAX.
+		 *
+		 * @since 3.0.4
+		 *
+		 */
+		this.bindToggleTrackingScript = function () {
+			var $toggle = $( '#_gform_setting_disable_tracking_script' );
+
+			var $status = $(
+				'<span class="gform-status-indicator gform-status-indicator--size-sm gform-status-indicator--theme-cosmos gform-status--no-icon gform-status--no-hover" role="status" aria-live="polite" style="display:none;">' +
+					'<span class="gform-status-indicator-status gform-typography--weight-medium gform-typography--size-text-xs"></span>' +
+				'</span>'
+			).insertAfter( $toggle.next( '.gform-field__toggle-container' ) );
+
+			var $statusText   = $status.find( '.gform-status-indicator-status' );
+			var statusTimeout = null;
+
+			function setStatus( text, statusClass ) {
+				clearTimeout( statusTimeout );
+
+				$status.stop( true, true );
+				$status.removeClass( 'gform-status--gray gform-status--active gform-status--success gform-status--error' ).addClass( statusClass );
+				$statusText.text( text );
+				$status.show();
+
+				statusTimeout = setTimeout( function () {
+					$status.fadeOut();
+				}, 2000 );
+			}
+
+			function handleError( message ) {
+				$toggle.prop( 'checked', ! $toggle.prop( 'checked' ) );
+				setStatus( message || gform_hubspot_pluginsettings_strings.status_error, 'gform-status--error' );
+			}
+
+			$toggle.on( 'change', function () {
+				$toggle.prop( 'disabled', true );
+				setStatus( gform_hubspot_pluginsettings_strings.status_saving, 'gform-status--gray' );
+
+				$.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					dataType: 'json',
+					data: {
+						action: 'gf_hubspot_toggle_tracking_script',
+						disable_tracking_script: $toggle.is( ':checked' ) ? 1 : 0,
+						nonce: gform_hubspot_pluginsettings_strings.tracking_nonce,
+					},
+					success: function ( response ) {
+						if ( response.success ) {
+							setStatus( gform_hubspot_pluginsettings_strings.status_saved, 'gform-status--success' );
+						} else {
+							handleError( response.data && response.data.message );
+						}
+
+					},
+					error: function () {
+						handleError();
+					},
+					complete: function () {
+						$toggle.prop( 'disabled', false );
 					}
 				});
 			});

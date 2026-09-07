@@ -290,73 +290,20 @@ class GF_HubSpot_API {
 	 * @since 1.0
 	 * @since 3.0 Updated to use the v3 endpoint.
 	 * @since 3.0.1 Added the $retry_on_error parameter.
+	 * @since 3.0.3.1 Deprecated the $retry_on_error parameter; the contact owner feature has been removed.
+	 * @remove-in 4.0 The $retry_on_error parameter.
 	 *
 	 * @param array $form           The form options array.
-	 * @param bool  $retry_on_error Whether to retry the request if form creation fails due to hubspot_owner_id field.
+	 * @param bool  $retry_on_error Deprecated. No longer used.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function create_form( $form, $retry_on_error = true ) {
-		$result = $this->make_request( 'marketing/v3/forms', $form, 'POST', null, 201 );
-
-		return $retry_on_error ? $this->maybe_retry_without_owner_id_field( $result, $form ) : $result;
-	}
-
-	/**
-	 * Retries the request if the form creation or update fails due to the hubspot_owner_id field.
-	 *
-	 * @since 3.0.1
-	 *
-	 * @param array|WP_Error $result The result of the create or update form request.
-	 * @param array          $form   The form options array.
-	 * @param null|string    $guid   GUID of the form.
-	 *
-	 * @return array|WP_Error
-	 */
-	private function maybe_retry_without_owner_id_field( $result, $form, $guid = null ) {
-		if ( ! is_wp_error( $result ) || $result->get_error_code() !== 'hubspot_api_error' ) {
-			return $result;
+		if ( func_num_args() > 1 ) {
+			_deprecated_argument( __METHOD__, '3.0.3.1', 'The $retry_on_error parameter is no longer used.' );
 		}
 
-		$error_data = $result->get_error_data();
-		if ( ! ( rgar( $error_data, 'message' ) === 'internal error' && rgar( $error_data, 'category' ) === 'VALIDATION_ERROR' ) ) {
-			return $result;
-		}
-
-		$owner_removed = false;
-
-		foreach ( $form['fieldGroups'] as &$group ) {
-			if ( empty( $group['fields'] ) ) {
-				continue;
-			}
-
-			foreach ( $group['fields'] as $key => $field ) {
-				if ( rgar( $field, 'name' ) !== 'hubspot_owner_id' ) {
-					continue;
-				}
-
-				$owner_removed = true;
-				unset( $group['fields'][ $key ] );
-				$group['fields'] = array_values( $group['fields'] );
-				break;
-			}
-		}
-
-		if ( ! $owner_removed ) {
-			return $result;
-		}
-
-		if ( $guid ) {
-			$result = $this->update_form( $guid, $form, false );
-		} else {
-			$result = $this->create_form( $form, false );
-		}
-
-		if ( ! is_wp_error( $result ) ) {
-			GFCache::set( GF_HubSpot::OWNER_ID_DISABLED, true, true );
-		}
-
-		return $result;
+		return $this->make_request( 'marketing/v3/forms', $form, 'POST', null, 201 );
 	}
 
 	/**
@@ -391,17 +338,21 @@ class GF_HubSpot_API {
 	 * @since 1.0
 	 * @since 3.0 Updated to use the v3 endpoint.
 	 * @since 3.0.1 Added the $retry_on_error parameter.
+	 * @since 3.0.3.1 Deprecated the $retry_on_error parameter; the contact owner feature has been removed.
+	 * @remove-in 4.0 The $retry_on_error parameter.
 	 *
 	 * @param string $guid           GUID of the form.
 	 * @param array  $form           The form options array.
-	 * @param bool   $retry_on_error Whether to retry the request if form update fails due to hubspot_owner_id field.
+	 * @param bool   $retry_on_error Deprecated. No longer used.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function update_form( $guid, $form, $retry_on_error = true ) {
-		$result = $this->make_request( "marketing/v3/forms/{$guid}", $form, 'PATCH' );
+		if ( func_num_args() > 2 ) {
+			_deprecated_argument( __METHOD__, '3.0.3.1', 'The $retry_on_error parameter is no longer used.' );
+		}
 
-		return $retry_on_error ? $this->maybe_retry_without_owner_id_field( $result, $form, $guid ) : $result;
+		return $this->make_request( "marketing/v3/forms/{$guid}", $form, 'PATCH' );
 	}
 
 	/**

@@ -1,3 +1,9 @@
+### 3.0.4 | 2026-09-02
+- Added a setting to disable the add-on's HubSpot tracking script for sites where HubSpot tracking is already loaded another way.
+- Fixed HubSpot form being saved when feed fails validation due to a missing required setting.
+- Removed the Contact Owner feed setting since the HubSpot Forms API no longer supports assigning a contact owner.
+- Deprecated the get_hubspot_owners() and get_contact_owner() methods, the OWNER_ID_DISABLED constant, and the $retry_on_error parameter of the API create_form() and update_form() methods.
+
 ### 3.0.3 | 2026-06-16
 - Added HubSpot Form Options section to the feed settings with options to always create a contact for new email addresses and to exclude the HubSpot tracking cookie from form submissions.
 - Updated the addon to show which Portal Id the user is connected to.

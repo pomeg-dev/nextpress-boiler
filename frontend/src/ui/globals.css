@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Bridge the existing v3 JS config (colors, screens, fontSize, custom col
+   plugin, safelist) into v4 while the theme is ported to @theme incrementally. */
+@config "../../tailwind.config.js";
+
+/* Column-based sizing/spacing. The v4 spacing namespace feeds every spacing
+   utility (w-, min-w-, max-w-, gap-, gap-x-, gap-y-, m*-, p*-), replacing the
+   old JS plugin that enumerated each one. --col-size is injected at runtime by
+   the per-breakpoint Figma variables. */
+@theme {
+  --spacing-col-1: calc(var(--col-size) * 1);
+  --spacing-col-2: calc(var(--col-size) * 2);
+  --spacing-col-3: calc(var(--col-size) * 3);
+  --spacing-col-4: calc(var(--col-size) * 4);
+  --spacing-col-5: calc(var(--col-size) * 5);
+  --spacing-col-6: calc(var(--col-size) * 6);
+  --spacing-col-7: calc(var(--col-size) * 7);
+  --spacing-col-8: calc(var(--col-size) * 8);
+  --spacing-col-9: calc(var(--col-size) * 9);
+  --spacing-col-10: calc(var(--col-size) * 10);
+  --spacing-col-11: calc(var(--col-size) * 11);
+  --spacing-col-12: calc(var(--col-size) * 12);
+  --spacing-col-13: calc(var(--col-size) * 13);
+  --spacing-col-14: calc(var(--col-size) * 14);
+  --spacing-col-15: calc(var(--col-size) * 15);
+  --spacing-col-16: calc(var(--col-size) * 16);
+  --spacing-col-17: calc(var(--col-size) * 17);
+  --spacing-col-18: calc(var(--col-size) * 18);
+  --spacing-col-19: calc(var(--col-size) * 19);
+  --spacing-col-20: calc(var(--col-size) * 20);
+  --spacing-col-21: calc(var(--col-size) * 21);
+  --spacing-col-22: calc(var(--col-size) * 22);
+  --spacing-col-23: calc(var(--col-size) * 23);
+  --spacing-col-24: calc(var(--col-size) * 24);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.no-transition * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

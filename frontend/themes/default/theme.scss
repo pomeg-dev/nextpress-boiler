@@ -1,3 +1,5 @@
+@reference "../../src/ui/globals.css";
+
 html {
   scroll-behavior: smooth;
 }
@@ -161,7 +163,7 @@ html {
     }
 
     &.no-fill {
-      @apply bg-none backdrop-blur-0 hover:!bg-none;
+      @apply bg-none backdrop-blur-[0] hover:!bg-none;
 
       &:before,
       &:after {
@@ -226,7 +228,7 @@ html {
 
       &:after {
         @apply content-[''] absolute w-full h-full top-0 left-0 rounded-[inherit] z-[-2];
-        @apply bg-gradient-to-r from-primary to-secondary;
+        @apply bg-linear-to-r from-primary to-secondary;
       }
     }
 

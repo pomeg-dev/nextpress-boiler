@@ -1,3 +1,4 @@
+import "@/ui/globals.css";
 import { getSettings } from "@/lib/wp/settings";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";

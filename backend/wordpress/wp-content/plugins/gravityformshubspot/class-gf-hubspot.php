@@ -174,6 +174,8 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * The key used to cache the flag that indicates if the hubspot_owner_id property has been disabled for forms for the connected account.
 	 *
 	 * @since 3.0.1
+	 * @deprecated 3.0.3.1 The contact owner feature has been removed as it is no longer supported by the HubSpot Forms API.
+	 * @remove-in 4.0
 	 * @var string
 	 */
 	const OWNER_ID_DISABLED = 'gravityformshubspot_owner_id_field_disabled';
@@ -261,7 +263,7 @@ class GF_HubSpot extends GFFeedAddOn {
 			$delimiter                = '. FID: ';
 			$items                    = explode( $delimiter, $feed['meta']['_hs_form'] );
 			$feed['meta']['_hs_form'] = $items[0] . $delimiter . $feed['id'];
-			$this->recreate_hubspot_form( $feed, false );
+			$this->recreate_hubspot_form( $feed );
 		}
 
 		return $new_feed_id;
@@ -328,6 +330,9 @@ class GF_HubSpot extends GFFeedAddOn {
 		// Add AJAX callback for de-authorizing with HubSpot.
 		add_action( 'wp_ajax_gfhubspot_deauthorize', array( $this, 'ajax_deauthorize' ) );
 		add_action( 'wp_ajax_gf_hubspot_clear_cache', array( $this, 'clear_custom_contact_properties_cache' ) );
+
+		// Add AJAX callback for saving the disable_tracking_script setting.
+		add_action( 'wp_ajax_gf_hubspot_toggle_tracking_script', array( $this, 'ajax_toggle_tracking_script' ) );
 	}
 
 	/**
@@ -339,12 +344,7 @@ class GF_HubSpot extends GFFeedAddOn {
 	 */
 	public function scripts() {
 
-		$min     = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG || isset( $_GET['gform_debug'] ) ? '' : '.min';
-		$form_id = absint( rgget( 'id' ) );
-		$form    = GFAPI::get_form( $form_id );
-
-		$routing_fields = ! empty( $form ) ? GFCommon::get_field_filter_settings( $form ) : array();
-		$hubspot_owners = $this->get_hubspot_owners();
+		$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG || isset( $_GET['gform_debug'] ) ? '' : '.min';
 
 		$scripts = array(
 			array(
@@ -366,23 +366,10 @@ class GF_HubSpot extends GFFeedAddOn {
 					'settings_url'      => admin_url( 'admin.php?page=gf_settings&subview=' . $this->get_slug() ),
 					'deauth_nonce'      => wp_create_nonce( 'gf_hubspot_deauth' ),
 					'clear_cache_nonce' => wp_create_nonce( 'gf_hubspot_clear_cache' ),
-				),
-			),
-			array(
-				'handle'  => 'gform_hubspot_owner_settings',
-				'deps'    => array( 'jquery' ),
-				'src'     => $this->get_base_url() . "/js/contact_owner_setting{$min}.js",
-				'version' => $this->_version,
-				'enqueue' => array(
-					array( 'query' => "page=gf_edit_forms&view=settings&subview={$this->_slug}&fid=_notempty_" ),
-					array( 'query' => "page=gf_edit_forms&view=settings&subview={$this->_slug}&fid=0" ),
-				),
-				'strings' => array(
-					'legacy_ui' => version_compare( GFForms::$version, '2.5-dev-1', '<' ) ? true : false,
-					'fields'    => $routing_fields,
-					'owners'    => $hubspot_owners,
-					'assign_to' => wp_strip_all_tags( __( 'Assign To', 'gravityfromshubspot' ) ),
-					'condition' => wp_strip_all_tags( __( 'Condition', 'gravityfromshubspot' ) ),
+					'tracking_nonce'    => wp_create_nonce( 'gf_hubspot_toggle_tracking_script' ),
+					'status_saving'     => esc_html__( 'Saving...', 'gravityformshubspot' ),
+					'status_saved'      => esc_html__( 'Saved.', 'gravityformshubspot' ),
+					'status_error'      => esc_html__( 'Unable to save the setting at the moment.', 'gravityformshubspot' ),
 				),
 			),
 		);
@@ -603,11 +590,17 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * Recreates the HubSpot form for the given feed.
 	 *
 	 * @since 1.3
+	 * @since 3.0.3.1 Deprecated the $reset_owner parameter; the contact owner feature has been removed.
+	 * @remove-in 4.0 The $reset_owner parameter.
 	 *
 	 * @param array $feed        The feed the HubSpot form is to be created for.
-	 * @param bool  $reset_owner Indicates if the contact owner should be set to none.
+	 * @param bool  $reset_owner Deprecated. No longer used.
 	 */
 	public function recreate_hubspot_form( $feed, $reset_owner = true ) {
+		if ( func_num_args() > 1 ) {
+			_deprecated_argument( __METHOD__, '3.0.3.1', 'The $reset_owner parameter is no longer used.' );
+		}
+
 		$result = $this->create_hubspot_form( $feed['meta'], $feed['form_id'] );
 		if ( ! $result ) {
 			// If form could not be created, try again with a unique name.
@@ -620,10 +613,6 @@ class GF_HubSpot extends GFFeedAddOn {
 			$feed['meta']['_hs_form']      = $this->get_hubspot_formname_without_warning( $result['name'] );
 			$feed['meta']['_hs_form_guid'] = $result['guid'];
 			$this->log_debug( __METHOD__ . sprintf( '(): HubSpot form created for feed (#%d). Name: %s; GUID: %s.', $feed['id'], $feed['meta']['_hs_form'], $feed['meta']['_hs_form_guid'] ) );
-
-			if ( $reset_owner ) {
-				$feed['meta']['contact_owner'] = 'none';
-			}
 
 			$this->update_feed_meta( $feed['id'], $feed['meta'] );
 		}
@@ -678,6 +667,20 @@ class GF_HubSpot extends GFFeedAddOn {
 						'name'  => 'clear_cache',
 						'label' => '',
 						'type'  => 'clear_cache',
+					),
+				),
+			);
+
+			$settings[] = array(
+				'title'       => esc_html__( 'HubSpot Tracking Script', 'gravityformshubspot' ),
+				'description' => '<p>' . esc_html__( 'If the HubSpot tracking script is already loaded elsewhere, you can enable this setting so the add-on\'s tracking script doesn\'t also load.', 'gravityformshubspot' ) . '</p>',
+				'fields'      => array(
+					array(
+						'name'    => 'disable_tracking_script',
+						'label'   => esc_html__( 'Disable HubSpot Tracking Script', 'gravityformshubspot' ),
+						'type'    => 'toggle',
+						'onclick' => 'return true;',
+						'tooltip' => '<h6>' . esc_html__( 'Disable HubSpot Tracking Script', 'gravityformshubspot' ) . '</h6>' . esc_html__( 'Prevents this add-on from outputting its own HubSpot tracking script.', 'gravityformshubspot' ),
 					),
 				),
 			);
@@ -915,6 +918,32 @@ class GF_HubSpot extends GFFeedAddOn {
 	}
 
 	/**
+	 * Handles the ajax request to save the disable_tracking_script setting.
+	 *
+	 * @since 3.0.4
+	 */
+	public function ajax_toggle_tracking_script() {
+
+		if ( ! check_ajax_referer( 'gf_hubspot_toggle_tracking_script', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Invalid request.', 'gravityformshubspot' ) ) );
+		}
+
+		// If user is not authorized, exit.
+		if ( ! GFCommon::current_user_can_any( $this->_capabilities_settings_page ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Access denied.', 'gravityformshubspot' ) ) );
+		}
+
+		$this->update_plugin_settings(
+			array_merge(
+				$this->get_plugin_settings(),
+				array( 'disable_tracking_script' => (bool) rgpost( 'disable_tracking_script' ) )
+			)
+		);
+
+		wp_send_json_success();
+	}
+
+	/**
 	 * Clears the transients set by the add-on.
 	 *
 	 * @since 3.0.1
@@ -922,7 +951,6 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * @return bool
 	 */
 	private function clear_cache() {
-		GFCache::delete( self::OWNER_ID_DISABLED );
 		GFCache::delete( self::GROUPED_PROPERTIES_CACHE_KEY );
 
 		return GFCache::delete( self::CUSTOM_PROPERTIES_CACHE_KEY );
@@ -1183,70 +1211,6 @@ class GF_HubSpot extends GFFeedAddOn {
 			}
 		}
 
-		if ( GFCache::get( self::OWNER_ID_DISABLED ) ) {
-			$contact_owner_section = array();
-		} else {
-			$contact_owner_section = array(
-				'id'     => 'contact_owner_section',
-				'title'  => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
-				'class'  => 'contact_owner_section',
-				'fields' => array(
-					array(
-						'name'          => 'contact_owner',
-						'label'         => esc_html__( 'Contact Owner', 'gravityformshubspot' ),
-						'type'          => 'radio',
-						'horizontal'    => true,
-						'default_value' => 'none',
-						'choices'       => array(
-							array(
-								'label' => __( 'None&nbsp;&nbsp;', 'gravityformshubspot' ),
-								'value' => 'none',
-							),
-							array(
-								'label' => __( 'Select Owner&nbsp;&nbsp;', 'gravityformshubspot' ),
-								'value' => 'select',
-							),
-							array(
-								'label' => __( 'Assign Conditionally', 'gravityformshubspot' ),
-								'value' => 'conditional',
-							),
-						),
-						'tooltip'       => '<h6>' . esc_html__( 'Contact Owner', 'gravityforms' ) . '</h6>' . esc_html__( 'Select a HubSpot user that will be assigned as the owner of the newly created Contact.', 'gravityformshubspot' ),
-					),
-					array(
-						'name'       => 'contact_owner_select',
-						'label'      => esc_html__( 'Select Owner', 'gravityformshubspot' ),
-						'type'       => 'select',
-						'choices'    => $this->get_hubspot_owners(),
-						'dependency' => array(
-							'live'   => true,
-							'fields' => array(
-								array(
-									'field'  => 'contact_owner',
-									'values' => array( 'select' ),
-								),
-							),
-						),
-					),
-					array(
-						'name'       => 'contact_owner_conditional',
-						'label'      => '',
-						'class'      => 'large',
-						'type'       => 'conditions',
-						'dependency' => array(
-							'live'   => true,
-							'fields' => array(
-								array(
-									'field'  => 'contact_owner',
-									'values' => array( 'conditional' ),
-								),
-							),
-						),
-					),
-				),
-			);
-		}
-
 		$field_map_section = array(
 			'title'  => 'Map Contact Fields',
 			'fields' => rgar( $contact_properties, 'basic', array() ),
@@ -1320,7 +1284,6 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		return array_filter( array(
 			$basic_section,
-			$contact_owner_section,
 			$field_map_section,
 			$additional_fields_section,
 			$hubspot_form_options_section,
@@ -1408,6 +1371,11 @@ class GF_HubSpot extends GFFeedAddOn {
 		// Get settings.
 		$settings = $this->get_current_settings();
 
+		// Skip saving HubSpot form if required Feed Name or Email are missing.
+		if ( empty( $settings['feed_name'] ) || empty( $settings['_hs_customer_email'] ) ) {
+			return;
+		}
+
 		if ( ! $this->initialize_api() ) {
 			$this->set_field_error( $field, esc_html__( 'There was an error connecting to Hubspot.', 'gravityformshubspot' ) );
 			return;
@@ -1417,6 +1385,7 @@ class GF_HubSpot extends GFFeedAddOn {
 
 		if ( is_wp_error( $forms ) ) {
 			$this->set_field_error( $field, esc_html__( 'There was an error validating the form name. Please try saving again', 'gravityformshubspot' ) );
+			return;
 		}
 
 		// Validate the form name is unique.
@@ -1690,22 +1659,6 @@ class GF_HubSpot extends GFFeedAddOn {
 			}
 
 			$fields[] = $field;
-		}
-
-		// Adding optional Contact Owner field.
-		if ( ( rgar( $feed_meta, 'contact_owner' ) === 'select' && ! empty( $feed_meta['contact_owner_select'] ) ) || ( rgar( $feed_meta, 'contact_owner' ) === 'conditional' && ! empty( $feed_meta['conditions'] ) ) ) {
-			$existing_field = $this->get_existing_contact_field( 'hubspot_owner_id', $existing_form );
-			if ( ! empty( $existing_field ) ) {
-				$fields[] = $existing_field;
-			} else {
-				$fields[] = array(
-					'objectTypeId' => '0-1',
-					'name'         => 'hubspot_owner_id',
-					'label'        => 'Contact Owner',
-					'fieldType'    => 'single_line_text',
-					'hidden'       => true,
-				);
-			}
 		}
 
 		// Build additional fields.
@@ -2161,14 +2114,6 @@ class GF_HubSpot extends GFFeedAddOn {
 			);
 		}
 
-		$owner_id = $this->get_contact_owner( $feed, $entry, $form );
-		if ( $owner_id ) {
-			$fields[] = array(
-				'name'  => 'hubspot_owner_id',
-				'value' => $owner_id,
-			);
-		}
-
 		// Build additional fields.
 		if ( is_array( $feed['meta']['additional_fields'] ) ) {
 			foreach ( $feed['meta']['additional_fields'] as $setting ) {
@@ -2415,10 +2360,14 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * Gets a list of HubSpot owners
 	 *
 	 * @since 1.0
+	 * @deprecated 3.0.3.1 The contact owner feature has been removed as it is no longer supported by the HubSpot Forms API.
+	 * @remove-in 4.0
 	 *
 	 * @return array|null Return a list of available Contact Owners configured in HubSpot
 	 */
 	public function get_hubspot_owners() {
+		_deprecated_function( __METHOD__, '3.0.3.1' );
+
 		if ( rgget( 'subview' ) !== $this->_slug || rgget( 'fid' ) === '' || ! $this->initialize_api() ) {
 			return null;
 		}
@@ -2818,6 +2767,8 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * Evaluates who the Contact Owner is supposed to be (based on feed settings), and return the owner id.
 	 *
 	 * @since 1.0
+	 * @deprecated 3.0.3.1 The contact owner feature has been removed as it is no longer supported by the HubSpot Forms API.
+	 * @remove-in 4.0
 	 *
 	 * @param array $feed  Current Feed Object
 	 * @param array $entry Current Entry Object
@@ -2826,6 +2777,7 @@ class GF_HubSpot extends GFFeedAddOn {
 	 * @return false|int Returns the Contact Owner's ID if one is supposed to be assigned to the contact. Otherwise returns false.
 	 */
 	public function get_contact_owner( $feed, $entry, $form ) {
+		_deprecated_function( __METHOD__, '3.0.3.1' );
 
 		$owner_id = false;
 
@@ -2904,10 +2856,15 @@ class GF_HubSpot extends GFFeedAddOn {
 	 *
 	 * @since 1.0
 	 * @since 3.0 Updated not to output script when the site is also using the official HubSpot plugin.
+	 * @since 3.0.4 Added the disable_tracking_script plugin setting as a manual override.
 	 */
 	public function action_wp_footer() {
 
 		$add_tracking = true;
+
+		if ( $this->get_plugin_setting( 'disable_tracking_script' ) ) {
+			$add_tracking = false;
+		}
 
 		if ( class_exists( '\Leadin\AssetsManager' ) && wp_script_is( \Leadin\AssetsManager::TRACKING_CODE ) ) {
 			$add_tracking = false;
