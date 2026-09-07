@@ -1,4 +1,5 @@
 export const SETTINGS_KEYS = [
+  'enable_custom_cookie_manager',
   'google_tag_manager_enabled', 
   'google_tag_manager_id',
   'head_scripts',

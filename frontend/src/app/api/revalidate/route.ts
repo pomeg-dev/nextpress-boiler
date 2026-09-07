@@ -5,10 +5,6 @@ import { SETTINGS_KEYS } from "@/utils/settings-keys";
 const allowedTags = ["posts", "sitemap", "taxonomy"];
 const allowedTagPrefixes = ["post-type-", "post-ids-"];
 
-// Debounce mechanism for settings revalidation
-let staggeredRevalidationActive = false;
-let staggeredRevalidationTimeouts: NodeJS.Timeout[] = [];
-
 export async function GET(request: NextRequest) {
   const tag = request.nextUrl.searchParams.get("tag");
   const path = request.nextUrl.searchParams.get("path");
@@ -23,48 +19,14 @@ export async function GET(request: NextRequest) {
   
   // Handle tag-based revalidation
   if (tag) {
-    // Handle settings staggered revalidation
+    // Revalidate every settings key synchronously. revalidateTag only marks
+    // the tag dirty (the refetch happens lazily on the next request), so
+    // there's no thundering-herd reason to stagger — and staggering via
+    // setTimeout was unreliable on serverless, where the instance is frozen
+    // after the response and pending timers never fire.
     if (tag === 'settings') {
-      // Check if staggered revalidation is already active
-      if (staggeredRevalidationActive) {
-        return NextResponse.json({ 
-          message: 'Staggered revalidation already in progress',
-          status: 'skipped',
-          remainingTime: 'up to 60 seconds'
-        });
-      }
-      
-      // Clear any existing timeouts and start fresh
-      staggeredRevalidationTimeouts.forEach(timeout => clearTimeout(timeout));
-      staggeredRevalidationTimeouts = [];
-      
-      const totalKeys = SETTINGS_KEYS.length;
-      const intervalMs = 60000 / totalKeys; // 60 seconds spread across all keys
-      
-      staggeredRevalidationActive = true;
-      
-      SETTINGS_KEYS.forEach((key, index) => {
-        const timeout = setTimeout(() => {
-          revalidateTag(key);
-          console.log(`Revalidated settings key: ${key} (${index + 1}/${totalKeys})`);
-          
-          // Mark as inactive after the last revalidation
-          if (index === totalKeys - 1) {
-            staggeredRevalidationActive = false;
-            staggeredRevalidationTimeouts = [];
-          }
-        }, index * intervalMs);
-        
-        staggeredRevalidationTimeouts.push(timeout);
-      });
-      
-      return NextResponse.json({ 
-        message: 'Staggered revalidation initiated for all settings keys',
-        keys: SETTINGS_KEYS,
-        totalDuration: '60 seconds',
-        intervalMs: Math.round(intervalMs),
-        status: 'started'
-      });
+      SETTINGS_KEYS.forEach((key) => revalidateTag(key));
+      return NextResponse.json({ revalidated: true, keys: SETTINGS_KEYS, now: Date.now() });
     }
     
     // Handle individual settings key revalidation

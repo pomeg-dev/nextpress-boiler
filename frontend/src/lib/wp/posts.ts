@@ -170,8 +170,6 @@ export async function getTaxTerms(taxonomy: string) {
   const url = `${API_URL}/wp-json/nextpress/tax_list/${encodeURIComponent(
     taxonomy
   )}`;
-
-  console.log(url);
   
   try {
     const response = await fetch(url, {

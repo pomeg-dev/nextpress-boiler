@@ -14,6 +14,31 @@ export function PreviewWrapper({
   const mainRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
+    // OneTrust (and other consent scripts) are injected asynchronously by a
+    // global head script and re-show themselves by toggling their own inline
+    // display, so JS hiding alone loses the race / gets overridden. A stylesheet
+    // rule with !important keeps them hidden in the preview regardless of when
+    // they mount or how they try to re-show.
+    const hideStyle = document.createElement("style");
+    hideStyle.setAttribute("data-preview-cookie-hide", "");
+    hideStyle.textContent = `
+      #onetrust-consent-sdk,
+      #onetrust-banner-sdk,
+      #onetrust-pc-sdk,
+      #ot-sdk-btn-floating,
+      .onetrust-pc-dark-filter,
+      [id*="onetrust"],
+      [class*="onetrust"],
+      [class^="ot-"],
+      [id*="cookie"],
+      [id*="Cookie"],
+      [class*="cookie"],
+      [class*="Cookie"] {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(hideStyle);
+
     let lastSentHeight: number | string = 0;
     let isCalculating = false;
     let lastCalculationTime = 0;
@@ -174,8 +199,11 @@ export function PreviewWrapper({
       }
     };
 
+    const COOKIE_BANNER_SELECTOR =
+      '[class*="cookie"], [class*="Cookie"], [id*="cookie"], [id*="Cookie"], [id*="onetrust"], [class*="onetrust"], [class^="ot-"]';
+
     const hideCookieBanners = () => {
-      const cookieBanners = document.querySelectorAll('[class*="cookie"], [class*="Cookie"], [id*="cookie"], [id*="Cookie"]');
+      const cookieBanners = document.querySelectorAll(COOKIE_BANNER_SELECTOR);
       cookieBanners.forEach(banner => {
         (banner as HTMLElement).style.display = "none";
       });
@@ -208,21 +236,13 @@ export function PreviewWrapper({
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node instanceof HTMLElement) {
-            // Check if the added node or any of its children is a cookie banner
-            if (
-              node.className && (
-                node.className.includes('cookie') ||
-                node.className.includes('Cookie')
-              ) ||
-              node.id && (
-                node.id.includes('cookie') ||
-                node.id.includes('Cookie')
-              )
-            ) {
-              (node as HTMLElement).style.display = 'none';
+            // Hide the added node itself if it's a cookie/consent banner...
+            if (node.matches(COOKIE_BANNER_SELECTOR)) {
+              node.style.display = 'none';
             }
-            // Also check children of the added node
-            const childCookieBanners = node.querySelectorAll('[class*="cookie"], [class*="Cookie"], [id*="cookie"], [id*="Cookie"]');
+            // ...and any matching descendants (e.g. OneTrust mounts a wrapper
+            // whose banner/overlay children appear in the same mutation).
+            const childCookieBanners = node.querySelectorAll(COOKIE_BANNER_SELECTOR);
             childCookieBanners.forEach(banner => {
               (banner as HTMLElement).style.display = 'none';
             });
@@ -311,6 +331,7 @@ export function PreviewWrapper({
       clearTimeout(timeout1);
       clearTimeout(timeout2);
       observer.disconnect();
+      hideStyle.remove();
     };
   }, [postId, iframeId]);
 

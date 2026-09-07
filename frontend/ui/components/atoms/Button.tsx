@@ -11,7 +11,7 @@ type ButtonProps = {
   type?: "link" | "button" | "submit";
   linkItem?: { url?: string; target?: string; title?: string; };
   size?: "xl" | "lg" | "md" | "sm";
-  style?: "primary" | "secondary" | "card" | "high-contrast" | "no-fill";
+  style?: "primary" | "secondary" | "tertiary" | "card" | "high-contrast" | "no-fill";
   disabled?: boolean;
   circular?: boolean;
   special?: boolean;

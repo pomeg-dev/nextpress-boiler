@@ -123,7 +123,6 @@ async function resolveFieldRefs(
       } else if (partial) {
         resolved.push(partial);
       }
-      // If the partial failed to load it is skipped (and logged in loadPartial).
     } else {
       resolved.push(field);
     }

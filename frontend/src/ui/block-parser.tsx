@@ -6,8 +6,6 @@ import { Block } from "@/lib/types";
 import fs from "fs";
 import path from "path";
 
-const CMS_MODE = process.env.NEXT_PUBLIC_CMS_MODE;
-
 type ImportedComponent = React.ComponentType<
   Block & { innerBlocks?: React.ReactNode }
 >;
@@ -124,13 +122,11 @@ export const BlockRenderer: React.FC<{ block: Block }> = async ({ block }) => {
       return null;
     }
 
-    if (CMS_MODE === "wordpress" && !theme) {
+    if (!theme) {
       ImportedComponent = await importComponent(
         `wordpress/blocks/${componentName}`,
         false
       );
-    } else if (CMS_MODE === "strapi" && !theme) {
-      // Strapi logic here...
     } else if (componentName) {
       ImportedComponent = await importComponent(
         `${theme}/blocks/${componentName}`,
