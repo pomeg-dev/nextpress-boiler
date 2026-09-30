@@ -1,4 +1,5 @@
 import "@/ui/globals.css";
+import type { Metadata } from "next";
 import { getSettings } from "@/lib/wp/settings";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
@@ -6,26 +7,48 @@ import { LocaleProvider } from "./providers";
 import { fontVariables } from "ui/fonts/font-loader";
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 import { initializeComponentCache } from "@/lib/cache-warmer";
-import { figmaVariablesCSS } from "@/lib/figma-variables.css";
 
-// Function to dynamically load theme-specific Figma variables
-async function getThemeFigmaVariables(theme: string): Promise<string> {
-  try {
-    // Try to import theme vars
-    const themeModule = await import(`@/lib/figma-variables-${theme}.css`);
-    const variableName = `figmaVariables${theme.charAt(0).toUpperCase() + theme.slice(1)}CSS`;
-    return themeModule[variableName] || figmaVariablesCSS;
-  } catch (error) {
-    // Fall back to default variables if file doesn't exist
-    console.warn(`Theme-specific Figma variables not found for theme: ${theme}, falling back to default`);
-    return figmaVariablesCSS;
-  }
-}
+export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: "/images/favicon/favicon.ico", sizes: "any" },
+      {
+        url: "/images/favicon/favicon-16x16.png",
+        type: "image/png",
+        sizes: "16x16",
+      },
+      {
+        url: "/images/favicon/favicon-32x32.png",
+        type: "image/png",
+        sizes: "32x32",
+      },
+      {
+        url: "/images/favicon/android-chrome-192x192.png",
+        type: "image/png",
+        sizes: "192x192",
+      },
+      {
+        url: "/images/favicon/android-chrome-512x512.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    apple: [
+      {
+        url: "/images/favicon/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
+  manifest: "/images/favicon/site.webmanifest",
+};
 
 async function SettingsProvider({ children }: { children: React.ReactNode }) {
   const settings = await getSettings(
     [
-      'enable_user_flow', 
+      'enable_user_flow',
+      'enable_custom_cookie_manager',
       'google_tag_manager_enabled', 
       'google_tag_manager_id',
       'head_scripts',
@@ -40,11 +63,8 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   
   // Initialize component cache in background
   initializeComponentCache().catch(console.warn);
-  
-  // Get theme-specific Figma variables
-  const mainTheme = themes[0] || 'mission';
-  const themeFigmaVariables = await getThemeFigmaVariables(mainTheme);
-  
+
+  // Add theme atts.
   const themeProps = themes.reduce(
     (acc: { [key: string]: string }, theme: string, index: number) => {
       if (index === 0) acc["data-theme"] = theme;
@@ -59,10 +79,17 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   return (
     <LocaleProvider defaultLocale={defaultLocale}>
       <html {...themeProps} lang={defaultLocale} className={fontVariables}>
-        <head>
-          <style dangerouslySetInnerHTML={{ __html: themeFigmaVariables }} />
-        </head>
-        <body>
+        <body suppressHydrationWarning>
+          {/* Google Consent Mode default — inline so it executes at parse time,
+              before GTM boots and before OneTrust injects, giving every tag a
+              known (denied) starting state. OneTrust is expected to emit the
+              `update` once it has the user's choice. */}
+          <script
+            id="google-consent-default"
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',personalization_storage:'denied',functionality_storage:'denied',security_storage:'granted',wait_for_update:500});`,
+            }}
+          />
           <Suspense>
             <CookieManager
               settings={settings}

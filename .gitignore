@@ -1,11 +1,9 @@
 node_modules
-package-lock.json
+/vendor/
 .vercel
-.gitmodules
 .htaccess
 debug.log
 storybook-static
-CLAUDE.md
 figma-variables.json
 .vscode
 ip-ranges.json

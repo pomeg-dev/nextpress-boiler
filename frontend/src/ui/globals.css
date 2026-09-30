@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-/* Bridge the existing v3 JS config (colors, screens, fontSize, custom col
-   plugin, safelist) into v4 while the theme is ported to @theme incrementally. */
-@config "../../tailwind.config.js";
-
 /* Column-based sizing/spacing. The v4 spacing namespace feeds every spacing
    utility (w-, min-w-, max-w-, gap-, gap-x-, gap-y-, m*-, p*-), replacing the
    old JS plugin that enumerated each one. --col-size is injected at runtime by
