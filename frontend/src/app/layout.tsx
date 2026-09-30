@@ -45,22 +45,20 @@ export const metadata: Metadata = {
 };
 
 async function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings(
-    [
-      'enable_user_flow',
-      'enable_custom_cookie_manager',
-      'google_tag_manager_enabled', 
-      'google_tag_manager_id',
-      'head_scripts',
-      'body_opening',
-      'body_closing',
-      'default_language',
-      'blogname'
-    ]
-  );
+  const settings = await getSettings([
+    "enable_user_flow",
+    "enable_custom_cookie_manager",
+    "google_tag_manager_enabled",
+    "google_tag_manager_id",
+    "head_scripts",
+    "body_opening",
+    "body_closing",
+    "default_language",
+    "blogname",
+  ]);
 
   const themes = await getBlockTheme();
-  
+
   // Initialize component cache in background
   initializeComponentCache().catch(console.warn);
 
@@ -73,9 +71,9 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
     },
     {}
   );
-  
+
   const defaultLocale = settings?.default_language || "en";
-  
+
   return (
     <LocaleProvider defaultLocale={defaultLocale}>
       <html {...themeProps} lang={defaultLocale} className={fontVariables}>
@@ -91,9 +89,7 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
             }}
           />
           <Suspense>
-            <CookieManager
-              settings={settings}
-            />
+            <CookieManager settings={settings} />
           </Suspense>
           {children}
         </body>
@@ -102,14 +98,6 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Layout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <SettingsProvider>
-      {children}
-    </SettingsProvider>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <SettingsProvider>{children}</SettingsProvider>;
 }

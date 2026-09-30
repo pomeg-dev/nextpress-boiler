@@ -16,38 +16,41 @@ const SliderNavigation: React.FC<SliderNavigationProps> = ({
   nextHidden,
   handlePrev,
   handleNext,
-  className
+  className,
 }) => {
   return (
-    <div className={classNames(
-      "slider-navigation flex gap-2.5",
-      className
-    )}>
+    <div className={classNames("slider-navigation flex gap-2.5", className)}>
       <div className="prev">
         <Button
           type="button"
           style="secondary"
           circular={true}
-          onClick={() => handlePrev ? handlePrev() : undefined}
+          onClick={() => (handlePrev ? handlePrev() : undefined)}
           className="group/prev pointer-events-auto p-2!"
         >
           <span>
-            <ChevronLeft width={30} height={25} className="relative transition-transform duration-300 group-hover/prev:-translate-x-1" />
+            <ChevronLeft
+              width={30}
+              height={25}
+              className="relative transition-transform duration-300 group-hover/prev:-translate-x-1"
+            />
           </span>
         </Button>
       </div>
-      <div
-        className="next"
-      >
+      <div className="next">
         <Button
           type="button"
           style="secondary"
           circular={true}
-          onClick={() => handleNext ? handleNext() : undefined}
+          onClick={() => (handleNext ? handleNext() : undefined)}
           className="group/next pointer-events-auto p-2!"
         >
           <span>
-            <ChevronRight width={30} height={25} className="relative transition-transform duration-300 group-hover/next:translate-x-1" />
+            <ChevronRight
+              width={30}
+              height={25}
+              className="relative transition-transform duration-300 group-hover/next:translate-x-1"
+            />
           </span>
         </Button>
       </div>

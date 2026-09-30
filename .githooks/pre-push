@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Nextpress pre-push review: advisory only.
-# Runs when pushing to main, reviews the changed files, then asks before pushing.
-# Only a "n" answer at the prompt stops the push.
+# Runs when pushing to main, reviews the changed files, then asks what to do next:
+#   [P] push anyway (default)  [F] fix manually (cancels)  [A] fix with AI (cancels)
+# Only F or A stops the push. "A" hands off to the /pre-push-fix command.
 #
 # Skip once:  SKIP_AI_REVIEW=1 git push   (or: git push --no-verify)
 # Last review is saved to .git/ai-review-last.txt
@@ -262,12 +263,20 @@ say "$REVIEW"
 say ""
 say "(Full review + raw linter output: .git/ai-review-last.txt)"
 
-# --- Ask, if there's a terminal (GUI git clients just print and continue) ----
+# --- Ask what to do next, if there's a terminal (GUI clients just print) ------
 if ( exec </dev/tty ) 2>/dev/null; then
-  printf 'Push anyway? [Y/n] ' >&2
+  say ""
+  say "Next step:  [P] push anyway   [F] fix manually   [A] fix with AI"
+  printf 'Choose [P/f/a] ' >&2
   read -r answer </dev/tty
   case "$answer" in
-    [nN]*) say "Push cancelled. Fix up, then push again."; exit 1 ;;
+    [fF]*) say "Push cancelled. Fix up, then push again."; exit 1 ;;
+    [aA]*)
+      say ""
+      say "Push cancelled. In Claude Code, run:  /pre-push-fix"
+      say "It reads .git/ai-review-last.txt, triages the findings, and proposes a fix"
+      say "plan for you to approve. Re-review or push again once you're happy."
+      exit 1 ;;
   esac
 fi
 exit 0

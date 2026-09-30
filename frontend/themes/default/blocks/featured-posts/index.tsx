@@ -15,13 +15,13 @@ export async function FeaturedPostsBlock(props: any) {
     number_posts,
     featured_posts,
     top_spacer,
-    bottom_spacer
+    bottom_spacer,
   } = props.data;
 
   let posts = [];
   if (block_type === "automatic") {
     const params: WPQuery = {
-      post_type: post_type ?? 'post',
+      post_type: post_type ?? "post",
       per_page: number_posts == 0 ? -1 : parseInt(number_posts),
     };
 
@@ -36,8 +36,8 @@ export async function FeaturedPostsBlock(props: any) {
     posts = await getPosts(params);
   } else {
     posts = await getPosts({
-      "post__in": featured_posts,
-      "orderby": "post__in"
+      post__in: featured_posts,
+      orderby: "post__in",
     });
 
     if (posts) {
@@ -53,7 +53,7 @@ export async function FeaturedPostsBlock(props: any) {
   let card: Cards = "PostCard";
 
   if (!posts || posts.length < 0) {
-    return (<div>Posts not found</div>);
+    return <div>Posts not found</div>;
   }
 
   return (
@@ -64,10 +64,7 @@ export async function FeaturedPostsBlock(props: any) {
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}
       card={card}
-      className={classNames(
-        "custom-block featured-posts",
-        props.className
-      )}
+      className={classNames("custom-block featured-posts", props.className)}
       id={props.id}
     />
   );

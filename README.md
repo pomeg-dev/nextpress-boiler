@@ -62,8 +62,9 @@ Scripts: `npm run dev` / `build` / `start`, `lint` (Next ESLint), `lint:css` (St
 ## Pre-push AI review (git hooks)
 
 An **advisory** review runs on `git push` to `main`. It lints the changed files, has Claude
-review the diff (read-only), then asks *"Push anyway?"* — nothing is ever blocked except a
-`n` at that prompt.
+review the diff (read-only), then asks what to do next: **[P] push anyway** (default),
+**[F] fix manually** (cancels the push), or **[A] fix with AI** (cancels and hands off to
+`/pre-push-fix`). Only F or A stops the push.
 
 - **Enabled automatically** — `make install`, `npm install`, or `composer install` each set
   `core.hooksPath` to `.githooks` (via `bin/enable-hooks`). No manual step.
