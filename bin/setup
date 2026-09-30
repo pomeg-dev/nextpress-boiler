@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# One-time developer setup: enable git hooks and install lint/review tooling.
+# Run after cloning:  bash bin/setup
+root=$(git rev-parse --show-toplevel 2>/dev/null || echo .)
+cd "$root" || exit 1
+
+echo "→ Enabling git hooks (.githooks)…"
+bash bin/enable-hooks
+
+if command -v composer >/dev/null 2>&1; then
+  echo "→ composer install (PHPCS / WordPress standards)…"
+  composer install
+else
+  echo "…composer not found — skipping PHP tooling. See README to install it."
+fi
+
+if command -v npm >/dev/null 2>&1 && [ -d frontend ]; then
+  echo "→ npm install (frontend: eslint / prettier / stylelint)…"
+  ( cd frontend && npm install )
+else
+  echo "…npm not found (or no frontend/) — skipping JS tooling."
+fi
+
+echo "✓ Setup complete. The advisory AI review will run on 'git push' to main."

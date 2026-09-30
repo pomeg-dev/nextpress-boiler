@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "fetch-figma-vars": "ts-node scripts/fetch-figma-variables.js && node scripts/compile-figma-css.js",
-    "compile-figma-css": "node scripts/compile-figma-css.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:css": "stylelint \"**/*.{css,scss}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "bash ../bin/enable-hooks || exit 0"
   },
   "dependencies": {
     "@fontsource/inter": "^4.5.15",
@@ -35,12 +37,12 @@
     "next-intl": "^4.3.5",
     "node-html-parser": "^6.1.5",
     "null-loader": "^4.0.1",
+    "pako": "^3.0.2",
     "pluralize": "^8.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.1",
     "sass-resources-loader": "^2.2.5",
-    "swiper": ">=12.1.2",
     "typescript": "^5.6.2"
   },
   "devDependencies": {
@@ -60,9 +62,12 @@
     "mini-css-extract-plugin": "^2.9.1",
     "postcss": "^8.4.21",
     "postcss-loader": "^8.1.1",
+    "prettier": "^3.4.2",
     "sass": "^1.80.6",
     "sass-loader": "^16.0.3",
     "style-loader": "^4.0.0",
+    "stylelint": "^16.12.0",
+    "stylelint-config-standard-scss": "^14.0.0",
     "tailwindcss": "^4.3.3"
   }
 }

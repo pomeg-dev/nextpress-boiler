@@ -1,0 +1,22 @@
+{
+  "name": "pomegranate/nextpress-boiler",
+  "description": "Dev tooling for the Nextpress boilerplate: PHP coding standards for custom themes and the nextpress plugin.",
+  "type": "project",
+  "license": "proprietary",
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.11",
+    "wp-coding-standards/wpcs": "^3.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "lint:php": "phpcs",
+    "lint:php:fix": "phpcbf",
+    "post-install-cmd": "bash bin/enable-hooks || exit 0",
+    "post-update-cmd": "bash bin/enable-hooks || exit 0"
+  }
+}

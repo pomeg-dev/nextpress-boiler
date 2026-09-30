@@ -1,0 +1,273 @@
+#!/usr/bin/env bash
+# Nextpress pre-push review: advisory only.
+# Runs when pushing to main, reviews the changed files, then asks before pushing.
+# Only a "n" answer at the prompt stops the push.
+#
+# Skip once:  SKIP_AI_REVIEW=1 git push   (or: git push --no-verify)
+# Last review is saved to .git/ai-review-last.txt
+
+# --- Config: adjust paths to match the repo layout ---------------------------
+MAIN_BRANCH="main"
+WP_CONTENT="backend/wordpress/wp-content"
+PLUGIN_DIR="$WP_CONTENT/plugins/nextpress"
+THEMES_DIR="$WP_CONTENT/themes"
+FRONTEND_DIR="frontend"
+PROMPT_FILE=".claude/commands/pre-push-review.md"
+MAX_DIFF_LINES=1500
+CLAUDE_TIMEOUT=180   # seconds
+CLAUDE_MODEL="sonnet"
+CLAUDE_PKG="@anthropic-ai/claude-code"                       # npm package for auto-install
+CLAUDE_DOCS_URL="https://docs.claude.com/en/docs/claude-code/setup"
+# -----------------------------------------------------------------------------
+
+say() { printf '%s\n' "$*" >&2; }
+have_tty() { ( exec </dev/tty ) 2>/dev/null; }
+have_glob() { local f; for f in "$@"; do [ -e "$f" ] && return 0; done; return 1; }
+
+# Ensure the Claude CLI exists; offer to auto-install via npm. Advisory: never blocks.
+ensure_claude() {
+  command -v claude >/dev/null 2>&1 && return 0
+  if ! have_tty; then
+    say "AI review: 'claude' CLI not found — skipping (push continues)."
+    say "  Enable it later:  npm install -g $CLAUDE_PKG   ($CLAUDE_DOCS_URL)"
+    return 1
+  fi
+  say ""
+  say "The Claude CLI ('claude') isn't installed — the pre-push AI review needs it."
+  if command -v npm >/dev/null 2>&1; then
+    printf 'Install it now with "npm install -g %s"? [Y/n] ' "$CLAUDE_PKG" >&2
+    read -r ans </dev/tty
+    case "$ans" in
+      [nN]*) ;;
+      *)
+        say "Installing $CLAUDE_PKG…"
+        if npm install -g "$CLAUDE_PKG" >&2; then
+          hash -r 2>/dev/null
+          command -v claude >/dev/null 2>&1 && { say "✓ Claude CLI installed."; return 0; }
+        fi
+        say "Automatic install did not succeed." ;;
+    esac
+  else
+    say "npm is not available, so I can't auto-install."
+  fi
+  say "Install manually, then push again:"
+  say "  • npm:  npm install -g $CLAUDE_PKG"
+  say "  • docs: $CLAUDE_DOCS_URL"
+  say "Continuing without AI review."
+  return 1
+}
+
+# Pick a timeout command; offer coreutils (gtimeout) on macOS via Homebrew.
+ensure_timeout() {
+  TO=()
+  command -v gtimeout >/dev/null 2>&1 && { TO=(gtimeout "$CLAUDE_TIMEOUT"); return 0; }
+  # Only trust `timeout` if it's GNU coreutils — Windows' timeout.exe is unrelated.
+  if command -v timeout >/dev/null 2>&1 && timeout --version 2>/dev/null | grep -qi coreutils; then
+    TO=(timeout "$CLAUDE_TIMEOUT"); return 0
+  fi
+  if have_tty && command -v brew >/dev/null 2>&1; then
+    printf "No 'timeout' found; install coreutils via Homebrew so the review can be time-limited? [y/N] " >&2
+    read -r ans </dev/tty
+    case "$ans" in
+      [yY]*)
+        brew install coreutils >&2
+        hash -r 2>/dev/null
+        command -v gtimeout >/dev/null 2>&1 && { TO=(gtimeout "$CLAUDE_TIMEOUT"); return 0; } ;;
+    esac
+  fi
+  say "Note: running the review without a ${CLAUDE_TIMEOUT}s timeout (install coreutils to enable it)."
+  return 0
+}
+
+[ "${SKIP_AI_REVIEW:-0}" = "1" ] && exit 0
+cd "$(git rev-parse --show-toplevel)" || exit 0
+[ -f "$PROMPT_FILE" ] || { say "AI review: $PROMPT_FILE not found, skipping."; exit 0; }
+
+# --- Only act on pushes to main ----------------------------------------------
+RANGE=""; REMOTE_SHA=""; LOCAL_SHA=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$remote_ref" = "refs/heads/$MAIN_BRANCH" ] || continue
+  [[ "$local_sha" =~ ^0+$ ]] && continue    # branch deletion
+  [[ "$remote_sha" =~ ^0+$ ]] && continue   # remote main doesn't exist yet
+  RANGE="$remote_sha..$local_sha"; REMOTE_SHA="$remote_sha"; LOCAL_SHA="$local_sha"
+done
+[ -z "$RANGE" ] && exit 0
+
+# --- Scope: custom themes + frontend (superproject); nextpress plugin (submodule) ---
+PATHSPECS=()
+for e in php js jsx ts tsx css scss; do
+  PATHSPECS+=(":(glob)$THEMES_DIR/*/**/*.$e")
+done
+for e in js jsx ts tsx css scss; do
+  PATHSPECS+=(":(glob)$FRONTEND_DIR/**/*.$e")
+done
+PATHSPECS+=(
+  ":(exclude,glob)$THEMES_DIR/twenty*/**"
+  ":(exclude,glob)**/vendor/**"
+  ":(exclude,glob)**/node_modules/**"
+  ":(exclude,glob)**/.next/**"
+  ":(exclude,glob)**/build/**"
+  ":(exclude,glob)**/dist/**"
+  ":(exclude,glob)**/*.min.*"
+  ":(exclude,glob)**/*.map"
+)
+
+# Pathspecs for inside the plugin submodule (paths are relative to its own root).
+SUB_PATHSPECS=()
+for e in php js jsx ts tsx css scss; do
+  SUB_PATHSPECS+=(":(glob)**/*.$e")
+done
+SUB_PATHSPECS+=(
+  ":(exclude,glob)**/vendor/**"
+  ":(exclude,glob)**/node_modules/**"
+  ":(exclude,glob)**/*.min.*"
+  ":(exclude,glob)**/*.map"
+)
+
+FILES=()
+while IFS= read -r f; do FILES+=("$f"); done \
+  < <(git diff --name-only --diff-filter=ACMR "$RANGE" -- "${PATHSPECS[@]}")
+
+# nextpress is a submodule: git won't descend into it, so resolve the plugin's
+# own commits from the gitlink at each end of the range and diff inside it.
+EMPTY_TREE="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+SUB_RANGE=""
+if [ -e "$PLUGIN_DIR/.git" ]; then
+  old_sub=$(git ls-tree "$REMOTE_SHA" "$PLUGIN_DIR" 2>/dev/null | awk '$2=="commit"{print $3}')
+  new_sub=$(git ls-tree "$LOCAL_SHA"  "$PLUGIN_DIR" 2>/dev/null | awk '$2=="commit"{print $3}')
+  if [ -n "$new_sub" ] && [ "$old_sub" != "$new_sub" ] \
+     && git -C "$PLUGIN_DIR" cat-file -e "$new_sub^{commit}" 2>/dev/null; then
+    if [ -n "$old_sub" ] && git -C "$PLUGIN_DIR" cat-file -e "$old_sub^{commit}" 2>/dev/null; then
+      SUB_RANGE="$old_sub..$new_sub"
+    else
+      SUB_RANGE="$EMPTY_TREE..$new_sub"   # plugin newly added, or old commit not fetched locally
+    fi
+    while IFS= read -r f; do FILES+=("$PLUGIN_DIR/$f"); done \
+      < <(git -C "$PLUGIN_DIR" diff --name-only --diff-filter=ACMR "$SUB_RANGE" -- "${SUB_PATHSPECS[@]}")
+  fi
+fi
+
+[ ${#FILES[@]} -eq 0 ] && exit 0
+
+# Need the Claude CLI for the review itself (offer to install if missing).
+ensure_claude || exit 0
+
+# --- Fast deterministic checks (each runs only if available) -----------------
+PHP_FILES=(); FE_JS=(); FE_CSS=()
+for f in "${FILES[@]}"; do
+  case "$f" in
+    *.php) PHP_FILES+=("$f") ;;
+    "$FRONTEND_DIR"/*)
+      case "$f" in
+        *.css|*.scss) FE_CSS+=("${f#"$FRONTEND_DIR"/}") ;;
+        *)            FE_JS+=("${f#"$FRONTEND_DIR"/}") ;;
+      esac ;;
+  esac
+done
+
+LINT=""
+NUDGES=""
+add_lint() { LINT+=$'\n'"[$1]"$'\n'"$2"$'\n'; }
+nudge()    { NUDGES+=$'\n'"  • $1"; }
+
+if [ ${#PHP_FILES[@]} -gt 0 ] && command -v php >/dev/null 2>&1; then
+  for f in "${PHP_FILES[@]}"; do
+    out=$(php -l "$f" 2>&1) || add_lint "php -l" "$out"
+  done
+  PHPCS=""
+  [ -x vendor/bin/phpcs ] && PHPCS="vendor/bin/phpcs"
+  [ -z "$PHPCS" ] && command -v phpcs >/dev/null 2>&1 && PHPCS="phpcs"
+  HAS_PHPCS_CFG=0
+  have_glob .phpcs.xml phpcs.xml .phpcs.xml.dist phpcs.xml.dist && HAS_PHPCS_CFG=1
+  if [ -n "$PHPCS" ] && [ "$HAS_PHPCS_CFG" = 1 ]; then
+    out=$("$PHPCS" -q --report=emacs "${PHP_FILES[@]}" 2>&1) || add_lint "phpcs" "$out"
+  elif [ "$HAS_PHPCS_CFG" = 1 ] && [ -z "$PHPCS" ]; then
+    nudge "PHPCS ruleset found but phpcs isn't installed — run 'composer install' to enable PHP standards checks."
+  fi
+fi
+
+BIN="$FRONTEND_DIR/node_modules/.bin"
+if [ ${#FE_JS[@]} -gt 0 ]; then
+  if [ -x "$BIN/eslint" ]; then
+    out=$(cd "$FRONTEND_DIR" && node_modules/.bin/eslint "${FE_JS[@]}" 2>&1) || add_lint "eslint" "$out"
+  elif have_glob "$FRONTEND_DIR"/.eslintrc* "$FRONTEND_DIR"/eslint.config.*; then
+    nudge "ESLint configured but not installed — run 'npm install' in $FRONTEND_DIR."
+  fi
+fi
+if [ ${#FE_CSS[@]} -gt 0 ] && have_glob "$FRONTEND_DIR"/.stylelintrc* "$FRONTEND_DIR"/stylelint.config.*; then
+  if [ -x "$BIN/stylelint" ]; then
+    out=$(cd "$FRONTEND_DIR" && node_modules/.bin/stylelint "${FE_CSS[@]}" 2>&1) || add_lint "stylelint" "$out"
+  else
+    nudge "Stylelint configured but not installed — run 'npm install' in $FRONTEND_DIR to enable CSS/SCSS linting."
+  fi
+fi
+FE_ALL=("${FE_JS[@]}" "${FE_CSS[@]}")
+if [ ${#FE_ALL[@]} -gt 0 ]; then
+  if [ -x "$BIN/prettier" ]; then
+    out=$(cd "$FRONTEND_DIR" && node_modules/.bin/prettier --check "${FE_ALL[@]}" 2>&1) || add_lint "prettier" "$out"
+  elif have_glob "$FRONTEND_DIR"/.prettierrc* "$FRONTEND_DIR"/prettier.config.* \
+       || grep -q '"prettier"' "$FRONTEND_DIR/package.json" 2>/dev/null; then
+    nudge "Prettier configured but not installed — run 'npm install' in $FRONTEND_DIR to enable format checks."
+  fi
+fi
+
+# --- Build input for Claude ---------------------------------------------------
+DIFF=$(git diff --diff-filter=ACMR "$RANGE" -- "${PATHSPECS[@]}")
+if [ -n "$SUB_RANGE" ]; then
+  SUB_DIFF=$(git -C "$PLUGIN_DIR" diff --diff-filter=ACMR "$SUB_RANGE" -- "${SUB_PATHSPECS[@]}")
+  [ -n "$SUB_DIFF" ] && DIFF="$DIFF
+# --- nextpress plugin (submodule: $PLUGIN_DIR) ---
+$SUB_DIFF"
+fi
+DIFF_LINES=$(printf '%s\n' "$DIFF" | wc -l | tr -d ' ')
+if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]; then
+  DIFF="$(printf '%s\n' "$DIFF" | head -n "$MAX_DIFF_LINES")
+[Diff truncated at $MAX_DIFF_LINES of $DIFF_LINES lines. Use Read on the listed files if needed.]"
+fi
+
+INPUT="## Changed files
+$(printf '%s\n' "${FILES[@]}")
+
+## Linter output
+${LINT:-None}
+
+## Diff
+$DIFF"
+
+# Strip YAML frontmatter from the shared slash-command prompt
+PROMPT=$(awk 'NR==1 && /^---$/ {fm=1; next} fm && /^---$/ {fm=0; next} !fm' "$PROMPT_FILE")
+
+ensure_timeout
+
+[ -n "$NUDGES" ] && { say ""; say "ℹ️  Some checks are configured but their tools aren't installed:$NUDGES"; }
+
+say ""
+say "🔍 Claude is reviewing ${#FILES[@]} changed file(s) before push to $MAIN_BRANCH…"
+
+REVIEW=$(printf '%s' "$INPUT" | "${TO[@]}" claude -p "$PROMPT" \
+  --model "$CLAUDE_MODEL" \
+  --allowedTools "Read,Grep,Glob" \
+  --disallowedTools "Edit,Write,Bash,WebFetch,WebSearch" 2>/dev/null) \
+  || { say "AI review unavailable (timeout or error), continuing push."; exit 0; }
+
+printf '%s\n\n--- Linter output ---\n%s\n' "$REVIEW" "${LINT:-None}" > .git/ai-review-last.txt
+
+if printf '%s' "$REVIEW" | grep -q 'NOTHING_NOTABLE' && [ -z "$LINT" ]; then
+  say "✓ Nothing notable. Pushing."
+  exit 0
+fi
+
+say ""
+say "$REVIEW"
+say ""
+say "(Full review + raw linter output: .git/ai-review-last.txt)"
+
+# --- Ask, if there's a terminal (GUI git clients just print and continue) ----
+if ( exec </dev/tty ) 2>/dev/null; then
+  printf 'Push anyway? [Y/n] ' >&2
+  read -r answer </dev/tty
+  case "$answer" in
+    [nN]*) say "Push cancelled. Fix up, then push again."; exit 1 ;;
+  esac
+fi
+exit 0

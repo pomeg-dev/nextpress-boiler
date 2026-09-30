@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ruleset name="Nextpress">
+  <description>WordPress coding standards for custom themes and the nextpress plugin.</description>
+
+  <!-- Default targets when run with no file arguments -->
+  <file>backend/wordpress/wp-content/themes</file>
+  <file>backend/wordpress/wp-content/plugins/nextpress</file>
+
+  <!-- Never scan bundled/default themes or vendored code -->
+  <exclude-pattern>*/themes/twenty*/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/*.min.*</exclude-pattern>
+  <exclude-pattern>*/*.asset.php</exclude-pattern>
+
+  <arg name="extensions" value="php"/>
+  <arg name="colors"/>
+
+  <rule ref="WordPress">
+    <!-- File-naming rule doesn't match this codebase's conventions -->
+    <exclude name="WordPress.Files.FileName"/>
+    <!-- Allow short array syntax ([] instead of array()) -->
+    <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+    <!-- Allow non-Yoda conditions -->
+    <exclude name="WordPress.PHP.YodaConditions"/>
+  </rule>
+
+  <config name="testVersion" value="8.1-"/>
+  <config name="minimum_wp_version" value="6.0"/>
+</ruleset>
