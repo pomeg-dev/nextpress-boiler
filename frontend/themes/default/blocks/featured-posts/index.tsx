@@ -52,7 +52,7 @@ export async function FeaturedPostsBlock(props: any) {
 
   let card: Cards = "PostCard";
 
-  if (!posts || posts.length < 0) {
+  if (!posts || posts.length === 0) {
     return <div>Posts not found</div>;
   }
 

@@ -57,7 +57,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
             {button && <Button linkItem={button} style="secondary" size="md" circular={true} />}
           </div>
         </div>
-        <div className={classNames("mt-4 grid grid-cols-1", mdColsClass)}>
+        <div className={classNames("mt-4 grid grid-cols-1 gap-4", mdColsClass)}>
           {posts.map((post: any, i: number) => {
             return (
               <div className="featured-posts-item" key={post.ID}>
