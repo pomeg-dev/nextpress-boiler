@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Point git at the repo's tracked hooks (.githooks). Idempotent and safe to run
+# from anywhere — never fails a build, so it's fine in npm/composer lifecycle
+# scripts and in CI where there may be no .git directory.
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0   # not a git work tree (CI tarball) → skip
+cd "$root" || exit 0
+git config core.hooksPath .githooks || true
+chmod +x .githooks/* 2>/dev/null || true                      # help filesystems that keep the bit

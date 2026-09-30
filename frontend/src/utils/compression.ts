@@ -1,4 +1,4 @@
-import pako from "pako";
+import * as pako from "pako";
 
 export function decompressFromUrlSafeBase64(urlSafeBase64: string) {
   try {

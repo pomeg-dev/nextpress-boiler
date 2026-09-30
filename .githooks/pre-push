@@ -22,6 +22,7 @@ CLAUDE_DOCS_URL="https://docs.claude.com/en/docs/claude-code/setup"
 
 say() { printf '%s\n' "$*" >&2; }
 have_tty() { ( exec </dev/tty ) 2>/dev/null; }
+have_glob() { local f; for f in "$@"; do [ -e "$f" ] && return 0; done; return 1; }
 
 # Ensure the Claude CLI exists; offer to auto-install via npm. Advisory: never blocks.
 ensure_claude() {
@@ -59,8 +60,11 @@ ensure_claude() {
 # Pick a timeout command; offer coreutils (gtimeout) on macOS via Homebrew.
 ensure_timeout() {
   TO=()
-  command -v timeout  >/dev/null 2>&1 && { TO=(timeout  "$CLAUDE_TIMEOUT"); return 0; }
   command -v gtimeout >/dev/null 2>&1 && { TO=(gtimeout "$CLAUDE_TIMEOUT"); return 0; }
+  # Only trust `timeout` if it's GNU coreutils — Windows' timeout.exe is unrelated.
+  if command -v timeout >/dev/null 2>&1 && timeout --version 2>/dev/null | grep -qi coreutils; then
+    TO=(timeout "$CLAUDE_TIMEOUT"); return 0
+  fi
   if have_tty && command -v brew >/dev/null 2>&1; then
     printf "No 'timeout' found; install coreutils via Homebrew so the review can be time-limited? [y/N] " >&2
     read -r ans </dev/tty
@@ -174,7 +178,7 @@ if [ ${#PHP_FILES[@]} -gt 0 ] && command -v php >/dev/null 2>&1; then
   [ -x vendor/bin/phpcs ] && PHPCS="vendor/bin/phpcs"
   [ -z "$PHPCS" ] && command -v phpcs >/dev/null 2>&1 && PHPCS="phpcs"
   HAS_PHPCS_CFG=0
-  ls .phpcs.xml phpcs.xml .phpcs.xml.dist phpcs.xml.dist >/dev/null 2>&1 && HAS_PHPCS_CFG=1
+  have_glob .phpcs.xml phpcs.xml .phpcs.xml.dist phpcs.xml.dist && HAS_PHPCS_CFG=1
   if [ -n "$PHPCS" ] && [ "$HAS_PHPCS_CFG" = 1 ]; then
     out=$("$PHPCS" -q --report=emacs "${PHP_FILES[@]}" 2>&1) || add_lint "phpcs" "$out"
   elif [ "$HAS_PHPCS_CFG" = 1 ] && [ -z "$PHPCS" ]; then
@@ -186,11 +190,11 @@ BIN="$FRONTEND_DIR/node_modules/.bin"
 if [ ${#FE_JS[@]} -gt 0 ]; then
   if [ -x "$BIN/eslint" ]; then
     out=$(cd "$FRONTEND_DIR" && node_modules/.bin/eslint "${FE_JS[@]}" 2>&1) || add_lint "eslint" "$out"
-  elif ls "$FRONTEND_DIR"/.eslintrc* "$FRONTEND_DIR"/eslint.config.* >/dev/null 2>&1; then
+  elif have_glob "$FRONTEND_DIR"/.eslintrc* "$FRONTEND_DIR"/eslint.config.*; then
     nudge "ESLint configured but not installed — run 'npm install' in $FRONTEND_DIR."
   fi
 fi
-if [ ${#FE_CSS[@]} -gt 0 ] && ls "$FRONTEND_DIR"/.stylelintrc* "$FRONTEND_DIR"/stylelint.config.* >/dev/null 2>&1; then
+if [ ${#FE_CSS[@]} -gt 0 ] && have_glob "$FRONTEND_DIR"/.stylelintrc* "$FRONTEND_DIR"/stylelint.config.*; then
   if [ -x "$BIN/stylelint" ]; then
     out=$(cd "$FRONTEND_DIR" && node_modules/.bin/stylelint "${FE_CSS[@]}" 2>&1) || add_lint "stylelint" "$out"
   else
@@ -201,7 +205,7 @@ FE_ALL=("${FE_JS[@]}" "${FE_CSS[@]}")
 if [ ${#FE_ALL[@]} -gt 0 ]; then
   if [ -x "$BIN/prettier" ]; then
     out=$(cd "$FRONTEND_DIR" && node_modules/.bin/prettier --check "${FE_ALL[@]}" 2>&1) || add_lint "prettier" "$out"
-  elif ls "$FRONTEND_DIR"/.prettierrc* "$FRONTEND_DIR"/prettier.config.* >/dev/null 2>&1 \
+  elif have_glob "$FRONTEND_DIR"/.prettierrc* "$FRONTEND_DIR"/prettier.config.* \
        || grep -q '"prettier"' "$FRONTEND_DIR/package.json" 2>/dev/null; then
     nudge "Prettier configured but not installed — run 'npm install' in $FRONTEND_DIR to enable format checks."
   fi

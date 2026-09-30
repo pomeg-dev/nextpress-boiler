@@ -15,6 +15,8 @@
   },
   "scripts": {
     "lint:php": "phpcs",
-    "lint:php:fix": "phpcbf"
+    "lint:php:fix": "phpcbf",
+    "post-install-cmd": "bash bin/enable-hooks || exit 0",
+    "post-update-cmd": "bash bin/enable-hooks || exit 0"
   }
 }

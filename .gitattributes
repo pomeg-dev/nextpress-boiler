@@ -1,0 +1,4 @@
+# Shell scripts and git hooks must stay LF to run under Git Bash on Windows
+.githooks/** text eol=lf
+bin/**       text eol=lf
+*.sh         text eol=lf

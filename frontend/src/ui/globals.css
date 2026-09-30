@@ -31,6 +31,39 @@
   --spacing-col-24: calc(var(--col-size) * 24);
 }
 
+/* Brand palette and heading type scale. Best-practice defaults ported from the
+   former tailwind.config.js so v4 @apply utilities (text-primary, bg-primary,
+   from-/to-/shadow-primary, /opacity modifiers, text-heading-*) resolve.
+   Tune these per project. */
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1e40af;
+  --color-secondary: #7c3aed;
+  --color-tertiary: #0ea5e9;
+  --color-quaternary: #64748b;
+  --color-dark: #0f172a;
+  --color-smoke: #f1f5f9;
+
+  --text-heading-3xl: 5.75rem;
+  --text-heading-3xl--line-height: 1.05;
+  --text-heading-3xl--letter-spacing: -0.03em;
+  --text-heading-2xl: 4.5rem;
+  --text-heading-2xl--line-height: 1.1;
+  --text-heading-2xl--letter-spacing: -0.02em;
+  --text-heading-xl: 3.25rem;
+  --text-heading-xl--line-height: 1.15;
+  --text-heading-xl--letter-spacing: -0.02em;
+  --text-heading-lg: 2.625rem;
+  --text-heading-lg--line-height: 1.2;
+  --text-heading-lg--letter-spacing: -0.01em;
+  --text-heading-md: 2rem;
+  --text-heading-md--line-height: 1.25;
+  --text-heading-sm: 1.625rem;
+  --text-heading-sm--line-height: 1.3;
+  --text-heading-xs: 1.3125rem;
+  --text-heading-xs--line-height: 1.4;
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
