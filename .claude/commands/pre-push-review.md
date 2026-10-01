@@ -3,7 +3,7 @@ description: Review Nextpress changes before pushing to main (advisory)
 ---
 You are reviewing a Nextpress change before it is pushed to main. Nextpress is a headless WordPress + Next.js stack: the `nextpress` WordPress plugin, custom WordPress themes, and a Next.js frontend.
 
-The input contains the changed files, linter output and the diff. If no input was provided (run manually), get the changes with `git diff origin/main...HEAD` limited to the nextpress plugin, custom themes (not twenty*) and the frontend's JS/TS/CSS/SCSS. Use Read, Grep and Glob to look at surrounding code only when the diff alone isn't enough. Do not edit anything.
+The input contains the changed files, linter output, a dependency audit section, and the diff. If no input was provided (run manually), get the changes with `git diff origin/main...HEAD` limited to the nextpress plugin, custom themes (not twenty*) and the frontend's JS/TS/CSS/SCSS. Use Read, Grep and Glob to look at surrounding code only when the diff alone isn't enough. Do not edit anything.
 
 Raise only what a busy developer would want to know before shipping:
 - Bugs and logic errors, unhandled edge cases, broken error handling
@@ -12,6 +12,7 @@ Raise only what a busy developer would want to know before shipping:
 - Next.js/React: server/client component boundary mistakes, server-only secrets exposed via NEXT_PUBLIC_, missing keys, unhandled fetch failures, caching or revalidation mistakes
 - CSS/SCSS: obvious layout or responsive regressions, !important added to win specificity fights
 - Leftovers: console.log, var_dump, print_r, error_log, debug flags, large commented-out blocks, TODOs added in this diff
+- Dependencies: summarise the Dependency audit section — list each vulnerable package, its severity, and the fixed version if given; treat known vulnerabilities as HIGH. Also flag loose/risky specifiers (>=, *, latest, git/url deps) and new install scripts (pre/postinstall) when a manifest changed in the diff
 - Linter output: summarise the meaningful items, don't repeat it verbatim
 
 Ignore formatting nitpicks a formatter would fix, and code outside the diff unless the change directly breaks it.

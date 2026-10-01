@@ -18,6 +18,7 @@ THEMES_DIR="$WP_CONTENT/themes"
 FRONTEND_DIR="frontend"
 PROMPT_FILE=".claude/commands/pre-push-review.md"
 MAX_DIFF_LINES=1500
+AUDIT_LEVEL="high"   # npm audit threshold: low|moderate|high|critical
 CLAUDE_TIMEOUT=180   # seconds
 CLAUDE_MODEL="sonnet"
 CLAUDE_PKG="@anthropic-ai/claude-code"                       # npm package for auto-install
@@ -226,6 +227,21 @@ if [ ${#FE_ALL[@]} -gt 0 ]; then
   fi
 fi
 
+# --- Dependency audit: known-vulnerable packages (best-effort) ----------------
+# Covers deps we manage locally. Nested WordPress-core/plugin manifests (e.g.
+# sodium_compat) aren't visible here — GitHub Dependabot alerts cover those.
+AUDIT=""
+add_audit() { AUDIT+=$'\n'"[$1]"$'\n'"$2"$'\n'; }
+
+if command -v npm >/dev/null 2>&1 && [ -f "$FRONTEND_DIR/package-lock.json" ]; then
+  # No --omit=dev: build-time deps (e.g. postcss) matter and can be flagged.
+  out=$(cd "$FRONTEND_DIR" && npm audit --audit-level="$AUDIT_LEVEL" 2>&1) \
+    || add_audit "npm audit" "$out"
+fi
+if command -v composer >/dev/null 2>&1 && [ -f composer.lock ]; then
+  out=$(composer audit --format=plain 2>&1) || add_audit "composer audit" "$out"
+fi
+
 # --- Build input for Claude ---------------------------------------------------
 DIFF=$(git diff --diff-filter=ACMR "$RANGE" -- "${PATHSPECS[@]}")
 if [ -n "$SUB_RANGE" ]; then
@@ -246,6 +262,9 @@ $(printf '%s\n' "${FILES[@]}")
 ## Linter output
 ${LINT:-None}
 
+## Dependency audit
+${AUDIT:-None}
+
 ## Diff
 $DIFF"
 
@@ -265,9 +284,10 @@ REVIEW=$(printf '%s' "$INPUT" | "${TO[@]}" claude -p "$PROMPT" \
   --disallowedTools "Edit,Write,Bash,WebFetch,WebSearch" 2>/dev/null) \
   || { say "AI review unavailable (timeout or error), continuing push."; exit 0; }
 
-printf '%s\n\n--- Linter output ---\n%s\n' "$REVIEW" "${LINT:-None}" > .git/ai-review-last.txt
+printf '%s\n\n--- Linter output ---\n%s\n\n--- Dependency audit ---\n%s\n' \
+  "$REVIEW" "${LINT:-None}" "${AUDIT:-None}" > .git/ai-review-last.txt
 
-if printf '%s' "$REVIEW" | grep -q 'NOTHING_NOTABLE' && [ -z "$LINT" ]; then
+if printf '%s' "$REVIEW" | grep -q 'NOTHING_NOTABLE' && [ -z "$LINT" ] && [ -z "$AUDIT" ]; then
   say "✓ Nothing notable. Pushing."
   exit 0
 fi

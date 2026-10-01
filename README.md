@@ -74,6 +74,11 @@ manually** (cancels the push), or **[A] fix with AI** (cancels and hands off to
   The plugin lives in a submodule, so the hook resolves and diffs *inside* it.
 - **Linters** (each skips silently if not installed) — `php -l`, PHPCS/WPCS, ESLint,
   Stylelint, Prettier. Missing-but-configured tools print a one-line install nudge.
+- **Dependency audit** — an opted-in review also runs `npm audit` (frontend) and `composer
+  audit` (root) and flags known-vulnerable packages as HIGH. Tune the threshold via
+  `AUDIT_LEVEL` at the top of the hook. Limitation: nested WordPress-core/plugin manifests
+  (e.g. the `sodium_compat` PHPUnit advisory) aren't visible locally — **GitHub Dependabot
+  alerts** are the backstop for those.
 - **Run without the prompt** — `AI_REVIEW=1 git push` (always reviews). **Skip entirely** —
   `SKIP_AI_REVIEW=1 git push` or `git push --no-verify`.
 - **Last review** — saved to `.git/ai-review-last.txt`.
