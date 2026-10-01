@@ -45,6 +45,9 @@
     "sass-resources-loader": "^2.2.5",
     "typescript": "^5.6.2"
   },
+  "overrides": {
+    "postcss": "$postcss"
+  },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.5.0",
     "@tailwindcss/postcss": "^4.3.3",
@@ -60,7 +63,7 @@
     "css-loader": "^7.1.2",
     "ignore-loader": "^0.1.2",
     "mini-css-extract-plugin": "^2.9.1",
-    "postcss": "^8.4.21",
+    "postcss": "^8.5.28",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.4.2",
     "sass": "^1.80.6",
