@@ -2,7 +2,11 @@ import { MetadataRoute } from "next";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const isProduction = process.env.VERCEL_ENV === "production";
-  const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL;
+  const frontendUrl =
+    process.env.NEXT_PUBLIC_FRONTEND_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined);
   
   return {
     rules: isProduction ? [

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_API_URL
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL
+const FRONTEND_URL =
+  process.env.NEXT_PUBLIC_FRONTEND_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : undefined)
 
 if (!WORDPRESS_URL || !FRONTEND_URL) {
-  console.error('Missing environment variables:')
-  console.error('NEXT_PUBLIC_API_URL:', WORDPRESS_URL ? 'SET' : 'MISSING')
-  console.error('NEXT_PUBLIC_FRONTEND_URL:', FRONTEND_URL ? 'SET' : 'MISSING')
+  console.error('Missing environment variables:');
+  console.error('NEXT_PUBLIC_API_URL:', WORDPRESS_URL ? 'SET' : 'MISSING');
+  console.error('NEXT_PUBLIC_FRONTEND_URL:', FRONTEND_URL ? 'SET' : 'MISSING');
 }
 
 // Global regex to replace all WordPress URLs with frontend URLs
