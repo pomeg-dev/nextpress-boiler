@@ -59,17 +59,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
         </div>
         <div className={classNames("mt-4 grid grid-cols-1 gap-4", mdColsClass)}>
           {posts.map((post: any, i: number) => {
-            return (asdasas
-              asf
-              a
-              sf
-              as
-              f
-              as
-
-
-
-              
+            return (
               <div className="featured-posts-item" key={post.ID}>
                 <DynamicComponent componentName={post?.card || card} data={post} />
               </div>
