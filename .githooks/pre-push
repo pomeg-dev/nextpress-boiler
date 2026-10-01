@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Nextpress pre-push review: advisory only.
-# Runs when pushing to main, reviews the changed files, then asks what to do next:
+# On a push to main with in-scope changes, first asks whether to run the review
+# (default: no — just push, so nothing runs unless you opt in). If you opt in, it
+# lints + has Claude review the diff, then asks what to do next:
 #   [P] push anyway (default)  [F] fix manually (cancels)  [A] fix with AI (cancels)
 # Only F or A stops the push. "A" hands off to the /pre-push-fix command.
 #
-# Skip once:  SKIP_AI_REVIEW=1 git push   (or: git push --no-verify)
+# Always run without the first prompt:  AI_REVIEW=1 git push
+# Skip everything:  SKIP_AI_REVIEW=1 git push   (or: git push --no-verify)
 # Last review is saved to .git/ai-review-last.txt
 
 # --- Config: adjust paths to match the repo layout ---------------------------
@@ -149,6 +152,17 @@ if [ -e "$PLUGIN_DIR/.git" ]; then
 fi
 
 [ ${#FILES[@]} -eq 0 ] && exit 0
+
+# --- Opt in to the review (it costs time + tokens); default is to just push ----
+if [ "${AI_REVIEW:-0}" != "1" ]; then
+  have_tty || exit 0                         # GUI client / CI: don't auto-run, just push
+  printf 'Run the Claude pre-push review on %s changed file(s)? [y/N] ' "${#FILES[@]}" >&2
+  read -r ans </dev/tty
+  case "$ans" in
+    [yY]*) ;;
+    *) say "Skipping review. Pushing."; exit 0 ;;
+  esac
+fi
 
 # Need the Claude CLI for the review itself (offer to install if missing).
 ensure_claude || exit 0

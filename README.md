@@ -61,10 +61,12 @@ Scripts: `npm run dev` / `build` / `start`, `lint` (Next ESLint), `lint:css` (St
 
 ## Pre-push AI review (git hooks)
 
-An **advisory** review runs on `git push` to `main`. It lints the changed files, has Claude
-review the diff (read-only), then asks what to do next: **[P] push anyway** (default),
-**[F] fix manually** (cancels the push), or **[A] fix with AI** (cancels and hands off to
-`/pre-push-fix`). Only F or A stops the push.
+On `git push` to `main` with in-scope changes, the hook first asks **"Run the Claude
+pre-push review? [y/N]"** — default **no**, so nothing is linted or sent to Claude unless you
+opt in (keeps every push cheap). If you say yes, it lints the changed files, has Claude review
+the diff (read-only), then asks what to do next: **[P] push anyway** (default), **[F] fix
+manually** (cancels the push), or **[A] fix with AI** (cancels and hands off to
+`/pre-push-fix`). It's advisory — only F or A stops the push.
 
 - **Enabled automatically** — `make install`, `npm install`, or `composer install` each set
   `core.hooksPath` to `.githooks` (via `bin/enable-hooks`). No manual step.
@@ -72,7 +74,8 @@ review the diff (read-only), then asks what to do next: **[P] push anyway** (def
   The plugin lives in a submodule, so the hook resolves and diffs *inside* it.
 - **Linters** (each skips silently if not installed) — `php -l`, PHPCS/WPCS, ESLint,
   Stylelint, Prettier. Missing-but-configured tools print a one-line install nudge.
-- **Skip once** — `SKIP_AI_REVIEW=1 git push` or `git push --no-verify`.
+- **Run without the prompt** — `AI_REVIEW=1 git push` (always reviews). **Skip entirely** —
+  `SKIP_AI_REVIEW=1 git push` or `git push --no-verify`.
 - **Last review** — saved to `.git/ai-review-last.txt`.
 - **Run manually** — `/pre-push-review` in Claude Code.
 - **Different repo layout?** — edit the config vars at the top of `.githooks/pre-push`
