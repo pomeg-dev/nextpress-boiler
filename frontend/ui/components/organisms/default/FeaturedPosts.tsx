@@ -62,7 +62,6 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
             return (
               <div className="featured-posts-item" key={post.ID}>
                 <DynamicComponent componentName={post?.card || card} data={post} />
-                <ThisIsBroken test={broken_var} />
               </div>
             );
           })}
