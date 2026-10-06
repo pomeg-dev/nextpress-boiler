@@ -221,7 +221,7 @@ For buttons, import `Button` from `@ui/components/atoms/Button` and map
 
 ## 6. Design system — source of truth
 
-**Read `frontend/DESIGN_SYSTEM.md` before styling.** It lists every available
+**Read `.claude/docs/DESIGN_SYSTEM.md` before styling.** It lists every available
 utility, semantic class, component class, and breakpoint. Use those — do not
 invent classes. Quick reference:
 
@@ -261,5 +261,5 @@ invent classes. Quick reference:
 4. [ ] Imports wired (organism alias, `BlockWrapper`, `BlockParser`/`Button` as needed).
 5. [ ] Inner blocks (if any): schema flag + `inner_blocks={inner_blocks && props?.innerBlocks}`
        + `<BlockParser>` in the organism.
-6. [ ] Styling verified against `frontend/DESIGN_SYSTEM.md` (no invented classes;
+6. [ ] Styling verified against `.claude/docs/DESIGN_SYSTEM.md` (no invented classes;
        `tablet/laptop/desktop` breakpoints; `.container`/`.stack`; mobile-first).
