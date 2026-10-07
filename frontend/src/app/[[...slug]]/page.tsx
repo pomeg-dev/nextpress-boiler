@@ -266,9 +266,13 @@ export async function generateMetadata(
       }
     }
 
-    const robots = !settings?.blog_public || settings?.blog_public === '0'
-      ? "noindex, nofollow"
-      : `${post.yoastHeadJSON.robots.index}, ${post.yoastHeadJSON.robots.follow}`;
+    let yoastRobots = '';
+    if (post.yoastHeadJSON.robots) {
+      yoastRobots = Object.values(post.yoastHeadJSON.robots).join(', ');
+    }
+    const robots = settings?.blog_public == '0'
+        ? "noindex, nofollow"
+        : yoastRobots;
 
     return {
       title: post.yoastHeadJSON.title,
