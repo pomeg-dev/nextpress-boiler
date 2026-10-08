@@ -7,3 +7,4 @@ storybook-static
 figma-variables.json
 .vscode
 ip-ranges.json
+.DS_Store
