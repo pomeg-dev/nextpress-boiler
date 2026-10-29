@@ -1,7 +1,9 @@
 //@ts-nocheck
 
-import React from "react";
+import React, { Suspense } from "react";
 import * as Fallback from "./fallback";
+import { BlockBoundary } from "./block-boundary";
+import { MissingBlock } from "./missing-block";
 import { Block } from "@/lib/types";
 import fs from "fs";
 import path from "path";
@@ -23,7 +25,13 @@ export function BlockParser({ blocks }: { blocks: Block[] }) {
   return (
     <>
       {blocks.map((block, index) => (
-        <BlockRenderer key={block.id ?? index} block={block} />
+        // Suspense lets a server render error fall back to the client, where
+        // BlockBoundary drops just that block instead of failing the page.
+        <Suspense key={block.id ?? index} fallback={null}>
+          <BlockBoundary name={block.blockName}>
+            <BlockRenderer block={block} />
+          </BlockBoundary>
+        </Suspense>
       ))}
     </>
   );
@@ -61,10 +69,15 @@ const isThemeAvailable = (themeName: string): boolean => {
   return result;
 };
 
+/**
+ * Theme (acf/) blocks with no component resolve to null and render nothing:
+ * a block can be pushed to WordPress before its component is deployed.
+ * Core blocks fall back to rendering their innerHTML.
+ */
 const importComponent = async (
   componentPath: string,
   isThemeComponent: boolean = false
-): Promise<ImportedComponent> => {
+): Promise<ImportedComponent | null> => {
   // Create cache key that includes the component type
   const cacheKey = `${isThemeComponent ? 'theme' : 'core'}:${componentPath}`;
   
@@ -96,13 +109,17 @@ const importComponent = async (
     return component;
     
   } catch (error) {
-    console.log(`Failed to import component: ${componentPath}`, error);
-    console.log("Import path attempted:", componentPath);
-    
-    const fallbackComponent = getComponent(Fallback);
-    
-    // Cache the fallback to prevent repeated failed imports
-    componentCache.set(cacheKey, fallbackComponent);
+    const fallbackComponent = isThemeComponent ? null : getComponent(Fallback);
+    if (isThemeComponent) {
+      console.warn(`Nextpress: no component for ${componentPath}, skipping`);
+    } else {
+      console.log(`Failed to import component: ${componentPath}`, error);
+    }
+
+    // Cache misses in production only, so a newly added block is picked up in dev.
+    if (process.env.NODE_ENV === "production") {
+      componentCache.set(cacheKey, fallbackComponent);
+    }
     return fallbackComponent;
   }
 };
@@ -132,6 +149,13 @@ export const BlockRenderer: React.FC<{ block: Block }> = async ({ block }) => {
         `${theme}/blocks/${componentName}`,
         true
       );
+      // Unknown theme block: skip it and its innerBlocks (they belong to its
+      // layout). In dev, show a placeholder with its data to build against.
+      if (!ImportedComponent) {
+        return process.env.NODE_ENV === "development" ? (
+          <MissingBlock name={blockName} data={block.data} />
+        ) : null;
+      }
     }
   }
 

@@ -5,7 +5,8 @@ import Parser from "html-react-parser";
 import { linkFilter } from "@/utils/url";
 
 export function Fallback({ ...block } : Block) {
-  const { innerHTML, innerBlocks, data } = block;
+  const { innerBlocks, data } = block;
+  const innerHTML = block.innerHTML ?? "";
 
   // Function to filter hrefs in HTML content
   const filterHrefs = (html: string) => {

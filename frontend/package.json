@@ -10,6 +10,10 @@
     "lint:css": "stylelint \"**/*.{css,scss}\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "blocks:check": "node scripts/blocks/cli.mjs check",
+    "blocks:build": "node scripts/blocks/cli.mjs build",
+    "blocks:push": "node scripts/blocks/cli.mjs push",
+    "blocks:watch": "node scripts/blocks/cli.mjs watch",
     "prepare": "bash ../bin/enable-hooks || exit 0"
   },
   "dependencies": {

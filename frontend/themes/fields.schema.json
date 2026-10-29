@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Nextpress block fields",
+  "description": "themes/<theme>/blocks/<block>/fields.json — an array of fields, or { title, description, icon, keywords, fields }. Compiled by scripts/blocks/compile.mjs.",
+  "oneOf": [
+    { "$ref": "#/definitions/fields" },
+    {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Block title in the inserter (defaults to the folder name)." },
+        "description": { "type": "string" },
+        "icon": { "type": "string", "description": "Dashicon slug or SVG markup." },
+        "keywords": { "type": "array", "items": { "type": "string" } },
+        "fields": { "$ref": "#/definitions/fields" }
+      },
+      "required": ["fields"],
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "fields": {
+      "type": "array",
+      "items": {
+        "oneOf": [{ "$ref": "#/definitions/ref" }, { "$ref": "#/definitions/field" }]
+      }
+    },
+    "ref": {
+      "type": "object",
+      "properties": {
+        "$ref": { "type": "string", "description": "Inline themes/<theme>/_partials/<name>.json" }
+      },
+      "required": ["$ref"],
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9_]+$", "description": "Field name. Changing it orphans existing content." },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text", "textarea", "number", "range", "email", "url", "password", "wysiwyg",
+            "image", "file", "gallery", "select", "checkbox", "radio", "true_false", "link",
+            "post_object", "page_link", "relationship", "taxonomy", "user", "date_picker",
+            "time_picker", "color_picker", "message", "repeater", "group", "flexible_content",
+            "nav", "post_type", "tax_list", "theme", "gravity_form", "tab", "accordion",
+            "inner_blocks"
+          ]
+        },
+        "label": { "type": "string" },
+        "instructions": { "type": "string" },
+        "default_value": {},
+        "required": { "type": ["integer", "boolean"] },
+        "ui": { "type": ["integer", "boolean"] },
+        "multiple": { "type": ["integer", "boolean"] },
+        "layout": { "type": "string", "enum": ["table", "block", "row"] },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "choices": {
+          "description": "Either { value: label } or [{ value: label }, …] to keep order.",
+          "oneOf": [
+            { "type": "object", "additionalProperties": { "type": "string" } },
+            { "type": "array", "items": { "type": "object", "additionalProperties": { "type": "string" } } }
+          ]
+        },
+        "conditional_logic": {
+          "type": "array",
+          "description": "OR of AND groups.",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "operator"],
+              "properties": {
+                "field": { "type": "string", "description": "Sibling field id." },
+                "operator": { "type": "string", "enum": ["==", "!=", "==empty", "!=empty", "==pattern", "==contains"] },
+                "value": {}
+              }
+            }
+          }
+        },
+        "fields": { "$ref": "#/definitions/fields", "description": "Sub-fields for repeater/group." },
+        "layouts": {
+          "type": "array",
+          "description": "flexible_content layouts.",
+          "items": {
+            "type": "object",
+            "required": ["name", "label"],
+            "properties": {
+              "name": { "type": "string" },
+              "label": { "type": "string" },
+              "fields": { "$ref": "#/definitions/fields" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
