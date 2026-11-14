@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Scan the package so the core blocks' utilities are generated. */
+@source "../../node_modules/@pomeg-dev/nextpress-client/src";
+
 /* Safelist for classes composed dynamically at runtime (e.g. `pt-${spacer}`,
    `grid-cols-${n}` in the theme blocks) that the content scanner can't see.
    Replaces the former tailwind.config.js `safelist` array. */
