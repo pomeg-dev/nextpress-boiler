@@ -4,6 +4,9 @@ import { blocks } from "./blocks.registry.generated";
 
 export const { BlockParser, BlockRenderer } = nextpress.blocks.register({
   ...blocks,
+  // Site-owned core-block overrides.
+  "core/group": () => import("@/ui/wordpress/blocks/group"),
+  "core/button": () => import("@/ui/wordpress/blocks/button"),
 });
 
 // Module scope, after register(): never from layout.tsx.

@@ -3,7 +3,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
-import { ImageProps, LinkItemProps } from "@/lib/types";
+import { ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Button from "../../atoms/Button";
 import Image from "next/image";
 import Link from "next/link";

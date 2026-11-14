@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageProps } from "@/lib/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import TextAndImage from "@ui/components/organisms/default/TextAndImage";
 import classNames from "classnames";
 

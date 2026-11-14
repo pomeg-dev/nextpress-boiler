@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import { Cards, LinkItemProps, Post } from "@/lib/types";
+import { Cards, LinkItemProps, Post } from "@pomeg-dev/nextpress-client/types";
 import Parser from "html-react-parser";
 import PostCard from "../../molecules/PostCard";
 import Button from "../../atoms/Button";

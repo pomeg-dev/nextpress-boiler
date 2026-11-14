@@ -1,6 +1,6 @@
 'use client';
 
-import { CookiePreferences } from '@/lib/types';
+import { CookiePreferences } from '@pomeg-dev/nextpress-client/types';
 import Button from '@ui/components/atoms/Button';
 import { deleteAllCookies, getCookie, setCookie } from '@ui/utils/cookies';
 import React, { useState, useEffect } from 'react';

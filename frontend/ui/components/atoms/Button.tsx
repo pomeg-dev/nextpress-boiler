@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import Link from "next/link";
 import classNames from "classnames";
-import { linkFilter } from "@/utils/url";
+import { linkFilter } from "@pomeg-dev/nextpress-client";
 import * as Icons from '../../icons/icon-loader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

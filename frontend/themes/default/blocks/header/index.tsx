@@ -1,7 +1,7 @@
 "use client";
 
-import { ImageProps } from "@/lib/types";
-import { getNavItems } from "@/utils/menus";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
+import { getNavItems } from "@pomeg-dev/nextpress-client";
 import Header from "@ui/components/organisms/default/Header";
 import { useEffect, useState } from "react";
 

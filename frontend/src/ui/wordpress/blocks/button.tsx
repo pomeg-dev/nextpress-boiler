@@ -1,12 +1,9 @@
 import React from "react";
-import { Block } from "@/lib/types";
+import type { BlockComponentProps } from "@pomeg-dev/nextpress-client";
 import Button from "@ui/components/atoms/Button";
 
-interface ButtonProps extends Block {
-  renderedChildren?: React.ReactNode;
-}
-
-const ButtonBlock: React.FC<ButtonProps> = ({ ...block }: Block) => {
+// Site override of core/button: renders the brand Button atom.
+const ButtonBlock: React.FC<BlockComponentProps> = ({ parser, language, ...block }) => {
   const { data } = block;
   const extractButtonProps = (html: string) => {
     let buttonProps = {

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Post } from "@/lib/types";
+import { Post } from "@pomeg-dev/nextpress-client/types";
 import Image from "next/image";
 import Parser from "html-react-parser";
 import Button from "../atoms/Button";

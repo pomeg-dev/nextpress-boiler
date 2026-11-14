@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
-import { getPosts, getTaxTerms } from "@/lib/wp/posts";
-import { WPQuery } from "@/lib/types";
+import { getPosts, getTaxTerms } from "@/nextpress.config";
+import { WPQuery } from "@pomeg-dev/nextpress-client/types";
 
 const Feed = dynamic(
   () => import("../../../../ui/components/archive/Feed").then(mod => ({ default: mod.Feed })),

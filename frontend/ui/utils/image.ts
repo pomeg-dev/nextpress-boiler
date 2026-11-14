@@ -1,4 +1,4 @@
-import { ImageProps } from "@/lib/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 
 export function parseImageAtts(
   image: any, 

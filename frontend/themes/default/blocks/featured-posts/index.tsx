@@ -1,8 +1,8 @@
-import { getPosts } from "@/lib/wp/posts";
+import { getPosts } from "@/nextpress.config";
 import React from "react";
 import classNames from "classnames";
 import FeaturedPosts from "@ui/components/organisms/default/FeaturedPosts";
-import { Cards, Post, WPQuery } from "@/lib/types";
+import { Cards, Post, WPQuery } from "@pomeg-dev/nextpress-client/types";
 
 export async function FeaturedPostsBlock(props: any) {
   const {

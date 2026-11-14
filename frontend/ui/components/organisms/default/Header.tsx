@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from "react";
 import classNames from "classnames";
-import { ImageProps, MenuItemsProps } from "@/lib/types";
+import { ImageProps, MenuItemsProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import Image from "next/image";
-import { linkFilter } from "@/utils/url";
+import { linkFilter } from "@pomeg-dev/nextpress-client";
 import Parser from "html-react-parser";
 import { Close, Hamburger, UserIcon } from "@ui/icons/icon-loader";
 

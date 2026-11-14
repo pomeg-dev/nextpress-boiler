@@ -1,4 +1,4 @@
-import { getTaxTerm, getTaxTerms } from "@/lib/wp/posts";
+import { getTaxTerm, getTaxTerms } from "@/nextpress.config";
 import { Feed } from "@ui/components/archive/Feed";
 import Loader from "@ui/components/atoms/Loader";
 import { notFound } from "next/navigation";

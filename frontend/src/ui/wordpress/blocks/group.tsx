@@ -1,14 +1,11 @@
 import React from "react";
-import { Block } from "@/lib/types";
-import { BlockParser } from "../../block-parser";
+import type { BlockComponentProps } from "@pomeg-dev/nextpress-client";
+import { BlockParser } from "@/nextpress.blocks";
 import classNames from "classnames";
 import TabbedContent from "@ui/components/organisms/default/TabbedContent";
 
-type GroupProps = Block & {
-  innerBlocks?: React.ReactNode;
-};
-
-const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
+// Site override of core/group: renders the brand TabbedContent and defaults the text colour.
+const Group: React.FC<BlockComponentProps> = ({ parser, language, ...block }) => {
   const { innerBlocks, innerContent, data } = block;
   const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
   const textColor = data?.style?.color?.text || data?.textColor || "primary";
@@ -61,11 +58,11 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
             }}
           >
             <div className="container py-8">
-              <BlockParser blocks={innerBlocks} />
+              <BlockParser blocks={innerBlocks} language={language} />
             </div>
           </div>
         ) : (
-          <BlockParser blocks={innerBlocks} />
+          <BlockParser blocks={innerBlocks} language={language} />
         )
       }
     </div>

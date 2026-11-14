@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
-import { ImageProps, LinkItemProps } from "@/lib/types";
+import { ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Button from "../../atoms/Button";
 import Pill from "../../atoms/Pill";
 import Image from "next/image";

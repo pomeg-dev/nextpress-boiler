@@ -1,6 +1,5 @@
-import { getPostByPath } from "@/lib/wp/posts";
-import { getSettings } from "@/lib/wp/settings";
-import { BlockParser } from "@/ui/block-parser";
+import { getPostByPath, getSettings } from "@/nextpress.config";
+import { BlockParser } from "@/nextpress.blocks";
 import classNames from "classnames";
 
 export default async function NotFound() {

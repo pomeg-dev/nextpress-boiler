@@ -1,7 +1,7 @@
 "use client";
 
 import classNames from "classnames";
-import { ImageProps } from "@/lib/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import HeroImage from "@ui/components/organisms/default/HeroImage";
 
 export function HeroImageBlock(props: any) {

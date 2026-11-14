@@ -1,12 +1,10 @@
 import "@/ui/globals.css";
 import type { Metadata } from "next";
-import { getSettings } from "@/lib/wp/settings";
-import { getBlockTheme } from "@/lib/wp/theme";
+import { getSettings, getBlockTheme } from "@/nextpress.config";
 import { Suspense } from "react";
 import { LocaleProvider } from "./providers";
 import { fontVariables } from "ui/fonts/font-loader";
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
-import { initializeComponentCache } from "@/lib/cache-warmer";
 
 export const metadata: Metadata = {
   icons: {
@@ -58,9 +56,6 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   const themes = await getBlockTheme();
-
-  // Initialize component cache in background
-  initializeComponentCache().catch(console.warn);
 
   // Add theme atts.
   const themeProps = themes.reduce(

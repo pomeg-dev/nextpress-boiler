@@ -1,7 +1,7 @@
 
 import React from "react";
 import classNames from "classnames";
-import { BlockOptions } from "@/lib/types";
+import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
 
 type BlockWrapperProps = {
   blockOptions?: BlockOptions;

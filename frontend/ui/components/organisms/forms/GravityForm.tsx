@@ -11,7 +11,7 @@ import TextInput from "@ui/components/molecules/TextInput";
 import CheckboxGroup from "@ui/components/molecules/CheckboxGroup";
 import { useRouter } from "next/navigation";
 import Parser from "html-react-parser";
-import { trackGA4Event } from "@/lib/ga4";
+import { trackGA4Event } from "@pomeg-dev/nextpress-client/analytics";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

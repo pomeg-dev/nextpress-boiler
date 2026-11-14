@@ -1,4 +1,4 @@
-import { getSettings } from "@/lib/wp/settings";
+import { getSettings } from "@/nextpress.config";
 import { ImageResponse } from "next/og";
 
 // Route segment config

@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageProps } from "@/lib/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import ParallaxImage from "@ui/components/organisms/default/ParallaxImage";
 import classNames from "classnames";
 

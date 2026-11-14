@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getCookie } from '@ui/utils/cookies';
-import { CookiePreferences } from '@/lib/types';
+import { CookiePreferences } from '@pomeg-dev/nextpress-client/types';
 import { usePathname, useSearchParams } from 'next/navigation';
 import CookieBanner from './CookieBanner';
 import { RawHtml } from './RawHtml';
