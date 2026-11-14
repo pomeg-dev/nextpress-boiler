@@ -7,6 +7,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig = {
   // PRODUCTION OPTIMIZATIONS
+  transpilePackages: ["@pomeg-dev/nextpress-client"],
   poweredByHeader: false,
   compress: true,
   productionBrowserSourceMaps: false,

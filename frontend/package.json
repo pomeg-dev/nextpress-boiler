@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "gen:registry": "node node_modules/@pomeg-dev/nextpress-client/bin/gen-registry.mjs --themes-dir themes --import-prefix @themes --out src/blocks.registry.generated.ts",
+    "predev": "npm run gen:registry",
     "dev": "next dev",
+    "prebuild": "npm run gen:registry",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -17,6 +20,7 @@
     "@fontsource/merriweather": "^4.5.14",
     "@fontsource/open-sans": "^4.5.14",
     "@next/third-parties": "^15.2.4",
+    "@pomeg-dev/nextpress-client": "^0.4.0",
     "@react-three/drei": "^9.114.4",
     "@react-three/fiber": "^8.17.10",
     "@svgr/webpack": "^8.1.0",
