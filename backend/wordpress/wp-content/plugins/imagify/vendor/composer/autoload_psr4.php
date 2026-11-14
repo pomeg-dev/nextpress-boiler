@@ -6,9 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'cweagans\\Composer\\' => array($vendorDir . '/cweagans/composer-patches/src'),
-    'WP\\McpSchema\\' => array($vendorDir . '/wordpress/php-mcp-schema/src'),
-    'WP\\MCP\\' => array($vendorDir . '/wordpress/mcp-adapter/includes'),
     'WPMedia\\MCP\\OAuth\\' => array($vendorDir . '/wp-media/mcp-oauth/inc'),
     'Imagify\\ThirdParty\\WPRocket\\' => array($baseDir . '/inc/3rd-party/wp-rocket/classes'),
     'Imagify\\ThirdParty\\RegenerateThumbnails\\' => array($baseDir . '/inc/3rd-party/regenerate-thumbnails/classes'),

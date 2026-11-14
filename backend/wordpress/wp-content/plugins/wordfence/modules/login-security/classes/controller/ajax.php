@@ -57,7 +57,7 @@ class Controller_AJAX {
 	 * @return string
 	 */
 	private static function masked_login_error_message() {
-		if (Controller_Users::shared()->any_passkey_active()) {
+		if (Controller_Settings::shared()->are_passkeys_enabled() && Controller_Users::shared()->any_passkey_active()) {
 			return wp_kses(sprintf(
 				/* translators: 1. Forgot password URL. 2. Passkey recovery help URL. */
 				__('<strong>ERROR</strong>: The username or password you entered is incorrect, or the account you were trying to authenticate as requires logging in using a passkey. <a href="%1$s" title="Password Lost and Found">Lost your password</a> or <a href="%2$s" title="Passkey recovery help">need help with a lost passkey</a>?', 'wordfence'),
@@ -347,6 +347,9 @@ class Controller_AJAX {
 	}
 
 	public function _ajax_begin_passkey_login_callback() {
+		if (!Controller_Settings::shared()->are_passkeys_enabled()) {
+			self::send_json(array('error' => __('Passkeys are currently disabled.', 'wordfence')));
+		}
 		$rateLimit = Controller_Passkey::shared()->consume_begin_login_rate_limit();
 		if (is_wp_error($rateLimit)) {
 			self::send_json(array('error' => $rateLimit->get_error_message()));
@@ -362,6 +365,9 @@ class Controller_AJAX {
 	}
 
 	public function _ajax_finish_passkey_login_callback() {
+		if (!Controller_Settings::shared()->are_passkeys_enabled()) {
+			self::send_json(array('error' => __('Passkeys are currently disabled.', 'wordfence')));
+		}
 		$token = isset($_POST['token']) && is_string($_POST['token']) ? $_POST['token'] : '';
 		$credential = isset($_POST['credential']) && is_array($_POST['credential']) ? $_POST['credential'] : null;
 		$remember = false;
@@ -462,6 +468,9 @@ class Controller_AJAX {
 	}
 	
 	public function _ajax_activate_callback() {
+		if (!Controller_Settings::shared()->is_2fa_enabled()) {
+			self::send_json(array('error' => __('Two-factor authentication is currently disabled.', 'wordfence')));
+		}
 		$userID = (int) Utility_Array::arrayGet($_POST, 'user', 0);
 		$user = wp_get_current_user();
 		if ($user->ID != $userID) {
@@ -656,6 +665,7 @@ class Controller_AJAX {
 		if (!Controller_Passkey::shared()->set_username_password_auth_enabled($user, $enabled)) {
 			self::send_json(array('error' => __('Unable to save the user-specific passkey options.', 'wordfence')));
 		}
+		$enabled = Controller_Passkey::shared()->is_username_password_auth_enabled($user);
 
 		self::send_json(array(
 			'saved' => 1,
@@ -670,37 +680,41 @@ class Controller_AJAX {
 				if ($errors !== true) {
 					if (count($errors) == 1) {
 						$e = array_shift($errors);
-						self::send_json(array('error' => esc_html(sprintf(/* translators: Error message. */ __('An error occurred while saving the configuration: %s', 'wordfence'), $e))));
+						$response = array('error' => esc_html(sprintf(/* translators: Error message. */ __('An error occurred while saving the configuration: %s', 'wordfence'), $e)));
 					}
 					else if (count($errors) > 1) {
 						$compoundMessage = array();
 						foreach ($errors as $e) {
 							$compoundMessage[] = esc_html($e);
 						}
-						self::send_json(array(
+						$response = array(
 							'error' => wp_kses(sprintf(__('Errors occurred while saving the configuration: %s', 'wordfence'), '<ul><li>' . implode('</li><li>', $compoundMessage) . '</li></ul>'), array('ul'=>array(), 'li'=>array())),
 							'html' => true,
-						));
+						);
 					}
-					
-					self::send_json(array(
-						'error' => esc_html__('Errors occurred while saving the configuration.', 'wordfence'),
-					));
+					else {
+						$response = array('error' => esc_html__('Errors occurred while saving the configuration.', 'wordfence'));
+					}
 				}
-				
-				Controller_Settings::shared()->set_multiple($changes);
-
-				if (array_key_exists(Controller_Settings::OPTION_ENABLE_WOOCOMMERCE_ACCOUNT_INTEGRATION, $changes) || array_key_exists(Controller_Settings::OPTION_ENABLE_WOOCOMMERCE_INTEGRATION, $changes))
-					Controller_WordfenceLS::shared()->refresh_rewrite_rules();
-				
-				$response = array('success' => true);
-				self::send_json($response);
+				else {
+					$settings = Controller_Settings::shared();
+					$requiresCaptchaValidation = $settings->recaptcha_validation_required($changes);
+					$token = isset($_POST['recaptcha_validation_token']) && is_string($_POST['recaptcha_validation_token']) ? $_POST['recaptcha_validation_token'] : '';
+					if (!$settings->set_multiple($changes, false, array('recaptcha_token' => $token))) {
+						$response = array('error' => $requiresCaptchaValidation ? esc_html__('Unable to validate the reCAPTCHA keys. Check both keys and try again.', 'wordfence') : esc_html__('Errors occurred while saving the configuration.', 'wordfence'));
+					}
+					if (!isset($response)) {
+						if (array_key_exists(Controller_Settings::OPTION_ENABLE_WOOCOMMERCE_ACCOUNT_INTEGRATION, $changes) || array_key_exists(Controller_Settings::OPTION_ENABLE_WOOCOMMERCE_INTEGRATION, $changes)) {
+							Controller_WordfenceLS::shared()->refresh_rewrite_rules();
+						}
+						$response = array('success' => true);
+					}
+				}
 			}
 			catch (\Exception $e) {
-				self::send_json(array(
-					'error' => $e->getMessage(),
-				));
+				$response = array('error' => $e->getMessage());
 			}
+			self::send_json($response);
 		}
 		
 		self::send_json(array(

@@ -4,7 +4,7 @@ Tags: security, malware, 2fa, firewall, scanner
 Requires at least: 4.7
 Requires PHP: 7.0
 Tested up to: 7.1
-Stable tag: 9.0.0
+Stable tag: 9.1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -207,6 +207,59 @@ Secure your website with Wordfence.
 9. Logging in is easy with Wordfence 2FA.
 
 == Changelog ==
+
+= 9.1.1 - November 10, 2026 =
+* Improvement: Updated bundled cacert.pem
+
+= 9.1.0 - November 9, 2026 =
+* Improvement: Added security news widget to the WordPress and Wordfence dashboards
+* Improvement: Increased frequency of WAF rule update checks
+* Improvement: Added Live Traffic logging for application password and REST API authentication failures
+* Improvement: Added controls for the WAF attack alert threshold and counting window
+* Improvement: Improved attack data synchronization to reduce overhead and avoid cache issues
+* Improvement: Improved SQL injection parsing and detection for malformed input
+* Improvement: Improved malware scanning handling of uploads
+* Improvement: Improved WAF execution and configuration handling in unexpected hosting configurations or unreliable network environments
+* Improvement: Updated GeoIP database
+* Change: Matched WAF inspection of form request bodies to the same method overrides as WordPress
+* Change: Better 2FA recovery code validation
+* Change: Adjusted audit log request data handling and limits
+* Change: Better handling of PHP diagnostic output during WAF execution
+* Change: Corrected JavaScript element lookups in the plugin UI
+* Change: Revalidate reCAPTCHA keys on save and improved recovery from browser errors
+* Fix: PHP 8.6 compatibility fixes
+* Fix: Better validation of cached real-time IP blocklist data
+* Fix: Improved WAF compatibility with hosts that disable ini_set
+* Fix: Improved WAF handling of nested request arrays
+* Fix: The scan activity log now uses the site's timezone and displays the UTC offset
+* Fix: Improved handling of canceled requests to avoid unnecessary errors and stuck controls
+* Fix: Fixed the layout and dismissal of the satisfaction survey notice
+* Fix: Corrected Live Traffic descriptions for requests without a referrer
+* Fix: Prevented passkey availability checks from causing errors when database setup is incomplete or broken
+
+= 9.0.2 - September 30, 2026 =
+* Change: Changed IPv6 diagnostics result to be informational only
+* Change: Added help link to increased attack rate emails
+* Improvement: Increased compatibility with WordPress Playground
+* Improvement: Harden REST API user enumeration protection
+* Fix: Upgraded virtualizer dependency to fix Firefox tab crash on screens with a lot of DOM elements (e.g., a running scan)
+* Fix: Better detection and handling of "module" script tagging to avoid conflict with renamed plugin directories
+* Fix: Add missed return value from `upgrader_pre_install` audit log filter
+* Fix: PHP 8.1 deprecation notice fixes
+* Fix: Fixed translation support on login page
+* Fix: Improve handling of WAF JSON processing to better handle array values
+* Fix: Address early translation calls to avoid `_load_textdomain_just_in_time` notices
+* Fix: Changed a few translated strings to avoid containing HTML due to a broken CZ translation
+* Fix: Removed obsolete CSS
+* Fix: Fixed typo in "No alerts will be sent for the remain[d]er..."
+
+= 9.0.1 - September 8, 2026 =
+* Improvement: UX enhancements for passkey authentication and general login security
+* Improvement: GeoIP database updated
+* Fix: Improved error handling in WAF request handlers and XML-RPC parser
+* Fix: Fixed an issue with translations not showing on the Login Security Settings tab
+* Fix: Addressed several potential PHP 8.5+ deprecation notices
+* Fix: Reworked MD5 hash use in MySQL to avoid deprecation in 9.7+
 
 = 9.0.0 - August 10, 2026 =
 * Improvement: Added support for passkey authentication
@@ -582,95 +635,5 @@ Secure your website with Wordfence.
 = 7.5.6 - October 18, 2021 =
 * Fix: Prevented login errors with WooCommerce integration when manual username entry is enabled on the WooCommerce registration form
 * Fix: Corrected theme incompatibilities with WooCommerce integration
-
-= 7.5.5 - August 16, 2021 =
-* Improvement: Enhanced accessibility
-* Improvement: Replaced regex in scan log with signature ID
-* Improvement: Updated Knockout JS dependency to version 3.5.1
-* Improvement: Removed PHP 8 compatibility notice
-* Improvement: Added NTP status for Login Security to Diagnostics
-* Improvement: Updated plugin headers for compatibility with WordPress 5.8
-* Improvement: Updated Nginx documentation links to HTTPS
-* Improvement: Updated IP address geolocation database
-* Improvement: Expanded WAF SQL syntax support
-* Improvement: Added optional constants to configure WAF database connection
-* Improvement: Added support for matching punycode domain names
-* Improvement: Updated Wordfence install count
-* Improvement: Deprecated support for WordPress versions older than 4.4.0
-* Improvement: Added warning messages when blocking U.S.
-* Improvement: Added MYSQLI_CLIENT_SSL support to WAF database connection
-* Improvement: Added 2FA and reCAPTCHA support for WooCommerce login and registration forms
-* Improvement: Added option to require 2FA for any role
-* Improvement: Added logic to automatically disable NTP after repeated failures and option to manually disable NTP
-* Improvement: Updated reCAPTCHA setup note
-* Fix: Prevented issue where country blocking changes are not saved
-* Fix: Corrected string placeholder
-* Fix: Added missing text domain to translation calls
-* Fix: Corrected warning about sprintf arguments on Central setup page
-* Fix: Prevented lost password functionality from revealing valid logins
-
-= 7.5.4 - June 7, 2021 =
-
-* Fix: Resolve conflict with woocommerce-gateway-amazon-payments-advanced plugin
-
-= 7.5.3 - May 10, 2021 =
-
-* Improvement: Expanded WAF capabilities including better JSON and user permission handling
-* Improvement: Switched to relative paths in WAF auto_prepend file to increase portability
-* Improvement: Eliminated unnecessary calls to Wordfence servers
-* Fix: Prevented errors on PHP 8.0 when disk_free_space and/or disk_total_space are included in disabled_functions
-* Fix: Fixed PHP notices caused by unexpected plugin version data
-* Fix: Gracefully handle unexpected responses from Wordfence servers
-* Fix: Time field now displays correctly on "See Recent Traffic" overlay
-* Fix: Corrected typo on Diagnostics page
-* Fix: Corrected IP counts on activity report
-* Fix: Added missing line break in scan result emails
-* Fix: Sending test activity report now provides success/failure response
-* Fix: Reduced SQLi false positives caused by comma-separated strings
-* Fix: Fixed JS error when resolving last scan result
-
-= 7.5.2 - March 24, 2021 =
-
-* Fix: Fixed fatal error on single-sites running WordPress <4.9.
-
-= 7.5.1 - March 24, 2021 =
-
-* Fix: Fixed fatal error when viewing the Login Security settings page from an allowlisted IP.
-
-= 7.5.0 - March 24, 2021 =
-
-* Improvement: Translation-readiness: All user-facing strings are now run through WordPress's i18n functions.
-* Improvement: Remove legacy admin functions no longer used within the UI.
-* Improvement: Local GeoIP database update.
-* Improvement: Remove Lynwood IP range from allowlist, and add new AWS IP range.
-* Fix: Fixed bug with unlocking a locked out IP without correctly resetting its failure counters.
-* Fix: Sites using deleted premium licenses correctly revert to free license behavior.
-* Fix: When enabled, cookies are now set for the correct roles on previously used devices.
-* Fix: WAF cron jobs are now skipped when running on the CLI.
-* Fix: PHP 8.0 compatibility - prevent syntax error when linting files.
-* Fix: Fixed issue where PHP 8 notice sometimes cannot be dismissed.
-
-= 7.4.14 - December 3, 2020 =
-
-* Improvement: Added option to disable application passwords.
-* Improvement: Updated site cleaning callout with 1-year guarantee.
-* Improvement: Upgraded sodium_compat library to 1.13.0.
-* Improvement: Replaced the terms whitelist and blacklist with allowlist and blocklist.
-* Improvement: Made a number of WordPress 5.6 and jQuery 3.x compatibility improvements.
-* Improvement: Made a number of PHP8 compatilibility improvements.
-* Improvement: Added dismissable notice informing users of possible PHP8 compatibility issues.
-
-= 7.4.12 - October 21, 2020 =
-
-* Improvement: Initial integration of i18n in Wordfence.
-* Improvement: Prevent Wordfence from loading under <PHP 5.3.
-* Improvement: Updated GeoIP database.
-* Improvement: Prevented wildcard from running/saving for scan's excluded files pattern.
-* Improvement: Included Wordfence Login Security tables in diagnostics missing table list.
-* Fix: Removed new scan issues when WordPress update occurs mid-scan.
-* Fix: Specified category when saving `whitelistedServiceIPs` to WAF storage engine.
-* Fix: Removed localhost IP for auto-update email alerts.
-* Fix: Fixed broken message in Live Traffic with MySQLi storage engine for blocklisted hits.
-* Fix: Removed optional parameter values for PHP 8 compatibility.
 
 You can find a [complete changelog](https://www.wordfence.com/help/advanced/changelog/) on our documentation site.

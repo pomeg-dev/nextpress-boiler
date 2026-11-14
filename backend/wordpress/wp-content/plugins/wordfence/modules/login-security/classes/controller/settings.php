@@ -9,6 +9,12 @@ use WordfenceLS\Utility_Number;
 class Controller_Settings {
 	//Configurable
 	const OPTION_XMLRPC_ENABLED = 'xmlrpc-enabled';
+	const OPTION_ENABLE_2FA = 'enable-2fa';
+	const OPTION_ENABLE_PASSKEYS = 'enable-passkeys';
+	const DEFAULT_ENABLE_2FA = false;
+	const DEFAULT_ENABLE_PASSKEYS = false;
+	const LEGACY_DEFAULT_ENABLE_2FA = true;
+	const LEGACY_DEFAULT_ENABLE_PASSKEYS = true;
 	const OPTION_2FA_WHITELISTED = 'whitelisted';
 	const OPTION_IP_SOURCE = 'ip-source';
 	const OPTION_IP_TRUSTED_PROXIES = 'ip-trusted-proxies';
@@ -55,6 +61,7 @@ class Controller_Settings {
 	const OPTION_PUBLIC_SUFFIX_LIST = 'public-suffix-list';
 	const OPTION_PUBLIC_SUFFIX_LIST_ETAG = 'public-suffix-list-etag';
 	const OPTION_PASSKEY_HOSTNAME_WARNING_VERSION = 'passkey-hostname-warning-version';
+	const VALIDATION_SKIP_RECAPTCHA = 'skip_recaptcha_validation';
 
 	const DEFAULT_REQUIRE_2FA_USER_GRACE_PERIOD = 10;
 	const MAX_REQUIRE_2FA_USER_GRACE_PERIOD = 99;
@@ -99,6 +106,8 @@ class Controller_Settings {
 	 */
 	protected function _defaults() {
 		return array(
+			self::OPTION_ENABLE_2FA => self::DEFAULT_ENABLE_2FA,
+			self::OPTION_ENABLE_PASSKEYS => self::DEFAULT_ENABLE_PASSKEYS,
 			self::OPTION_XMLRPC_ENABLED => true,
 			self::OPTION_2FA_WHITELISTED => '',
 			self::OPTION_IP_SOURCE => Model_Request::IP_SOURCE_AUTOMATIC,
@@ -150,12 +159,34 @@ class Controller_Settings {
 		$this->_settingsStorage->set_multiple($defaults);
 	}
 	
-	public function set($key, $value, $already_validated = false) {
-		return $this->set_multiple(array($key => $value), $already_validated);
+	/**
+	 * Saves one setting with optional validation evidence.
+	 *
+	 * @param string $key Setting name.
+	 * @param mixed $value Proposed value.
+	 * @param bool $already_validated Whether ordinary value validation was already performed.
+	 * @param array $validation_data Validation inputs or trusted-source exemptions.
+	 * @return bool
+	 */
+	public function set($key, $value, $already_validated = false, $validation_data = array()) {
+		return $this->set_multiple(array($key => $value), $already_validated, $validation_data);
 	}
 	
-	public function set_multiple($changes, $already_validated = false) {
+	/**
+	 * Saves settings after checking their values and any required validation evidence.
+	 *
+	 * @param array $changes Proposed option values.
+	 * @param bool $already_validated Whether ordinary value validation was already performed.
+	 * @param array $validation_data Validation inputs or trusted-source exemptions.
+	 * @return bool
+	 */
+	public function set_multiple($changes, $already_validated = false, $validation_data = array()) {
 		if (!$already_validated && $this->validate_multiple($changes) !== true) {
+			return false;
+		}
+		$recaptcha_token = is_array($validation_data) && isset($validation_data['recaptcha_token']) ? $validation_data['recaptcha_token'] : '';
+		$skip_recaptcha_validation = is_array($validation_data) && isset($validation_data[self::VALIDATION_SKIP_RECAPTCHA]) && $validation_data[self::VALIDATION_SKIP_RECAPTCHA] === true;
+		if (!$skip_recaptcha_validation && $this->recaptcha_validation_required($changes) && !$this->verify_recaptcha_credentials($changes, $recaptcha_token)) {
 			return false;
 		}
 		$changes = $this->clean_multiple($changes);
@@ -197,7 +228,11 @@ class Controller_Settings {
 	}
 	
 	public function all() {
-		$result = $this->_settingsStorage->get_multiple($this->_defaults());
+		$defaults = $this->_defaults();
+		// Fresh installs persist disabled values; missing values are from legacy installs and retain the enabled behavior.
+		$defaults[self::OPTION_ENABLE_2FA] = self::LEGACY_DEFAULT_ENABLE_2FA;
+		$defaults[self::OPTION_ENABLE_PASSKEYS] = self::LEGACY_DEFAULT_ENABLE_PASSKEYS;
+		$result = $this->_settingsStorage->get_multiple($defaults);
 		if ($this->passkey_allowed_hostnames_missing()) {
 			$result[self::OPTION_PASSKEY_ALLOWED_HOSTNAMES] = implode("\n", $this->default_passkey_allowed_hostnames(Utility_URL::get_default_public_suffix_list()));
 		}
@@ -221,6 +256,8 @@ class Controller_Settings {
 		switch ($key) {
 			//Boolean
 			case self::OPTION_XMLRPC_ENABLED:
+			case self::OPTION_ENABLE_2FA:
+			case self::OPTION_ENABLE_PASSKEYS:
 			case self::OPTION_REQUIRE_2FA_ADMIN:
 			case self::OPTION_REQUIRE_2FA_GRACE_PERIOD_ENABLED:
 			case self::OPTION_REMEMBER_DEVICE_ENABLED:
@@ -279,7 +316,7 @@ class Controller_Settings {
 				}
 				return true;
 			case self::OPTION_PASSKEY_RELYING_PARTY_OVERRIDE:
-				$value = is_string($value) ? trim($value) : '';
+				$value = is_string($value) ? trim($value, " \t\n\r\0\x0B\x0C") : '';
 				if ($value === '') {
 					return true;
 				}
@@ -306,25 +343,8 @@ class Controller_Settings {
 			case self::OPTION_RECAPTCHA_THRESHOLD:
 				return is_numeric($value) && $value > 0 && $value <= 1;
 			case self::OPTION_RECAPTCHA_SITE_KEY:
-				if (empty($value)) {
-					return true;
-				}
-				
-				$response = wp_remote_get('https://www.google.com/recaptcha/api.js?render=' . urlencode($value));
-				
-				if (!is_wp_error($response)) {
-					$status = wp_remote_retrieve_response_code($response);
-					if ($status == 200) {
-						return true;
-					}
-					
-					$data = wp_remote_retrieve_body($response);
-					if (strpos($data, 'grecaptcha') === false) {
-						return __('Unable to validate the reCAPTCHA site key. Please check the key and try again.', 'wordfence');
-					}
-					return true;
-				}
-				return sprintf(/* translators: validation error */ __('An error was encountered while validating the reCAPTCHA site key: %s', 'wordfence'), $response->get_error_message());
+			case self::OPTION_RECAPTCHA_SECRET:
+				return is_string($value) || $value === null ? true : __('Unable to validate the reCAPTCHA keys. Check both keys and try again.', 'wordfence');
 			case self::OPTION_REQUIRE_2FA_USER_GRACE_PERIOD:
 				if (!is_numeric($value) || $value < 0 || $value > self::MAX_REQUIRE_2FA_USER_GRACE_PERIOD) {
 					return sprintf(/* translators: 1. Minimum number of days. 2. Maximum number of days. */ __('The grace period day limit must be between %1$d and %2$d.', 'wordfence'), 0, self::MAX_REQUIRE_2FA_USER_GRACE_PERIOD);
@@ -349,6 +369,56 @@ class Controller_Settings {
 		
 		return true;
 	}
+
+	/**
+	 * Determines whether a settings change requires live reCAPTCHA credential verification.
+	 *
+	 * @param array $changes Pending option values.
+	 * @return bool
+	 */
+	public function recaptcha_validation_required($changes) {
+		$storedSiteKey = $this->get(self::OPTION_RECAPTCHA_SITE_KEY, '') ?? '';
+		$storedSecret = $this->get(self::OPTION_RECAPTCHA_SECRET, '') ?? '';
+		$siteKey = array_key_exists(self::OPTION_RECAPTCHA_SITE_KEY, $changes) ? $this->clean(self::OPTION_RECAPTCHA_SITE_KEY, $changes[self::OPTION_RECAPTCHA_SITE_KEY]) : $storedSiteKey;
+		$secret = array_key_exists(self::OPTION_RECAPTCHA_SECRET, $changes) ? $this->clean(self::OPTION_RECAPTCHA_SECRET, $changes[self::OPTION_RECAPTCHA_SECRET]) : $storedSecret;
+		$enabled = array_key_exists(self::OPTION_ENABLE_AUTH_CAPTCHA, $changes) ? Utility_Number::truthyToBool($changes[self::OPTION_ENABLE_AUTH_CAPTCHA]) : $this->get_bool(self::OPTION_ENABLE_AUTH_CAPTCHA);
+		if ($siteKey === '' && $secret === '' && !$enabled) {
+			return false;
+		}
+		return ($siteKey !== $storedSiteKey || $secret !== $storedSecret || ($enabled && !$this->get_bool(self::OPTION_ENABLE_AUTH_CAPTCHA)));
+	}
+
+	/**
+	 * Verifies a browser token generated with the proposed site key against the proposed secret.
+	 *
+	 * @param array $changes Pending option values.
+	 * @param string $token Browser-generated reCAPTCHA token.
+	 * @return bool
+	 */
+	public function verify_recaptcha_credentials($changes, $token) {
+		$siteKey = array_key_exists(self::OPTION_RECAPTCHA_SITE_KEY, $changes)
+			? $this->clean(self::OPTION_RECAPTCHA_SITE_KEY, $changes[self::OPTION_RECAPTCHA_SITE_KEY])
+			: ($this->get(self::OPTION_RECAPTCHA_SITE_KEY, '') ?? '');
+		$secret = array_key_exists(self::OPTION_RECAPTCHA_SECRET, $changes)
+			? $this->clean(self::OPTION_RECAPTCHA_SECRET, $changes[self::OPTION_RECAPTCHA_SECRET])
+			: ($this->get(self::OPTION_RECAPTCHA_SECRET, '') ?? '');
+		if (!is_string($siteKey) || $siteKey === '' || !is_string($secret) || $secret === '' || !is_string($token) || $token === '') {
+			return false;
+		}
+		$response = wp_remote_post(Controller_CAPTCHA::RECAPTCHA_ENDPOINT, array(
+			'body' => array('secret' => $secret, 'response' => $token),
+			'timeout' => 10,
+		));
+		if (is_wp_error($response) || wp_remote_retrieve_response_code($response) != 200) {
+			return false;
+		}
+		$result = json_decode(wp_remote_retrieve_body($response), true);
+		$origin = isset($_SERVER['HTTP_ORIGIN']) && is_string($_SERVER['HTTP_ORIGIN']) ? wp_parse_url($_SERVER['HTTP_ORIGIN'], PHP_URL_HOST) : false;
+		$hostname = is_string($origin) ? $origin : (isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? wp_parse_url('https://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST) : wp_parse_url(admin_url(), PHP_URL_HOST));
+		return is_array($result) && isset($result['success'], $result['action'], $result['hostname'])
+			&& $result['success'] === true && $result['action'] === 'wordfence_settings_validate'
+			&& is_string($hostname) && is_string($result['hostname']) && strcasecmp($result['hostname'], $hostname) === 0;
+	}
 	
 	/**
 	 * Cleans and normalizes a setting value for use in saving.
@@ -361,6 +431,8 @@ class Controller_Settings {
 		switch ($key) {
 			//Boolean
 			case self::OPTION_XMLRPC_ENABLED:
+			case self::OPTION_ENABLE_2FA:
+			case self::OPTION_ENABLE_PASSKEYS:
 			case self::OPTION_REQUIRE_2FA_ADMIN:
 			case self::OPTION_REQUIRE_2FA_GRACE_PERIOD_ENABLED:
 			case self::OPTION_REMEMBER_DEVICE_ENABLED:
@@ -412,9 +484,10 @@ class Controller_Settings {
 			case self::OPTION_PASSKEY_ALLOWED_HOSTNAMES:
 				return implode("\n", $this->parse_passkey_allowed_hostnames($value));
 			case self::OPTION_PASSKEY_RELYING_PARTY_OVERRIDE:
+				return trim($value, " \t\n\r\0\x0B\x0C");
 			case self::OPTION_RECAPTCHA_SITE_KEY:
 			case self::OPTION_RECAPTCHA_SECRET:
-				return trim($value);
+				return $value === null ? '' : trim($value);
 			case self::OPTION_PASSKEY_SIGN_COUNT_MODE:
 				return in_array($value, self::passkey_sign_count_modes(), true) ? $value : self::PASSKEY_SIGN_COUNT_REJECT_LOWER;
 		}
@@ -432,6 +505,8 @@ class Controller_Settings {
 		switch ($key) {
 			//Boolean
 			case self::OPTION_XMLRPC_ENABLED:
+			case self::OPTION_ENABLE_2FA:
+			case self::OPTION_ENABLE_PASSKEYS:
 			case self::OPTION_REQUIRE_2FA_ADMIN:
 			case self::OPTION_REQUIRE_2FA_GRACE_PERIOD_ENABLED:
 			case self::OPTION_REMEMBER_DEVICE_ENABLED:
@@ -496,6 +571,26 @@ class Controller_Settings {
 
 	public function get_user_2fa_grace_period() {
 		return $this->get_int(self::OPTION_REQUIRE_2FA_USER_GRACE_PERIOD, self::DEFAULT_REQUIRE_2FA_USER_GRACE_PERIOD);
+	}
+
+	/**
+	 * Returns whether two-factor authentication is globally enabled.
+	 * Missing values are treated as enabled until the upgrade migration initializes them.
+	 *
+	 * @return bool
+	 */
+	public function is_2fa_enabled() {
+		return $this->get_bool(self::OPTION_ENABLE_2FA, self::LEGACY_DEFAULT_ENABLE_2FA);
+	}
+
+	/**
+	 * Returns whether passkeys are globally enabled.
+	 * Missing values are treated as enabled until the upgrade migration initializes them.
+	 *
+	 * @return bool
+	 */
+	public function are_passkeys_enabled() {
+		return $this->get_bool(self::OPTION_ENABLE_PASSKEYS, self::LEGACY_DEFAULT_ENABLE_PASSKEYS);
 	}
 	
 	private function get_required_passkey_role_key($role) {
@@ -720,7 +815,7 @@ class Controller_Settings {
 	private function normalize_unique_passkey_allowed_hostnames($hosts) {
 		$normalized = array();
 		foreach ($hosts as $host) {
-			$original = is_string($host) ? strtolower(trim($host)) : '';
+			$original = is_string($host) ? strtolower(trim($host, " \t\n\r\0\x0B\x0C")) : '';
 			$host = $this->normalize_passkey_allowed_hostname($host);
 			if ($host === '' && $original !== '') {
 				// Preserve invalid entries so validation fails instead of silently dropping part of the submitted list.
@@ -746,7 +841,7 @@ class Controller_Settings {
 			return false;
 		}
 
-		$value = strtolower(trim($value));
+		$value = strtolower(trim($value, " \t\n\r\0\x0B\x0C"));
 		if ($value === '' || preg_match('/[\s\/\?#@]/', $value) || strpos($value, '://') !== false) {
 			return false;
 		}
@@ -821,7 +916,7 @@ class Controller_Settings {
 		if (!is_string($host)) {
 			return '';
 		}
-		$host = strtolower(rtrim(trim($host), '.'));
+		$host = strtolower(rtrim(trim($host, " \t\n\r\0\x0B\x0C"), '.'));
 		$unbracketed = trim($host, '[]');
 		if (filter_var($unbracketed, FILTER_VALIDATE_IP)) {
 			return $unbracketed;
@@ -925,7 +1020,7 @@ class Controller_Settings {
 			}
 			
 			/**
-			 * Fires when 2FA availability/required on a role changes.
+			 * Fires when configured or effective 2FA availability/required on a role changes.
 			 *
 			 * @since 1.1.13
 			 *
@@ -965,7 +1060,7 @@ class Controller_Settings {
 			}
 			
 			/**
-			 * Fires when passkey availability/required on a role changes.
+			 * Fires when configured or effective passkey availability/required on a role changes.
 			 *
 			 * @since 2.0.0
 			 *
@@ -1181,6 +1276,39 @@ class Controller_Settings {
 		$remaining = array();
 		$syncLoginSecurityMenuVisibility = false;
 		$alwaysShowLoginSecurityMenu = array_key_exists(self::OPTION_ALWAYS_SHOW_LOGIN_SECURITY_MENU, $changes) ? Utility_Number::truthyToBool($changes[self::OPTION_ALWAYS_SHOW_LOGIN_SECURITY_MENU]) : null;
+		$featureDefinitions = array(
+			self::OPTION_ENABLE_2FA => array(
+				'role_prefix' => 'enabled-roles.',
+				'required_prefix' => self::OPTION_PREFIX_REQUIRED_2FA_ROLE . '.',
+				'capability' => Controller_Permissions::CAP_ACTIVATE_2FA_SELF,
+				'disabled_state' => self::STATE_2FA_DISABLED,
+				'optional_state' => self::STATE_2FA_OPTIONAL,
+				'required_state' => self::STATE_2FA_REQUIRED,
+				'action' => 'wordfence_ls_changed_2fa_required',
+				'multisite_roles' => true,
+			),
+			self::OPTION_ENABLE_PASSKEYS => array(
+				'role_prefix' => 'passkey-enabled-roles.',
+				'required_prefix' => self::OPTION_PREFIX_REQUIRED_PASSKEY_ROLE . '.',
+				'capability' => Controller_Permissions::CAP_MANAGE_PASSKEY_SELF,
+				'disabled_state' => self::STATE_PASSKEY_DISABLED,
+				'optional_state' => self::STATE_PASSKEY_OPTIONAL,
+				'required_state' => self::STATE_PASSKEY_REQUIRED,
+				'action' => 'wordfence_ls_changed_passkey_required',
+				'multisite_roles' => false,
+			),
+		);
+		$changedFeatures = array();
+		foreach ($featureDefinitions as $option => $definition) {
+			if (array_key_exists($option, $changes)) {
+				$enabledBefore = $option === self::OPTION_ENABLE_2FA ? $this->is_2fa_enabled() : $this->are_passkeys_enabled();
+				$enabledAfter = Utility_Number::truthyToBool($changes[$option]);
+				if ($enabledBefore !== $enabledAfter) {
+					$definition['enabled_after'] = $enabledAfter;
+					$changedFeatures[] = $definition;
+				}
+			}
+		}
 		foreach ($changes as $key => $value) {
 			if ($key === self::OPTION_ALWAYS_SHOW_LOGIN_SECURITY_MENU || preg_match('/^(?:enabled-roles|passkey-enabled-roles)\./', $key)) {
 				$syncLoginSecurityMenuVisibility = true;
@@ -1191,6 +1319,62 @@ class Controller_Settings {
 		}
 		if ($syncLoginSecurityMenuVisibility) {
 			Controller_Permissions::shared()->sync_login_security_menu_visibility(null, $alwaysShowLoginSecurityMenu);
+		}
+		if (!empty($changedFeatures)) {
+			$wpRoles = function_exists('wp_roles') ? wp_roles() : (class_exists('WP_Roles') ? new \WP_Roles() : null);
+			$roleObjects = is_object($wpRoles) && isset($wpRoles->role_objects) && is_array($wpRoles->role_objects) ? $wpRoles->role_objects : array();
+			foreach ($changedFeatures as $definition) {
+				$roles = array();
+				if (!is_multisite() || $definition['multisite_roles']) {
+					$roles = $roleObjects;
+				}
+				if (is_multisite()) {
+					$roles['super-admin'] = null;
+				}
+				foreach ($changes as $key => $value) {
+					if (strpos($key, $definition['role_prefix']) === 0) {
+						$role = substr($key, strlen($definition['role_prefix']));
+						if ($role !== '' && (!is_multisite() || $definition['multisite_roles'] || $role === 'super-admin')) {
+							$roles[$role] = isset($roleObjects[$role]) ? $roleObjects[$role] : null;
+						}
+					}
+				}
+
+				$requiredDefaults = array();
+				foreach (array_keys($roles) as $role) {
+					if (!array_key_exists($definition['role_prefix'] . $role, $changes)) {
+						$requiredDefaults[$definition['required_prefix'] . $role] = -1;
+					}
+				}
+				$requiredValues = $this->_settingsStorage->get_multiple($requiredDefaults);
+
+				foreach ($roles as $role => $roleObject) {
+					$pendingRoleKey = $definition['role_prefix'] . $role;
+					$roleWasChanged = array_key_exists($pendingRoleKey, $changes);
+					if ($roleWasChanged) {
+						$state = $changes[$pendingRoleKey];
+						if (!in_array($state, array($definition['optional_state'], $definition['required_state']), true)) {
+							$state = $definition['disabled_state'];
+						}
+					}
+					else {
+						$requiredKey = $definition['required_prefix'] . $role;
+						if (isset($requiredValues[$requiredKey]) && (int) $requiredValues[$requiredKey] >= 0) {
+							$state = $definition['required_state'];
+						}
+						else if ($role === 'super-admin' || (is_object($roleObject) && $roleObject->has_cap($definition['capability']))) {
+							$state = $definition['optional_state'];
+						}
+						else {
+							$state = $definition['disabled_state'];
+						}
+					}
+
+					if ($state !== $definition['disabled_state'] && (!$definition['enabled_after'] || !$roleWasChanged)) {
+						do_action($definition['action'], $role, $definition['enabled_after'] ? $state : $definition['disabled_state']);
+					}
+				}
+			}
 		}
 		return $remaining;
 	}

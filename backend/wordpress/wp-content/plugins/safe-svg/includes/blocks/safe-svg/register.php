@@ -7,6 +7,12 @@
 
 namespace SafeSvg\Blocks\SafeSvgBlock;
 
+use SafeSvg\Svg_Sanitizer;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /**
  * Register the block
  */
@@ -21,6 +27,125 @@ function register() {
 			'render_callback' => $n( 'render_block_callback' ),
 		]
 	);
+
+	add_filter( 'wp_insert_post_data', $n( 'drop_unreadable_attachment_ids' ) );
+	add_filter( 'rest_request_before_callbacks', $n( 'drop_unreadable_rendered_attachment_id' ), 10, 3 );
+}
+
+/**
+ * Drop attachment IDs the saving user is not allowed to see.
+ *
+ * @since 2.5.1
+ *
+ * @param array $data Sanitized post data, about to be stored.
+ * @return array The post data, with unreadable references removed.
+ */
+function drop_unreadable_attachment_ids( $data ) {
+	if ( ! get_current_user_id() ) {
+		return $data;
+	}
+
+	$content = wp_unslash( $data['post_content'] );
+
+	if ( empty( $content ) || ! has_block( 'safe-svg/svg-icon', $content ) ) {
+		return $data;
+	}
+
+	$changed = false;
+	$blocks  = without_unreadable_attachment_ids( parse_blocks( $content ), $changed );
+
+	// Only re-serialize when something actually changed.
+	if ( $changed ) {
+		$data['post_content'] = wp_slash( serialize_blocks( $blocks ) );
+	}
+
+	return $data;
+}
+
+/**
+ * Zero out every SVG block reference the current user cannot read.
+ *
+ * @since 2.5.1
+ *
+ * @param array $blocks  Parsed blocks.
+ * @param bool  $changed Set to true when a reference is dropped. Passed by reference.
+ * @return array The blocks, with unreadable references zeroed.
+ */
+function without_unreadable_attachment_ids( $blocks, &$changed ) {
+	foreach ( $blocks as $index => $block ) {
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$blocks[ $index ]['innerBlocks'] = without_unreadable_attachment_ids( $block['innerBlocks'], $changed );
+		}
+
+		if ( ! isset( $block['blockName'] ) || 'safe-svg/svg-icon' !== $block['blockName'] ) {
+			continue;
+		}
+
+		$attachment_id = isset( $block['attrs']['imageID'] ) ? (int) $block['attrs']['imageID'] : 0;
+
+		if ( $attachment_id < 1 || Svg_Sanitizer::current_user_can_read( $attachment_id ) ) {
+			continue;
+		}
+
+		// Zeroed rather than removed, so the block survives and the editor shows
+		// its placeholder instead of the post silently losing a block.
+		$blocks[ $index ]['attrs']['imageID'] = 0;
+		$changed                              = true;
+	}
+
+	return $blocks;
+}
+
+/**
+ * Whether a request is core's block renderer asking for this block.
+ *
+ * @since 2.5.1
+ *
+ * @param array            $handler Route handler used for the request.
+ * @param \WP_REST_Request $request Request used to generate the response.
+ * @return bool True when this block is about to be rendered from request attributes.
+ */
+function is_block_renderer_request( $handler, $request ): bool {
+	$callback = $handler['callback'] ?? null;
+
+	if ( ! is_array( $callback ) || ! isset( $callback[0] ) || ! ( $callback[0] instanceof \WP_REST_Block_Renderer_Controller ) ) {
+		return false;
+	}
+
+	return 'safe-svg/svg-icon' === $request['name'];
+}
+
+/**
+ * Drop an unreadable attachment ID from an ad-hoc block render request.
+ *
+ * @since 2.5.1
+ *
+ * @param \WP_REST_Response|\WP_HTTP_Response|\WP_Error|mixed $response Result to send to the client.
+ * @param array                                               $handler  Route handler used for the request.
+ * @param \WP_REST_Request                                    $request  Request used to generate the response.
+ * @return \WP_REST_Response|\WP_HTTP_Response|\WP_Error|mixed The response, unchanged.
+ */
+function drop_unreadable_rendered_attachment_id( $response, $handler, $request ) {
+	if ( is_wp_error( $response ) || ! is_block_renderer_request( $handler, $request ) ) {
+		return $response;
+	}
+
+	$attributes = $request['attributes'];
+
+	if ( ! is_array( $attributes ) || ! isset( $attributes['imageID'] ) ) {
+		return $response;
+	}
+
+	$attachment_id = (int) $attributes['imageID'];
+
+	if ( $attachment_id < 1 || Svg_Sanitizer::current_user_can_read( $attachment_id ) ) {
+		return $response;
+	}
+
+	$attributes['imageID'] = 0;
+	$request->set_param( 'attributes', $attributes );
+
+	return $response;
 }
 
 /**
@@ -31,13 +156,16 @@ function register() {
  * @return string|\WP_Post[] The rendered block markup.
  */
 function render_block_callback( $attributes ) {
-	// If image is not an SVG return empty string.
-	if ( 'image/svg+xml' !== get_post_mime_type( $attributes['imageID'] ) ) {
+	$attachment_id = isset( $attributes['imageID'] ) ? (int) $attributes['imageID'] : 0;
+
+	if ( $attachment_id < 1 ) {
 		return '';
 	}
 
-	// If we couldn't get the contents of the file, empty string again.
-	if ( ! $contents = file_get_contents( get_attached_file( $attributes['imageID'] ) ) ) { // phpcs:ignore
+	// Sanitize at output; don't assume it was already sanitized.
+	$contents = Svg_Sanitizer::from_attachment( $attachment_id );
+
+	if ( is_wp_error( $contents ) ) {
 		return '';
 	}
 
@@ -57,7 +185,7 @@ function render_block_callback( $attributes ) {
 	/**
 	 * Whether to isolate this inline SVG inside a shadow root.
 	 *
-	 * @since x.x.x
+	 * @since 2.5.0
 	 *
 	 * @param bool   $use_shadow_dom Whether to isolate the SVG. Defaults to true
 	 *                               when the SVG carries its own stylesheet.
@@ -69,12 +197,12 @@ function render_block_callback( $attributes ) {
 		'safe_svg_inline_use_shadow_dom',
 		$has_stylesheet,
 		$contents,
-		$attributes['imageID'],
+		$attachment_id,
 		$has_stylesheet
 	);
 
 	if ( $use_shadow_dom ) {
-		$contents = wrap_in_shadow_root( $contents, $attributes['imageID'] );
+		$contents = wrap_in_shadow_root( $contents, $attachment_id );
 	}
 
 	if ( ! empty( $attributes['href'] ) ) {
@@ -102,6 +230,9 @@ function render_block_callback( $attributes ) {
 		);
 	}
 
+	$alignment = isset( $attributes['alignment'] ) && in_array( $attributes['alignment'], array( 'left', 'center', 'right' ), true ) ? $attributes['alignment'] : 'left';
+	$spacing   = $attributes['style']['spacing'] ?? array();
+
 	/**
 	 * The wrapper markup.
 	 *
@@ -120,26 +251,26 @@ function render_block_callback( $attributes ) {
 			'<div class="wp-block-safe-svg-svg-icon safe-svg-cover" style="text-align: %1$s;">
 				<div class="safe-svg-inside %2$s%3$s" style="width: %4$spx; height: %5$spx; background-color: var(--wp--preset--color--%6$s); color: var(--wp--preset--color--%7$s); padding-top: %8$s; padding-right: %9$s; padding-bottom: %10$s; padding-left: %11$s; margin-top: %12$s; margin-right: %13$s; margin-bottom: %14$s; margin-left: %15$s;">%16$s</div>
 			</div>',
-			isset( $attributes['alignment'] ) ? esc_attr( $attributes['alignment'] ) : 'left',
+			esc_attr( $alignment ),
 			esc_attr( $class_name ),
 			isset( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '',
 			isset( $attributes['dimensionWidth'] ) ? esc_attr( $attributes['dimensionWidth'] ) : '',
 			isset( $attributes['dimensionHeight'] ) ? esc_attr( $attributes['dimensionHeight'] ) : '',
-			isset( $attributes['backgroundColor'] ) ? esc_attr( $attributes['backgroundColor'] ) : '',
-			isset( $attributes['textColor'] ) ? esc_attr( $attributes['textColor'] ) : '',
-			isset( $attributes['style']['spacing']['padding']['top'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['padding']['top'] ) ) : '',
-			isset( $attributes['style']['spacing']['padding']['right'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['padding']['right'] ) ) : '',
-			isset( $attributes['style']['spacing']['padding']['bottom'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['padding']['bottom'] ) ) : '',
-			isset( $attributes['style']['spacing']['padding']['left'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['padding']['left'] ) ) : '',
-			isset( $attributes['style']['spacing']['margin']['top'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['margin']['top'] ) ) : '',
-			isset( $attributes['style']['spacing']['margin']['right'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['margin']['right'] ) ) : '',
-			isset( $attributes['style']['spacing']['margin']['bottom'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['margin']['bottom'] ) ) : '',
-			isset( $attributes['style']['spacing']['margin']['left'] ) ? esc_attr( convert_to_css_variable( $attributes['style']['spacing']['margin']['left'] ) ) : '',
+			isset( $attributes['backgroundColor'] ) ? esc_attr( sanitize_html_class( $attributes['backgroundColor'] ) ) : '',
+			isset( $attributes['textColor'] ) ? esc_attr( sanitize_html_class( $attributes['textColor'] ) ) : '',
+			esc_attr( sanitize_spacing_value( 'padding-top', $spacing['padding']['top'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'padding-right', $spacing['padding']['right'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'padding-bottom', $spacing['padding']['bottom'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'padding-left', $spacing['padding']['left'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'margin-top', $spacing['margin']['top'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'margin-right', $spacing['margin']['right'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'margin-bottom', $spacing['margin']['bottom'] ?? '' ) ),
+			esc_attr( sanitize_spacing_value( 'margin-left', $spacing['margin']['left'] ?? '' ) ),
 			$contents
 		),
 		$contents,
 		$class_name,
-		$attributes['imageID']
+		$attachment_id
 	);
 }
 
@@ -148,7 +279,7 @@ function render_block_callback( $attributes ) {
  *
  * Keep in sync with hasStylesheet() in inline-svg.js.
  *
- * @since x.x.x
+ * @since 2.5.0
  *
  * @param string $contents The SVG contents.
  * @return bool True if the SVG contains a style element.
@@ -160,7 +291,7 @@ function svg_has_stylesheet( $contents ): bool {
 /**
  * Wrap an SVG in a declarative shadow root.
  *
- * @since x.x.x
+ * @since 2.5.0
  *
  * @param string $svg           The SVG contents.
  * @param int    $attachment_id The ID of the attachment.
@@ -170,7 +301,7 @@ function wrap_in_shadow_root( $svg, $attachment_id ): string {
 	/**
 	 * The styles applied inside the inline SVG's shadow root.
 	 *
-	 * @since x.x.x
+	 * @since 2.5.0
 	 *
 	 * @param string $styles        The CSS to inject. Return an empty string for none.
 	 * @param int    $attachment_id The ID of the attachment.
@@ -192,6 +323,30 @@ function wrap_in_shadow_root( $svg, $attachment_id ): string {
 		'' !== $styles ? '<style>' . $styles . '</style>' : '',
 		$svg
 	);
+}
+
+/**
+ * Return a spacing value that is safe to place in a style declaration.
+ *
+ * @since 2.5.2
+ *
+ * @param string $property The CSS property the value is for, e.g. `padding-top`.
+ * @param mixed  $value    The raw value from the block's `style.spacing` attribute.
+ * @return string The CSS value, or an empty string if it is not one safe value.
+ */
+function sanitize_spacing_value( $property, $value ) {
+	if ( ! is_scalar( $value ) || '' === $value ) {
+		return '';
+	}
+
+	$value = convert_to_css_variable( (string) $value );
+
+	// A ';' would start another declaration; core's CSS filter vets the value itself.
+	if ( str_contains( $value, ';' ) || '' === safecss_filter_attr( "{$property}: {$value}" ) ) {
+		return '';
+	}
+
+	return $value;
 }
 
 /**
