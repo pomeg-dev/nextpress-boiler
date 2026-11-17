@@ -289,7 +289,7 @@ function add_custom_format_styles( $init_array ) {
         $style_formats[] = [
             'title' => 'Heading ' . $heading,
             'inline' => 'span',
-            'classes' => 'text-heading-'  . $heading,
+            'classes' => 'heading-'  . $heading,
             'wrapper' => false,
         ];
     }

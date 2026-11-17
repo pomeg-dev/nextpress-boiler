@@ -329,7 +329,49 @@ class GF_HubSpot_API {
 	 * @return array|WP_Error Returns an array of forms
 	 */
 	public function get_forms() {
-		return $this->make_request( 'marketing/v3/forms', array(), 'GET', 'results' );
+		$all_forms = array();
+		$has_more  = true;
+		$after     = null;
+
+		while ( $has_more ) {
+			// Request the maximum allowed limit per page to reduce API calls.
+			$options = array( 'limit' => 100 ); 
+			
+			// If we have a cursor from the previous page, add it to the request.
+			if ( $after ) {
+				$options['after'] = $after;
+			}
+
+			$response = $this->make_request( 'marketing/v3/forms', $options, 'GET', null );
+
+			// Check if there was an error in the request.
+			if ( is_wp_error( $response ) ) {
+
+				gf_hspot()->log_error( __METHOD__ . '(): Error occurred during retrieval of marketing forms.' );
+
+				// If it's the first attempt and it fails, return the error. If we already had data, return what we managed to retrieve.
+				if ( empty( $all_forms ) ) {
+					return $response;
+				}
+				break;
+			}
+
+			// Add the forms from this page to our main array.
+			if ( ! empty( $response['results'] ) ) {
+				$all_forms = array_merge( $all_forms, $response['results'] );
+			}
+
+			// Check if HubSpot indicates there are more pages.
+			if ( ! empty( $response['paging']['next']['after'] ) ) {
+				// Save the cursor to request the next page in the next cycle.
+				$after = $response['paging']['next']['after'];
+			} else {
+				// No more pages, exit the loop.
+				$has_more = false;
+			}
+		}
+
+		return $all_forms;
 	}
 
 	/**

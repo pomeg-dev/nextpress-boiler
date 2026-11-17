@@ -1,0 +1,34 @@
+{
+  "id": "buttons",
+  "type": "repeater",
+  "layout": "block",
+  "fields": [
+    {
+      "id": "link",
+      "type": "link"
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "choices": [
+        { "primary": "Primary" },
+        { "secondary": "Secondary" },
+        { "tertiary": "Tertiary" },
+        { "destructive": "Destructive" }
+      ],
+      "default_value": "primary"
+    },
+    {
+      "id": "min_width",
+      "type": "true_false",
+      "ui": 1,
+      "default_value": 1
+    },
+    {
+      "id": "clicky",
+      "type": "true_false",
+      "ui": 1,
+      "default_value": 1
+    }
+  ]
+}

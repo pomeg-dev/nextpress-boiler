@@ -1,0 +1,21 @@
+{
+  "id": "text_card_items",
+  "type": "repeater",
+  "layout": "block",
+  "fields": [
+    {
+      "id": "size",
+      "type": "select",
+      "choices": [
+        { "default": "Default" },
+        { "sm": "Small" }
+      ],
+      "default_value": "default"
+    },
+    {
+      "id": "content",
+      "type": "wysiwyg",
+      "default_value": "<h3>This is the title</h3><p>Here's the description</p>"
+    }
+  ]
+}

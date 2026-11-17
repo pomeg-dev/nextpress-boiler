@@ -1,3 +1,6 @@
+### 3.0.5 | 2026-10-13
+- Fixed an issue where accounts with over 20 marketing forms were unable to retrieve the complete list of forms.
+
 ### 3.0.4 | 2026-09-02
 - Added a setting to disable the add-on's HubSpot tracking script for sites where HubSpot tracking is already loaded another way.
 - Fixed HubSpot form being saved when feed fails validation due to a missing required setting.
