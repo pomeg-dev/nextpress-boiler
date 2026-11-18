@@ -1,0 +1,38 @@
+[
+  {
+    "id": "heading",
+    "type": "text"
+  },
+  {
+    "id": "intro",
+    "type": "textarea"
+  },
+  {
+    "id": "presets",
+    "type": "repeater",
+    "layout": "block",
+    "max": 5,
+    "fields": [
+      {
+        "id": "name",
+        "type": "text"
+      },
+      {
+        "id": "chalk",
+        "type": "color_picker"
+      },
+      {
+        "id": "bottle",
+        "type": "color_picker"
+      },
+      {
+        "id": "flare",
+        "type": "color_picker"
+      },
+      {
+        "id": "sage",
+        "type": "color_picker"
+      }
+    ]
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "heading",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "content",
+    "type": "textarea"
+  },
+  {
+    "id": "buttons",
+    "type": "repeater",
+    "max": 2,
+    "fields": [
+      {
+        "id": "link",
+        "type": "link"
+      }
+    ]
+  },
+  {
+    "id": "images",
+    "type": "gallery",
+    "min": 3,
+    "max": 6
+  },
+  {
+    "id": "chip_labels",
+    "type": "repeater",
+    "max": 6,
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      }
+    ]
+  }
+]

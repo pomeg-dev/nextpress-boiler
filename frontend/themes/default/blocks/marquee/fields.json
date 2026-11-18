@@ -1,0 +1,32 @@
+[
+  {
+    "id": "items",
+    "type": "repeater",
+    "min": 1,
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "speed",
+    "type": "select",
+    "choices": [
+      { "slow": "Slow" },
+      { "medium": "Medium" },
+      { "fast": "Fast" }
+    ],
+    "default_value": "medium"
+  },
+  {
+    "id": "direction",
+    "type": "select",
+    "choices": [
+      { "left": "Left" },
+      { "right": "Right" }
+    ],
+    "default_value": "left"
+  }
+]

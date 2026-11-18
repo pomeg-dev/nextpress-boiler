@@ -1,0 +1,37 @@
+[
+  {
+    "id": "heading",
+    "type": "text"
+  },
+  {
+    "id": "intro",
+    "type": "textarea"
+  },
+  {
+    "id": "steps",
+    "type": "repeater",
+    "layout": "block",
+    "fields": [
+      {
+        "id": "label",
+        "type": "text"
+      },
+      {
+        "id": "title",
+        "type": "text"
+      },
+      {
+        "id": "text",
+        "type": "textarea"
+      },
+      {
+        "id": "code",
+        "type": "textarea"
+      },
+      {
+        "id": "code_label",
+        "type": "text"
+      }
+    ]
+  }
+]

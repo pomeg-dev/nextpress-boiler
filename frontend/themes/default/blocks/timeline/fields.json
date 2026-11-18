@@ -1,0 +1,33 @@
+[
+  {
+    "id": "heading",
+    "type": "text"
+  },
+  {
+    "id": "intro",
+    "type": "textarea"
+  },
+  {
+    "id": "items",
+    "type": "repeater",
+    "layout": "block",
+    "fields": [
+      {
+        "id": "marker",
+        "type": "text"
+      },
+      {
+        "id": "title",
+        "type": "text"
+      },
+      {
+        "id": "text",
+        "type": "textarea"
+      },
+      {
+        "id": "image",
+        "type": "image"
+      }
+    ]
+  }
+]

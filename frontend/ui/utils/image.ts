@@ -51,3 +51,14 @@ export function parseImageAtts(
 
   return imageAtts;
 }
+// ACF image array → ImageProps, or undefined when the field is empty.
+export function acfImage(image: any): ImageProps | undefined {
+  if (!image?.url) return undefined;
+  return {
+    src: image.url,
+    alt: image.alt ?? "",
+    width: image.width,
+    height: image.height,
+    blurImage: image.sizes?.thumbnail ?? undefined,
+  };
+}

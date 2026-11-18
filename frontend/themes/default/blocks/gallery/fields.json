@@ -1,0 +1,31 @@
+[
+  {
+    "id": "heading",
+    "type": "text"
+  },
+  {
+    "id": "images",
+    "type": "gallery"
+  },
+  {
+    "id": "captions",
+    "type": "repeater",
+    "fields": [
+      {
+        "id": "text",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "layout",
+    "type": "select",
+    "choices": [
+      { "mosaic": "Mosaic" },
+      { "filmstrip": "Filmstrip" },
+      { "stagger": "Stagger" },
+      { "collage": "Collage" }
+    ],
+    "default_value": "mosaic"
+  }
+]
