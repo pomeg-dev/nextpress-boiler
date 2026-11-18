@@ -13,15 +13,22 @@ export const blocks: BlockRegistry =
   typeof window === "undefined"
     ? {
       "acf/default--archive-feed": () => import("@themes/default/blocks/archive-feed"),
+      "acf/default--contact-form": () => import("@themes/default/blocks/contact-form"),
+      "acf/default--deck-hero": () => import("@themes/default/blocks/deck-hero"),
       "acf/default--featured-posts": () => import("@themes/default/blocks/featured-posts"),
       "acf/default--footer": () => import("@themes/default/blocks/footer"),
+      "acf/default--gallery": () => import("@themes/default/blocks/gallery"),
       "acf/default--header": () => import("@themes/default/blocks/header"),
       "acf/default--hero-image": () => import("@themes/default/blocks/hero-image"),
+      "acf/default--marquee": () => import("@themes/default/blocks/marquee"),
+      "acf/default--palette-switcher": () => import("@themes/default/blocks/palette-switcher"),
       "acf/default--parallax-image": () => import("@themes/default/blocks/parallax-image"),
+      "acf/default--process-flow": () => import("@themes/default/blocks/process-flow"),
       "acf/default--stacked-links": () => import("@themes/default/blocks/stacked-links"),
       "acf/default--stats": () => import("@themes/default/blocks/stats"),
       "acf/default--text-and-image": () => import("@themes/default/blocks/text-and-image"),
       "acf/default--text-section": () => import("@themes/default/blocks/text-section"),
+      "acf/default--timeline": () => import("@themes/default/blocks/timeline"),
       }
     : {};
 
