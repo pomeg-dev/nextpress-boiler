@@ -705,6 +705,78 @@
     }
   }
 
+  // On/off switch: a `role="switch"` button holding `.switch-track`.
+  .switch-track {
+    position: relative;
+    flex: none;
+    width: 2.75rem;
+    height: 1.5rem;
+    border-radius: var(--corner-pill);
+    box-shadow: inset 0 0 0 var(--border-width) var(--fg-muted);
+    transition: background-color var(--dur-fast) var(--motion-ease-out),
+      box-shadow var(--dur-fast) var(--motion-ease-out);
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0.25rem;
+      left: 0.25rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: var(--corner-pill);
+      background-color: var(--fg-muted);
+      transition: translate var(--dur-base) var(--motion-ease-out),
+        background-color var(--dur-fast) var(--motion-ease-out);
+    }
+
+    [aria-checked="true"] > & {
+      background-color: var(--np-accent-fill);
+      box-shadow: none;
+
+      &::after {
+        translate: 1.25rem 0;
+        background-color: var(--np-on-accent);
+      }
+    }
+  }
+
+  // Cookie consent: a non-modal panel pinned to the bottom of the viewport.
+  .cookie-panel {
+    position: fixed;
+    inset-inline: var(--space-margin);
+    bottom: var(--space-margin);
+    z-index: 60;
+    max-width: 26rem;
+    max-height: calc(100dvh - 2 * var(--space-margin));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-md);
+    border-radius: var(--corner-md);
+    box-shadow: var(--shadow-lift);
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: np-panel-in var(--dur-slow) var(--motion-ease-out) both;
+    }
+  }
+
+  .cookie-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    width: 100%;
+    min-height: 2.75rem;
+    padding-block: var(--space-xs);
+    text-align: left;
+    border-top: var(--border-width) solid var(--rule);
+
+    &[aria-disabled="true"] {
+      cursor: default;
+
+      .switch-track { opacity: 0.55; }
+    }
+  }
+
   .terminal {
     display: inline-flex;
     align-items: center;
@@ -973,6 +1045,13 @@
     from {
       opacity: 0;
       transform: translateY(var(--reveal-distance));
+    }
+  }
+
+  @keyframes np-panel-in {
+    from {
+      opacity: 0;
+      clip-path: inset(100% 0 0 0);
     }
   }
 

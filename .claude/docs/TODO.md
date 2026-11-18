@@ -9,7 +9,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] `frontend/public/fonts` holds trial/commercial fonts (TT Ramillas Trial, PP Neue Montreal, HelveticaNowDisplay, F37 Caslon, TT Firs, Paralex). Not used by the redesign; confirm licences or remove.
 
 ## Code hygiene (needs approval — PHP or out of scope)
-- [ ] `nextpress-theme/functions.php` has debug `error_log('asd')` and `error_log` calls in the ACF save path. (Removal approved 2026-11-18; tick when committed.)
+- [x] `nextpress-theme/functions.php` debug `error_log` calls removed (1052dd48).
 - [ ] `frontend/src/ui/category-archive.tsx` hardcodes Glion term slugs.
 - [ ] `frontend/themes/default/_partials/*.json` are not loaded by anything (`/api/blocks` serves raw JSON).
 - [ ] `frontend/src/lib/themeLoader.ts` is unused.

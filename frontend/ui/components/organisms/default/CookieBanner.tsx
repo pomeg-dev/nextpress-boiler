@@ -3,7 +3,7 @@
 import { CookiePreferences } from '@pomeg-dev/nextpress-client/types';
 import Button from '@ui/components/atoms/Button';
 import { deleteAllCookies, getCookie, setCookie } from '@ui/utils/cookies';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 
 interface CookieBannerProps {
   companyName?: string;
@@ -13,6 +13,13 @@ interface CookieBannerProps {
   showBanner?: boolean;
 }
 
+const OPTIONS: { key: keyof CookiePreferences; title: string; text: string }[] = [
+  { key: 'necessary', title: 'Necessary', text: 'Keep the site working. Always on.' },
+  { key: 'analytics', title: 'Analytics', text: 'Show us how visitors use the site.' },
+  { key: 'marketing', title: 'Marketing', text: 'Let ad partners recognise you across sites.' },
+  { key: 'functional', title: 'Functional', text: 'Turn on extra features and embedded services.' },
+];
+
 const CookieBanner: React.FC<CookieBannerProps> = ({
   companyName = "Your Company",
   onAcceptAll,
@@ -20,6 +27,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
   onSavePreferences,
   showBanner = false
 }) => {
+  const id = useId();
   const [isVisible, setIsVisible] = useState(showBanner);
   const [showPreferences, setShowPreferences] = useState(showBanner);
   const [preferences, setPreferences] = useState<CookiePreferences>({
@@ -45,10 +53,10 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
       marketing: true,
       functional: true
     };
-    
+
     setCookie('cookie-consent', JSON.stringify(allAccepted));
     setCookie('cookie-consent-date', new Date().toISOString());
-    
+
     setIsVisible(false);
     onAcceptAll?.(allAccepted);
   };
@@ -60,11 +68,11 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
       marketing: false,
       functional: false
     };
-    
+
     deleteAllCookies();
     setCookie('cookie-consent', JSON.stringify(declined));
     setCookie('cookie-consent-date', new Date().toISOString());
-    
+
     setIsVisible(false);
     onDecline?.(declined);
   };
@@ -72,14 +80,14 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
   const handleSavePreferences = () => {
     setCookie('cookie-consent', JSON.stringify(preferences));
     setCookie('cookie-consent-date', new Date().toISOString());
-    
+
     setIsVisible(false);
     onSavePreferences?.(preferences);
   };
 
   const handlePreferenceChange = (type: keyof CookiePreferences) => {
     if (type === 'necessary') return;
-    
+
     setPreferences(prev => ({
       ...prev,
       [type]: !prev[type]
@@ -88,149 +96,70 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
 
   if (!isVisible) return null;
 
+  // Non-modal: the page stays usable until the visitor chooses.
   return (
-    <div className="cookie-banner fixed inset-0 z-50 flex items-end justify-end bg-black bg-opacity-50 p-8">
-      <div className="max-h-[90vh] w-full max-w-[400px] overflow-y-auto bg-white">
-        <div className="p-6">
-          <h2 className="!mb-2 !text-heading-sm">
-            {companyName} uses cookies
-          </h2>
-          
-          <p className="mb-6 text-primary/70">
-            We use cookies on this website to help us understand how we can better it for our students. Some cookies are used for analytical purposes and others are set up by third party services.
-          </p>
+    <section
+      className="cookie-banner cookie-panel"
+      data-theme="dark"
+      aria-labelledby={`${id}-title`}
+    >
+      <h2 id={`${id}-title`} className="heading-xs !mb-2">
+        {companyName} uses cookies
+      </h2>
+      <p className="body-sm text-muted mb-md">
+        We use cookies to understand how the site is used and to run optional services. Choose what you allow.
+      </p>
 
-          {!showPreferences ? (
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                type="button"
-                onClick={handleAcceptAll}
-                size='sm'
-              >
-                Accept All
-              </Button>
-              
-              <Button
-                type="button"
-                onClick={() => setShowPreferences(true)}
-                size='sm'
-                style='secondary'
-              >
-                Manage Cookies
-              </Button>
-              
-              
-              <Button
-                type="button"
-                onClick={handleDecline}
-                size='sm'
-                style='secondary'
-              >
-                Decline
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
-                  <div>
-                    <h3 className="!text-heading-xs">Necessary Cookies</h3>
-                    <p className="text-sm">Required for the website to function properly</p>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={true}
-                      disabled
-                      className="sr-only"
-                    />
-                    <div className="h-6 w-12 rounded-full bg-primary shadow-inner">
-                      <div className="h-5 w-5 translate-x-6 translate-y-0.5 transform rounded-full bg-white shadow"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
-                  <div>
-                    <h3 className="!text-heading-xs">Analytics Cookies</h3>
-                    <p className="text-sm">Help us understand how visitors interact with our website</p>
-                  </div>
-                  <button
-                    onClick={() => handlePreferenceChange('analytics')}
-                    className="relative"
-                  >
-                    <div className={`w-12 h-6 rounded-full shadow-inner transition-colors duration-200 ${
-                      preferences.analytics ? 'bg-primary' : 'bg-primary/50'
-                    }`}>
-                      <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 translate-y-0.5 ${
-                        preferences.analytics ? 'translate-x-6' : 'translate-x-0.5'
-                      }`}></div>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
-                  <div>
-                    <h3 className="!text-heading-xs">Marketing Cookies</h3>
-                    <p className="text-sm">Used to track visitors across websites for advertising purposes</p>
-                  </div>
-                  <button
-                    onClick={() => handlePreferenceChange('marketing')}
-                    className="relative"
-                  >
-                    <div className={`w-12 h-6 rounded-full shadow-inner transition-colors duration-200 ${
-                      preferences.marketing ? 'bg-primary' : 'bg-primary/50'
-                    }`}>
-                      <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 translate-y-0.5 ${
-                        preferences.marketing ? 'translate-x-6' : 'translate-x-0.5'
-                      }`}></div>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
-                  <div>
-                    <h3 className="!text-heading-xs">Functional Cookies</h3>
-                    <p className="text-sm">Enable enhanced functionality and personalization</p>
-                  </div>
-                  <button
-                    onClick={() => handlePreferenceChange('functional')}
-                    className="relative"
-                  >
-                    <div className={`w-12 h-6 rounded-full shadow-inner transition-colors duration-200 ${
-                      preferences.functional ? 'bg-primary' : 'bg-primary/50'
-                    }`}>
-                      <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 translate-y-0.5 ${
-                        preferences.functional ? 'translate-x-6' : 'translate-x-0.5'
-                      }`}></div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2 pt-4 sm:flex-row">
-                <Button
-                  type="button"
-                  onClick={handleSavePreferences}
-                  size='sm'
-                >
-                  Save Preferences
-                </Button>
-                
-                <Button
-                  type="button"
-                  onClick={() => setShowPreferences(false)}
-                  size='sm'
-                  style='secondary'
-                >
-                  Back
-                </Button>
-              </div>
-            </div>
-          )}
+      {!showPreferences ? (
+        <div className="flex flex-wrap gap-xs">
+          <Button type="button" onClick={handleAcceptAll} size="md">
+            Accept all
+          </Button>
+          <Button type="button" onClick={handleDecline} size="md" style="secondary">
+            Decline
+          </Button>
+          <Button type="button" onClick={() => setShowPreferences(true)} size="md" style="no-fill">
+            Manage cookies
+          </Button>
         </div>
-      </div>
-    </div>
+      ) : (
+        <>
+          <ul className="mb-md border-b border-rule">
+            {OPTIONS.map(({ key, title, text }) => {
+              const locked = key === 'necessary';
+              return (
+                <li key={key}>
+                  <button
+                    type="button"
+                    role="switch"
+                    className="cookie-option"
+                    aria-checked={locked ? true : preferences[key]}
+                    aria-disabled={locked || undefined}
+                    aria-labelledby={`${id}-${key}`}
+                    aria-describedby={`${id}-${key}-text`}
+                    onClick={() => handlePreferenceChange(key)}
+                  >
+                    <span>
+                      <span id={`${id}-${key}`} className="block font-medium">{title}</span>
+                      <span id={`${id}-${key}-text`} className="block body-sm text-muted">{text}</span>
+                    </span>
+                    <span className="switch-track" aria-hidden="true" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="flex flex-wrap gap-xs">
+            <Button type="button" onClick={handleSavePreferences} size="md">
+              Save preferences
+            </Button>
+            <Button type="button" onClick={() => setShowPreferences(false)} size="md" style="secondary">
+              Back
+            </Button>
+          </div>
+        </>
+      )}
+    </section>
   );
 };
 
