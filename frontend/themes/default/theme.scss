@@ -1107,6 +1107,9 @@
   }
 
   .parallax-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--heading);
     text-decoration-line: underline;
     text-decoration-color: transparent;
@@ -1544,6 +1547,7 @@
   }
 
   .field-consent {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
@@ -1557,7 +1561,16 @@
       accent-color: var(--np-accent-fill);
     }
 
-    label { cursor: pointer; }
+    // The label covers the whole row: a 44px target for the small checkbox.
+    label {
+      cursor: pointer;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
+    }
   }
 
   .gf-form-error,

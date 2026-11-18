@@ -33,6 +33,8 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   if (images.length === 0) return null;
   const isFilmstrip = layout === "filmstrip";
+  // Header padding means the block opens the page, so it carries the h1.
+  const Heading = blockOptions?.padding_top === "header" ? "h1" : "h2";
 
   const items = images.map((image, index) => (
     <figure key={index} className="gallery-item chip">
@@ -59,9 +61,9 @@ const Gallery: React.FC<GalleryProps> = ({
     >
       <div className="container">
         {heading && (
-          <h2 className={classNames("mb-lg", isFilmstrip ? "heading-2xl" : "heading-xl")}>
+          <Heading className={classNames("mb-lg", isFilmstrip ? "heading-2xl" : "heading-xl")}>
             {heading}
-          </h2>
+          </Heading>
         )}
         {isFilmstrip ? (
           // Scrollable row: focusable so keyboard users can scroll it.
