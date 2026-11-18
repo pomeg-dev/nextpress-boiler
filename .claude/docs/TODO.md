@@ -16,6 +16,12 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] `ui/components/archive/Feed.tsx` stray `console.log(data)` removed (phase 5 restyle).
 - [ ] `archive/PostsList.tsx` wraps `PostCard` in a `<Link>`, and PostCard can contain button links → nested `<a>` (invalid HTML, hydration warning) when a post has `acf_data.link`/`download`. Fixing it changes archive-feed markup behaviour: needs approval.
 - [ ] `PostCard` in featured-posts has no link to the post itself (only `acf_data.link`). Left as is.
+
+## Security / privacy
+- [ ] Plugin `ext-gravityforms.php` injects the full `GFAPI::get_form()` as `gfData` into public router JSON, including `notifications` (recipient emails, routing). Plugin is read-only: needs a decision (strip in plugin, or filter server-side).
+
+## Content (user's wp-admin)
+- [ ] GF form 1 "Project Type" still has GF default choices (First/Second/Third Choice). Seed never edits forms: update them in wp-admin.
 - [ ] `.claude/docs/DESIGN_SYSTEM.md` and `.claude/skills/scaffold-block` describe another project's structure. Rewrite once the new design system lands.
 - [ ] `next lint` is deprecated (Next 16 removes it). Migrate to the ESLint CLI.
 

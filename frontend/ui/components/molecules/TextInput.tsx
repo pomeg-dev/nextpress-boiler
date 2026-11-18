@@ -40,21 +40,18 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     };
 
     return (
-      <div className={classNames("flex flex-col space-y-2 w-full min-w-[300px]", className)}>
+      <div className={classNames("field", className)}>
         {label && (
           <label 
             htmlFor={name} 
-            className={classNames(
-              "font-[500] leading-none flex justify-between items-center",
-              disabled && "opacity-20"
-            )}
+            className={classNames("field-label", disabled && "opacity-40")}
           >
             <span>
               {label}
-              {required && <span className="ml-1 text-red">*</span>}
+              {required && <span className="field-required" aria-hidden="true">*</span>}
             </span>
             {optional_text &&
-              <span className='font-[400] text-primary/80'>{optional_text}</span>
+              <span className="field-optional">{optional_text}</span>
             }
           </label>
         )}
@@ -65,14 +62,8 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             id={name}
             name={name}
             placeholder={placeholder}
-            className={classNames(
-              "font-[450] w-full p-3 rounded-md transition-colors bg-white border",
-              "focus:outline-none focus:border-primary",
-              "hover:border-primary/40",
-              disabled && "opacity-40 cursor-not-allowed",
-              isError ? "border-red" : "border-transparent",
-            )}
-            aria-invalid={!!helper_text}
+            className={classNames("field-control",  isError && "is-invalid")}
+            aria-invalid={isError || undefined}
             aria-describedby={
               helper_text ? `${name}-description` : undefined
             }

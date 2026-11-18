@@ -1,0 +1,18 @@
+[
+  {
+    "id": "heading",
+    "type": "wysiwyg"
+  },
+  {
+    "id": "content",
+    "type": "textarea"
+  },
+  {
+    "id": "gravity_form",
+    "type": "gravity_form"
+  },
+  {
+    "id": "aside",
+    "type": "wysiwyg"
+  }
+]

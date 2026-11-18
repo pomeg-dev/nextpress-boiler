@@ -24,17 +24,16 @@ const InputHelper: React.FC<InputHelperProps> = ({
     <p 
       id={`${name}-description`}
       className={classNames(
-        "text-sm !mb-0 inline-flex gap-2 items-center",
-        isError && "text-red",
-        type === "guidance green" && "text-green",
+        "field-help",
+        isError && "is-error",
         className
       )}
     >
       {type === "validation error" &&
-        <Error fill='red' />
+        <Error fill='currentColor' />
       }
       {type === "guidance red" &&
-        <Close fill='red' />
+        <Close fill='currentColor' />
       }
       {type === "guidance green" &&
         <Check />
