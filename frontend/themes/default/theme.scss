@@ -1,330 +1,988 @@
-@reference "../../src/ui/globals.css";
+// =====================================================================
+// Nextpress default theme
+// Every colour, font, size, space, radius, shadow and timing value is a
+// token below. A new project restyles the site by changing token values.
+//
+// Layers: `base` for tokens and element styles, `components` for shared
+// classes (editor classes, buttons, chips). Tailwind utilities still win.
+// =====================================================================
 
-html {
-  scroll-behavior: smooth;
-}
+// ---------------------------------------------------------------------
+// 1. TOKENS
+// ---------------------------------------------------------------------
+@layer base {
+  :root {
+    // Palette (60 / 30 / 10). Raw values: use the role tokens in components.
+    --np-chalk: #edefe7;       // 60: main ground
+    --np-chalk-raised: #f7f8f3;
+    --np-sage: #d3ddcc;        // light-secondary ground, card fill
+    --np-bottle: #0f3b30;      // 30: dark sections, headings
+    --np-bottle-raised: #164a3d;
+    --np-ink: #0c1411;         // body text, dark-secondary ground
+    --np-ink-raised: #17211c;
+    --np-flare: #ff3d7f;       // 10: accent fills and marks
+    --np-flare-deep: #b01350;  // accent as text on light grounds (AA)
+    --np-flare-light: #ff8fb3; // accent as text on dark grounds (AA)
+    --np-muted: #46554d;       // secondary text on light
+    --np-muted-dark: #a9bbaf;  // secondary text on dark
+    --np-white: #ffffff;
 
-[data-theme="default"] {
-  // ---------------------------------------------------
-  // VARIABLES
-  // ---------------------------------------------------
-  
-  // COLOURS
-  // Provide rbg values only i.e. --color-primary: 0 0 0;
-  // --color-primary: var();
-  // --color-secondary: var();
-  // --color-tertiary: var();
-  // --color-quaternary: var();
+    // Fonts (next/font variables from ui/fonts/font-loader.ts).
+    --font-heading: var(--font-archivo), "Arial Narrow", Arial, sans-serif;
+    --font-body: var(--font-archivo), Arial, sans-serif;
+    --font-code: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  // CONTAINER
-  --pagewidth: 1440px;
-  --margin: 48px;
-  --container: 1344px;
+    // Fluid type scale: min at 360px viewport, max at 1440px.
+    --fs-heading-3xl: clamp(3.25rem, 1.5rem + 7.78vw, 8.5rem);
+    --fs-heading-2xl: clamp(2.75rem, 1.67rem + 4.81vw, 6rem);
+    --fs-heading-xl: clamp(2.25rem, 1.58rem + 2.96vw, 4.25rem);
+    --fs-heading-lg: clamp(1.75rem, 1.375rem + 1.67vw, 2.875rem);
+    --fs-heading-md: clamp(1.375rem, 1.167rem + 0.93vw, 2rem);
+    --fs-heading-sm: clamp(1.125rem, 1rem + 0.56vw, 1.5rem);
+    --fs-heading-xs: clamp(1rem, 0.958rem + 0.19vw, 1.125rem);
+    --fs-body-lg: clamp(1.125rem, 1.042rem + 0.37vw, 1.375rem);
+    --fs-body: clamp(1rem, 0.958rem + 0.19vw, 1.125rem);
+    --fs-body-sm: clamp(0.875rem, 0.854rem + 0.09vw, 0.9375rem);
+    --fs-label: clamp(0.75rem, 0.729rem + 0.09vw, 0.8125rem);
 
-  // ---------------------------------------------------
-  // BODY
-  // ---------------------------------------------------
+    --fw-body: 400;
+    --fw-medium: 500;
+    --fw-heading: 600;
+    --fw-display: 700;
+    --wdth-display: 118;   // Archivo width axis (62–125)
+    --wdth-heading: 108;
+    --wdth-body: 100;
+    --wdth-label: 100;
 
-  body,
-  .wp-preview {
-    @apply overflow-x-hidden text-primary text-base leading-[normal];
-    font-family: var(--font-general-sans);
+    --lh-display: 0.92;
+    --lh-heading: 1;
+    --lh-snug: 1.25;
+    --lh-body: 1.55;
+    --tracking-display: -0.035em;
+    --tracking-heading: -0.02em;
+    --tracking-label: 0.08em;
 
-    &.light {
-      @apply text-primary bg-white;
-    }
-    
-    &.dark {
-      @apply text-white bg-dark;
-    }
+    --measure: 65ch;
+    --measure-narrow: 42ch;
 
-    &.image {
-      @apply bg-cover bg-center bg-no-repeat;
+    // Spacing and layout.
+    --space-xs: 0.5rem;
+    --space-sm: clamp(1rem, 0.833rem + 0.74vw, 1.5rem);
+    --space-md: clamp(1.5rem, 1rem + 2.22vw, 3rem);
+    --space-lg: clamp(2.5rem, 1.667rem + 3.7vw, 5rem);
+    --space-xl: clamp(4rem, 2.667rem + 5.93vw, 8rem);
+    --space-section: clamp(5rem, 3rem + 8.89vw, 11rem);
+    --space-margin: clamp(1rem, 4vw, 4rem);
+    --header-h: clamp(4rem, 3.667rem + 0.93vw, 4.5rem);
+    --space-header: var(--header-h);
+    --pagewidth: 1680px;
+    --grid-columns: 24;
+    --col-size: calc((min(100vw, var(--pagewidth)) - 2 * var(--space-margin)) / var(--grid-columns));
+    --gutter: var(--space-sm);
+
+    // Corners, borders, depth.
+    --corner-none: 0;
+    --corner-sm: 2px;
+    --corner-md: 3px;
+    --corner-pill: 999px;
+    --border-width: 1px;
+    --rule-width: 2px;
+    --shadow-lift: 0 1px 2px rgb(12 20 17 / 0.12), 0 24px 48px -16px rgb(12 20 17 / 0.4);
+
+    // Motion. One shared beat for every reveal.
+    --dur-fast: 160ms;
+    --dur-base: 320ms;
+    --dur-slow: 640ms;
+    --dur-beat: 900ms;
+    --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --stagger: 70ms;
+    --reveal-distance: 1.5rem;
+    --marquee-duration: 40s;
+
+    // Images.
+    --ratio-portrait: 4 / 5;
+    --ratio-square: 1 / 1;
+    --ratio-landscape: 3 / 2;
+    --ratio-strip: 21 / 9;
+    --chip-strip-h: 2.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --dur-fast: 0.01ms;
+      --dur-base: 0.01ms;
+      --dur-slow: 0.01ms;
+      --dur-beat: 0.01ms;
+      --stagger: 0ms;
+      --reveal-distance: 0;
     }
   }
-  
-  .container {
-    @apply relative max-w-[var(--pagewidth)] mx-auto px-[var(--margin)];
+
+  // ---------------------------------------------------------------------
+  // 2. COLOUR THEMES
+  // Each theme sets the role tokens. `theme_override` on a block, a core
+  // group's background slug, or <html data-theme> pick one.
+  // ---------------------------------------------------------------------
+  :root,
+  [data-theme="default"],
+  [data-theme="light"] {
+    --surface: var(--np-chalk);
+    --surface-raised: var(--np-chalk-raised);
+    --fg: var(--np-ink);
+    --fg-muted: var(--np-muted);
+    --heading: var(--np-bottle);
+    --rule: rgb(12 20 17 / 0.16);
+    --np-primary: var(--np-bottle);
+    --np-secondary: var(--np-flare-deep);
+    --np-tertiary: var(--np-muted);
+    --np-accent: var(--np-flare-deep);
+    --np-accent-fill: var(--np-flare);
+    --np-on-accent: var(--np-ink);
+    --inverse: var(--np-bottle);
+    --on-inverse: var(--np-chalk);
+    --focus: var(--np-flare-deep);
+    --duotone-dark: var(--np-bottle);
+    --duotone-light: var(--np-sage);
+  }
+
+  [data-theme="light-secondary"] {
+    --surface: var(--np-sage);
+    --surface-raised: var(--np-chalk);
+    --fg: var(--np-ink);
+    --fg-muted: var(--np-muted);
+    --heading: var(--np-bottle);
+    --rule: rgb(12 20 17 / 0.18);
+    --np-primary: var(--np-bottle);
+    --np-secondary: var(--np-flare-deep);
+    --np-tertiary: var(--np-muted);
+    --np-accent: var(--np-flare-deep);
+    --np-accent-fill: var(--np-flare);
+    --np-on-accent: var(--np-ink);
+    --inverse: var(--np-bottle);
+    --on-inverse: var(--np-chalk);
+    --focus: var(--np-flare-deep);
+    --duotone-dark: var(--np-bottle);
+    --duotone-light: var(--np-chalk);
+  }
+
+  [data-theme="dark"] {
+    --surface: var(--np-bottle);
+    --surface-raised: var(--np-bottle-raised);
+    --fg: var(--np-chalk);
+    --fg-muted: var(--np-muted-dark);
+    --heading: var(--np-chalk);
+    --rule: rgb(237 239 231 / 0.2);
+    --np-primary: var(--np-chalk);
+    --np-secondary: var(--np-flare-light);
+    --np-tertiary: var(--np-muted-dark);
+    --np-accent: var(--np-flare-light);
+    --np-accent-fill: var(--np-flare);
+    --np-on-accent: var(--np-ink);
+    --inverse: var(--np-chalk);
+    --on-inverse: var(--np-bottle);
+    --focus: var(--np-flare);
+    --duotone-dark: var(--np-ink);
+    --duotone-light: var(--np-sage);
+  }
+
+  [data-theme="dark-secondary"] {
+    --surface: var(--np-ink);
+    --surface-raised: var(--np-ink-raised);
+    --fg: var(--np-chalk);
+    --fg-muted: var(--np-muted-dark);
+    --heading: var(--np-chalk);
+    --rule: rgb(237 239 231 / 0.18);
+    --np-primary: var(--np-chalk);
+    --np-secondary: var(--np-flare);
+    --np-tertiary: var(--np-muted-dark);
+    --np-accent: var(--np-flare);
+    --np-accent-fill: var(--np-flare);
+    --np-on-accent: var(--np-ink);
+    --inverse: var(--np-chalk);
+    --on-inverse: var(--np-ink);
+    --focus: var(--np-flare);
+    --duotone-dark: var(--np-ink);
+    --duotone-light: var(--np-flare);
+  }
+
+  // Text over an image. The block draws the image and its scrim.
+  [data-theme="overlay"] {
+    --surface: transparent;
+    --surface-raised: rgb(12 20 17 / 0.55);
+    --fg: var(--np-white);
+    --fg-muted: rgb(255 255 255 / 0.85);
+    --heading: var(--np-white);
+    --rule: rgb(255 255 255 / 0.3);
+    --np-primary: var(--np-white);
+    --np-secondary: var(--np-flare-light);
+    --np-tertiary: rgb(255 255 255 / 0.85);
+    --np-accent: var(--np-flare-light);
+    --np-accent-fill: var(--np-flare);
+    --np-on-accent: var(--np-ink);
+    --inverse: var(--np-white);
+    --on-inverse: var(--np-ink);
+    --focus: var(--np-flare);
+    --scrim: linear-gradient(180deg, rgb(12 20 17 / 0.15) 0%, rgb(12 20 17 / 0.7) 100%);
+  }
+
+  // The 10%: a flare chip. Used by core groups with the accent background.
+  [data-theme="flare"] {
+    --surface: var(--np-flare);
+    --surface-raised: var(--np-chalk);
+    --fg: var(--np-ink);
+    --fg-muted: var(--np-ink);
+    --heading: var(--np-ink);
+    --rule: rgb(12 20 17 / 0.35);
+    --np-primary: var(--np-ink);
+    --np-secondary: var(--np-ink);
+    --np-tertiary: var(--np-ink);
+    --np-accent: var(--np-ink);
+    --np-accent-fill: var(--np-ink);
+    --np-on-accent: var(--np-chalk);
+    --inverse: var(--np-ink);
+    --on-inverse: var(--np-chalk);
+    --focus: var(--np-ink);
+  }
+
+  // Editor palette slugs (theme.json) resolve per theme. Declared on every
+  // themed element so the package's `var(--color-<slug>)` follows sections.
+  :root,
+  [data-theme] {
+    --color-primary: var(--np-primary);
+    --color-secondary: var(--np-secondary);
+    --color-tertiary: var(--np-tertiary);
+    --color-accent: var(--np-accent);
+    --color-black: var(--np-ink);
+    --color-white: var(--np-white);
+    --card-fill: var(--np-sage);
+  }
+
+  [data-theme]:not(html) {
+    background-color: var(--surface);
+    color: var(--fg);
+  }
+
+  // ---------------------------------------------------------------------
+  // 3. BASE ELEMENTS
+  // ---------------------------------------------------------------------
+  html {
+    background-color: var(--np-chalk);
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--np-bottle) var(--np-chalk);
+    scroll-padding-top: var(--header-h);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+    background-color: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-body);
+    line-height: var(--lh-body);
+    font-variation-settings: "wdth" var(--wdth-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--np-flare);
+    color: var(--np-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: var(--np-accent-fill);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    color: var(--heading);
+    font-family: var(--font-heading);
+    font-weight: var(--fw-heading);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--fs-heading-2xl);
+    font-weight: var(--fw-display);
+    font-variation-settings: "wdth" var(--wdth-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--tracking-display);
+  }
+
+  h2 {
+    font-size: var(--fs-heading-xl);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  h3 {
+    font-size: var(--fs-heading-lg);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  h4 {
+    font-size: var(--fs-heading-md);
+    line-height: var(--lh-snug);
+  }
+
+  h5 {
+    font-size: var(--fs-heading-sm);
+    line-height: var(--lh-snug);
+  }
+
+  h6 {
+    font-size: var(--fs-heading-xs);
+    line-height: var(--lh-snug);
   }
 
   p {
-    @apply mb-4;
+    margin: 0;
+    text-wrap: pretty;
   }
 
-  // ---------------------------------------------------
-  // FONTS
-  // ---------------------------------------------------
-  .font-primary {
-    font-family: var(--font-general-sans);
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--dur-fast) var(--motion-ease-out),
+      color var(--dur-fast) var(--motion-ease-out);
   }
 
-  // ---------------------------------------------------
-  // HEADINGS
-  // ---------------------------------------------------
-  h1, .has-h1 {
-    @apply text-heading-2xl mb-6 font-[500] antialiased;
-  }
-  h2, .has-h2 {
-    @apply text-heading-lg mb-4 font-[500] antialiased;
-  }
-  h3, .has-h3 {
-    @apply text-heading-sm mb-[10px] font-[500] antialiased;
-  }
-  h4, .has-h4 {
-    @apply text-lg leading-none mb-[10px] font-[500] antialiased;
-  }
-  h5, .has-h5 {
-    @apply text-heading-xs mb-[10px] font-[500] antialiased;
-  }
-  h6, .has-h6 {
-    @apply text-base leading-none mb-[10px] text-quaternary font-[500] antialiased;
+  p a,
+  li a {
+    text-decoration-color: var(--np-accent-fill);
   }
 
-  // ---------------------------------------------------
-  // BUTTONS
-  // ---------------------------------------------------
-  button, .button {
-    @apply font-[500] backdrop-blur-[25px];
+  p a:hover,
+  li a:hover {
+    color: var(--np-accent);
+  }
 
-    &:before {
-      @apply content-[''] hidden absolute w-full h-full top-0 left-0 bg-white z-[-2] antialiased;
+  strong,
+  b {
+    font-weight: var(--fw-heading);
+  }
+
+  hr {
+    border: 0;
+    border-top: var(--border-width) solid var(--rule);
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-code);
+    font-size: 0.9em;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // Top-level core content (bare headings, paragraphs …) sits on the page
+  // measure. Custom blocks and core groups lay themselves out.
+  main > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, figure, hr, .buttons, .wp-block-buttons, .wp-block-button) {
+    width: min(100% - 2 * var(--space-margin), var(--pagewidth) - 2 * var(--space-margin));
+    margin-inline: auto;
+  }
+}
+
+// ---------------------------------------------------------------------
+// 4. SHARED CLASSES
+// ---------------------------------------------------------------------
+@layer components {
+  // Editor classes from nextpress-theme/functions.php (tiny_mce_before_init).
+  // Saved content uses them: never rename. `text-teriary` is spelled as shipped.
+  .heading-3xl,
+  .heading-2xl {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-display);
+    font-variation-settings: "wdth" var(--wdth-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .heading-xl,
+  .heading-lg {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-heading);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .heading-md,
+  .heading-sm,
+  .heading-xs {
+    font-family: var(--font-heading);
+    font-weight: var(--fw-heading);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    line-height: var(--lh-snug);
+  }
+
+  .heading-3xl { font-size: var(--fs-heading-3xl); }
+  .heading-2xl { font-size: var(--fs-heading-2xl); }
+  .heading-xl { font-size: var(--fs-heading-xl); }
+  .heading-lg { font-size: var(--fs-heading-lg); }
+  .heading-md { font-size: var(--fs-heading-md); }
+  .heading-sm { font-size: var(--fs-heading-sm); }
+  .heading-xs { font-size: var(--fs-heading-xs); }
+
+  // A heading class on a span inside a paragraph sets that line's leading.
+  p:has(> :is(.heading-3xl, .heading-2xl)) { line-height: var(--lh-display); }
+  p:has(> :is(.heading-xl, .heading-lg)) { line-height: var(--lh-heading); }
+
+  .text-primary { color: var(--np-primary); }
+  .text-secondary { color: var(--np-secondary); }
+  .text-teriary { color: var(--np-tertiary); }
+  .text-accent { color: var(--np-accent); }
+  .font-secondary { font-family: var(--font-code); }
+
+  .body-lg { font-size: var(--fs-body-lg); line-height: var(--lh-body); }
+  .body-sm { font-size: var(--fs-body-sm); line-height: var(--lh-snug); }
+
+  // Labels: codes, captions, data. Mono, never body copy.
+  .label {
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  // Gutenberg colour and alignment classes in saved content.
+  @each $slug in ("black", "white", "primary", "secondary", "tertiary", "accent") {
+    .has-#{$slug}-color { color: var(--color-#{$slug}); }
+    .has-#{$slug}-background-color { background-color: var(--color-#{$slug}); }
+  }
+  .has-card-fill-color { color: var(--card-fill); }
+  .has-card-fill-background-color { background-color: var(--card-fill); }
+  .has-text-align-left { text-align: left; }
+  .has-text-align-center { text-align: center; }
+  .has-text-align-right { text-align: right; }
+
+  // Vertical rhythm for rich text: wysiwyg fields and core content.
+  .flow > * + * {
+    margin-top: var(--flow-space, 1em);
+  }
+
+  .flow > * + :is(h2, h3, h4) {
+    --flow-space: 1.5em;
+  }
+
+  .flow > :is(h1, h2, h3, h4, h5, h6) + * {
+    --flow-space: 0.6em;
+  }
+
+  .flow :is(ul, ol) {
+    padding-left: 1.25em;
+  }
+
+  .flow ul { list-style: square; }
+  .flow ol { list-style: decimal-leading-zero; }
+
+  .flow li + li {
+    margin-top: 0.4em;
+  }
+
+  .flow li::marker {
+    color: var(--np-accent-fill);
+    font-family: var(--font-code);
+    font-size: 0.85em;
+  }
+
+  .flow blockquote {
+    padding-top: var(--space-sm);
+    border-top: var(--rule-width) solid var(--np-accent-fill);
+    font-family: var(--font-heading);
+    font-size: var(--fs-heading-md);
+    font-weight: var(--fw-medium);
+    line-height: var(--lh-snug);
+    color: var(--heading);
+
+    cite {
+      display: block;
+      margin-top: var(--space-sm);
+      font-family: var(--font-code);
+      font-size: var(--fs-label);
+      font-style: normal;
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+  }
+
+  .flow pre,
+  pre.wp-block-code {
+    padding: var(--space-sm);
+    overflow-x: auto;
+    border-radius: var(--corner-sm);
+    background-color: var(--surface-raised);
+    font-size: var(--fs-body-sm);
+    line-height: 1.6;
+    tab-size: 2;
+  }
+
+  // Core groups. Top-level: a full-width section on the page container.
+  // Nested with a background: a chip panel inside its parent.
+  main > .group-block {
+    padding-block: var(--space-section);
+
+    > .group-inner {
+      width: 100%;
+      max-width: var(--pagewidth);
+      margin-inline: auto;
+      padding-inline: var(--space-margin);
+    }
+  }
+
+  .group-inner .group-block[data-theme] {
+    padding: var(--space-md);
+  }
+
+  // Core buttons render as `div.buttons`.
+  .wp-block-buttons,
+  .group-inner .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-sm);
+  }
+
+  .measure { max-width: var(--measure); }
+  .measure-narrow { max-width: var(--measure-narrow); }
+
+  // Full-bleed: escape any container to the viewport edges.
+  .break-out {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  // ----------------------------------------------------------------
+  // Buttons. Shape and colour live here; the Button atom sets size.
+  // ----------------------------------------------------------------
+  .button {
+    --button-bg: var(--np-accent-fill);
+    --button-fg: var(--np-on-accent);
+    --button-bg-hover: var(--inverse);
+    --button-fg-hover: var(--on-inverse);
+    --button-border: transparent;
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    border-radius: var(--corner-sm);
+    background-color: var(--button-bg);
+    box-shadow: inset 0 0 0 1.5px var(--button-border);
+    color: var(--button-fg);
+    font-family: var(--font-body);
+    font-weight: var(--fw-medium);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--dur-base) var(--motion-ease-out),
+      color var(--dur-base) var(--motion-ease-out),
+      box-shadow var(--dur-base) var(--motion-ease-out);
+
+    svg {
+      flex-shrink: 0;
+      transition: transform var(--dur-base) var(--motion-ease-out);
     }
 
-    &:after {
-      @apply content-[''] hidden absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors antialiased;
-    }
-
-    &.primary {
-      @apply bg-primary text-white;
-      @apply hover:bg-primary-dark hover:text-white;
-      
-      &.special {
-        @apply hover:bg-primary/5 hover:text-primary;
-      }
-
-      .icon-wrapper {
-        @apply bg-white text-primary;
-      }
-
-      &:hover {
-        &:before {
-          display: none !important;
-        }
-      }
-    }
-
-    &.secondary {
-      @apply bg-primary/5 text-primary;
-      @apply hover:bg-primary/10 hover:text-primary;
-
-      &.special {
-        @apply hover:bg-primary hover:text-white;
-      }
-
-      .icon-wrapper {
-        @apply bg-primary text-white;
-      }
-    }
-
-    &.card {
-      @apply bg-primary/10 text-primary;
-      @apply hover:bg-primary/20 hover:text-primary;
-
-      &.special {
-        @apply hover:bg-primary hover:text-white;
-      }
-
-      .icon-wrapper {
-        @apply bg-primary text-white;
-      }
-    }
-
-    &.high-contrast {
-      @apply bg-white text-primary;
-      @apply hover:bg-primary hover:text-white;
-
-      &.special {
-        @apply hover:bg-white hover:text-primary;
-      }
-
-      .icon-wrapper {
-        @apply bg-primary text-white;
-      }
-
-      &:hover {
-        .icon-wrapper {
-          @apply text-primary;
-        }
-
-        &:before {
-          display: none !important;
-        }
-      }
-    }
-
-    &.no-fill {
-      @apply bg-none backdrop-blur-[0] hover:!bg-none;
-
-      &:before,
-      &:after {
-        display: none !important;
-      }
-    }
-
-    &.disabled {
-      @apply bg-primary/5 text-primary;
-
-      .icon-wrapper {
-        @apply bg-white text-primary;
-      }
-
-      &:before,
-      &:after {
-        @apply block;
-      }
-    }
-    
     &:hover {
-      .icon-wrapper {
-        @apply bg-transparent;
-      }
-      
-      &:before,
-      &:after {
-        @apply block;
-      }
-    }
-  }
+      background-color: var(--button-bg-hover);
+      color: var(--button-fg-hover);
 
-  .pill {
-    @apply text-primary font-[500];
-
-    &:not(.no-fill) {
-      &:before {
-        @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors;
+      svg:last-child {
+        transform: translateX(0.25em);
       }
     }
 
-    &:not(.no-fill):not(.accent) {
-      &:after {
-        @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors;
-      }
-    }
-
-    &.primary {
-      @apply bg-primary/5;
+    &.secondary,
+    &.tertiary {
+      --button-bg: transparent;
+      --button-fg: var(--fg);
+      --button-border: currentColor;
     }
 
     &.card {
-      @apply bg-primary/10;
-    }
-
-    &.accent {
-      @apply bg-white shadow-primary;
-
-      &:before {
-        @apply w-[calc(100%-2px)] h-[calc(100%-2px)] top-[1px] left-[1px] rounded-[inherit];
-      }
-
-      &:after {
-        @apply content-[''] absolute w-full h-full top-0 left-0 rounded-[inherit] z-[-2];
-        @apply bg-linear-to-r from-primary to-secondary;
-      }
+      --button-bg: var(--surface-raised);
+      --button-fg: var(--fg);
     }
 
     &.high-contrast {
-      @apply bg-white;
+      --button-bg: var(--inverse);
+      --button-fg: var(--on-inverse);
+      --button-bg-hover: var(--np-accent-fill);
+      --button-fg-hover: var(--np-on-accent);
     }
 
-    &.inverted {
-      @apply bg-primary text-white;
+    // Text link with an arrow. Keeps the 44px touch target.
+    &.no-fill {
+      --button-bg: transparent;
+      --button-fg: var(--fg);
+      --button-bg-hover: transparent;
+      --button-fg-hover: var(--np-accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--np-accent-fill);
+      text-underline-offset: 0.3em;
+    }
+
+    // Icon in a round well (the atom's `special` and icon-only modes).
+    .icon-wrapper {
+      background-color: var(--button-fg);
+      color: var(--button-bg);
+      transition: background-color var(--dur-base) var(--motion-ease-out);
+    }
+
+    &.disabled,
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
   }
 
+  // Small tag: image tags, filters, form choices.
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    border-radius: var(--corner-sm);
+    box-shadow: inset 0 0 0 var(--border-width) var(--rule);
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--fg);
+
+    &.primary,
+    &.card { background-color: var(--surface-raised); }
+    &.accent { background-color: var(--np-accent-fill); color: var(--np-on-accent); box-shadow: none; }
+    &.high-contrast,
+    &.inverted { background-color: var(--inverse); color: var(--on-inverse); box-shadow: none; }
+    &.no-fill { background: none; }
+  }
+
+  // Segmented control (archive filters).
   .toggle-control {
-    @apply bg-primary/5;
-
-    &:before {
-      @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors rounded-[inherit];
-    }
-
-    &:after {
-      @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors rounded-[inherit];
-    }
+    box-shadow: inset 0 0 0 var(--border-width) var(--rule);
   }
 
   .toggle-control-item {
-    @apply font-[500] bg-transparent opacity-50 hover:opacity-100;
+    font-weight: var(--fw-medium);
+    color: var(--fg-muted);
+    transition: color var(--dur-fast) var(--motion-ease-out),
+      background-color var(--dur-fast) var(--motion-ease-out);
+
+    &:hover { color: var(--fg); }
 
     &.active {
-      @apply bg-white text-primary opacity-100;
+      background-color: var(--inverse);
+      color: var(--on-inverse);
     }
   }
-
-  // ---------------------------------------------------
-  // FORMS
-  // ---------------------------------------------------
-
-  // ---------------------------------------------------
-  // SELECTION
-  // ---------------------------------------------------
-  ::selection {
-    background-color: #22272d;
-    color: white;
-  }
-
-  // ---------------------------------------------------
-  // ICONS
-  // ---------------------------------------------------
-
-  // ---------------------------------------------------
-  // Utlity classes
-  // ---------------------------------------------------
 
   .terminal {
-    @apply bg-[#F8F6F3] p-[8px] rounded-[3px] inline-flex items-center text-[12px];
-    &::before {
-      //chevron right
-      content: "";
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      background-color: currentColor;
-      mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>');
-      mask-position: center;
-      mask-repeat: no-repeat;
-      mask-size: contain;
-    }
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    padding: var(--space-xs);
+    border-radius: var(--corner-sm);
+    background-color: var(--surface-raised);
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
   }
 
-  .break-out {
-    position: relative;
-    left: 50%;
-    width: 100%;
-    margin-left: -50%;
-  
-    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-      max-width: calc(100vw - 9px) !important;
-    }
-  }
-
-  // ---------------------------------------------------
-  // CUSTOM
-  // ---------------------------------------------------
-
-  .before-white {
-    @apply relative z-[1];
-
-    &:before {
-      @apply content-[''] absolute w-full h-full top-0 left-0 bg-white z-[-1] transition-colors rounded-[inherit];
-    }
-  }
-
+  .before-white,
   .after-inherit {
-    @apply relative z-[1];
+    position: relative;
+    z-index: 1;
+  }
 
-    &:after {
-      @apply content-[''] absolute w-full h-full top-0 left-0 bg-[inherit] z-[-1] transition-colors antialiased;
+  // ----------------------------------------------------------------
+  // Site header (Templates → header layout)
+  // ----------------------------------------------------------------
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 var(--border-width) 0 transparent;
+    transition: translate var(--dur-base) var(--motion-ease-out),
+      box-shadow var(--dur-base) var(--motion-ease-out);
+
+    // `translate` only while hidden: a transform would trap the fixed menu.
+    &.is-hidden { translate: 0 -100%; }
+    &.is-scrolled { box-shadow: 0 var(--border-width) 0 var(--rule); }
+  }
+
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+    text-decoration: none;
+
+    // Underline that draws in from the left; a square marks the current page.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0.6rem;
+      height: 1.5px;
+      background-color: var(--np-accent-fill);
+      scale: 0 1;
+      transform-origin: right;
+      transition: scale var(--dur-base) var(--motion-ease-out);
+    }
+
+    &:hover::after {
+      scale: 1 1;
+      transform-origin: left;
+    }
+
+    &[aria-current="page"]::before {
+      content: "";
+      width: 0.4em;
+      height: 0.4em;
+      margin-right: 0.5em;
+      background-color: var(--np-accent-fill);
+    }
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  // Two bars that cross into an X.
+  .menu-toggle-icon {
+    position: relative;
+    width: 1.5rem;
+    height: 0.625rem;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: currentColor;
+      transition: translate var(--dur-base) var(--motion-ease-out),
+        rotate var(--dur-base) var(--motion-ease-out);
+    }
+
+    &::before { top: 0; }
+    &::after { bottom: 0; }
+
+    [aria-expanded="true"] > & {
+      &::before { translate: 0 4px; rotate: 45deg; }
+      &::after { translate: 0 -4px; rotate: -45deg; }
+    }
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    visibility: hidden;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path var(--dur-slow) var(--motion-ease-in-out),
+      visibility 0s linear var(--dur-slow);
+
+    &.is-open {
+      visibility: visible;
+      clip-path: inset(0);
+      transition: clip-path var(--dur-slow) var(--motion-ease-in-out);
+    }
+  }
+
+  .mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 2.75rem;
+    padding-block: 0.15em;
+    font-family: var(--font-heading);
+    font-size: var(--fs-heading-xl);
+    font-weight: var(--fw-display);
+    font-variation-settings: "wdth" var(--wdth-display);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-display);
+    text-decoration: none;
+    opacity: 0;
+    translate: 0 1.5rem;
+    transition: opacity var(--dur-base) var(--motion-ease-out),
+      translate var(--dur-slow) var(--motion-ease-out),
+      color var(--dur-fast) var(--motion-ease-out);
+
+    .is-open & {
+      opacity: 1;
+      translate: 0 0;
+      transition-delay: calc(var(--dur-fast) + var(--i, 0) * var(--stagger));
+    }
+
+    &:hover,
+    &[aria-current="page"] { color: var(--np-accent); }
+  }
+
+  // ----------------------------------------------------------------
+  // Site footer (Templates → footer layout)
+  // ----------------------------------------------------------------
+  .footer-nav {
+    border-top: var(--border-width) solid var(--rule);
+  }
+
+  .footer-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    min-height: 2.75rem;
+    padding-block: 0.35em;
+    border-bottom: var(--border-width) solid var(--rule);
+    font-family: var(--font-heading);
+    font-size: var(--fs-heading-lg);
+    font-weight: var(--fw-heading);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--motion-ease-out),
+      padding var(--dur-base) var(--motion-ease-out);
+
+    svg {
+      opacity: 0;
+      translate: -0.5em 0;
+      transition: opacity var(--dur-base) var(--motion-ease-out),
+        translate var(--dur-base) var(--motion-ease-out);
+    }
+
+    &:hover,
+    &[aria-current="page"] {
+      color: var(--np-accent);
+    }
+
+    &:hover {
+      padding-left: 0.25em;
+
+      svg { opacity: 1; translate: 0 0; }
+    }
+  }
+
+  // ----------------------------------------------------------------
+  // Chips and image treatments
+  // ----------------------------------------------------------------
+
+  // An image (or colour field) over a white code strip.
+  .chip {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--np-chalk-raised);
+    color: var(--np-ink);
+  }
+
+  .chip-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    min-height: var(--chip-strip-h);
+    padding-inline: 0.875rem;
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  // Duotone in the section's colours; full colour on hover or focus.
+  .img-duotone {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--duotone-light);
+
+    img {
+      filter: grayscale(1) contrast(1.1);
+      mix-blend-mode: multiply;
+      transition: filter var(--dur-slow) var(--motion-ease-out);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--duotone-dark);
+      mix-blend-mode: lighten;
+      pointer-events: none;
+      transition: opacity var(--dur-slow) var(--motion-ease-out);
+    }
+
+    &.is-revealable:is(:hover, :focus-within) {
+      img { filter: none; mix-blend-mode: normal; }
+      &::after { opacity: 0; }
+    }
+  }
+
+  .scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--scrim);
+    pointer-events: none;
+  }
+
+  // ----------------------------------------------------------------
+  // Motion: one shared reveal. Content is visible by default; browsers
+  // with scroll-driven animations play the reveal as it enters.
+  // ----------------------------------------------------------------
+  @keyframes np-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      [data-reveal] {
+        animation: np-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 35%;
+      }
     }
   }
 }

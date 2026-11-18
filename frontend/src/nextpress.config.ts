@@ -13,6 +13,11 @@ export const nextpress = createNextpress({
     // Read by layout.tsx, beyond the package's base keys.
     extraKeys: ["enable_user_flow", "default_language"],
   },
+  // Core columns/groups use the theme's spacing token and container.
+  coreBlocks: {
+    columnGap: "var(--space-md)",
+    groupInnerClassName: "container",
+  },
   // trailingSlash matches next.config.js (default true).
   cacheWarmer: {
     blocks: [

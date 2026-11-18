@@ -1,62 +1,23 @@
-import localFont from "next/font/local";
-import {
-  Inter,
-  Roboto,
-  Open_Sans,
-  Playfair_Display,
-  DM_Sans,
-  Outfit,
-} from "next/font/google";
+import { Archivo, Geist_Mono } from "next/font/google";
 
-const inter = Inter({
+// Display + body. Variable weight and width: headings use the expanded widths.
+const archivo = Archivo({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  axes: ["wdth"],
+  variable: "--font-archivo",
 });
 
-const outfit = Outfit({
+// Codes, labels, data and code samples.
+const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-outfit",
+  variable: "--font-geist-mono",
 });
 
-//playfai display
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-playfair-display",
-});
-
-//Paralex
-const paralex = localFont({
-  src: [
-    {
-      path: "../../public/fonts/Paralex.ttf",
-      weight: "400",
-      style: "normal",
-    },
-  ],
-  variable: "--font-paralex",
-});
-
-//dm_sans
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-dm-sans",
-});
 export const fonts = {
-  inter,
-  playfairDisplay,
-  dmSans,
-  paralex,
-  outfit,
+  archivo,
+  geistMono,
 };
 
-export const fontVariables = [
-  inter.variable,
-  playfairDisplay.variable,
-  dmSans.variable,
-  paralex.variable,
-  outfit.variable,
-].join(" ");
+export const fontVariables = [archivo.variable, geistMono.variable].join(" ");

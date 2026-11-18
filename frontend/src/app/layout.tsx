@@ -1,4 +1,5 @@
 import "@/ui/globals.css";
+import "../../themes/default/theme.scss";
 import type { Metadata } from "next";
 import { getSettings, getBlockTheme } from "@/nextpress.config";
 import { Suspense } from "react";
