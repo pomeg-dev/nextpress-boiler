@@ -8,3 +8,5 @@ figma-variables.json
 .vscode
 ip-ranges.json
 .DS_Store
+# Playwright MCP screenshots and logs
+.playwright-mcp/
