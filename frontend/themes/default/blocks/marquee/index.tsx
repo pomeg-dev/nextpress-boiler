@@ -7,6 +7,7 @@ export function MarqueeBlock(props: any) {
     items,
     speed,
     direction,
+    accent_strip,
   } = props.data;
 
   return (
@@ -14,6 +15,7 @@ export function MarqueeBlock(props: any) {
       items={(items || []).map((item: { text?: string }) => item?.text ?? "").filter(Boolean)}
       speed={speed}
       direction={direction}
+      accentStrip={!!accent_strip}
       blockOptions={getBlockOptions(props.data)}
       className={classNames("custom-block marquee", props.className)}
       id={props.id}

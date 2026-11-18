@@ -21,6 +21,12 @@
     "default_value": "medium"
   },
   {
+    "id": "accent_strip",
+    "type": "true_false",
+    "ui": 1,
+    "instructions": "Flare strip: overrides the Block Settings colour theme."
+  },
+  {
     "id": "direction",
     "type": "select",
     "choices": [

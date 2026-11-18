@@ -9,6 +9,7 @@ type MarqueeProps = {
   items?: string[];
   speed?: "slow" | "medium" | "fast";
   direction?: "left" | "right";
+  accentStrip?: boolean;
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -23,6 +24,7 @@ const Marquee: React.FC<MarqueeProps> = ({
   items = [],
   speed = "medium",
   direction = "left",
+  accentStrip = false,
   blockOptions,
   className,
   id,
@@ -47,7 +49,8 @@ const Marquee: React.FC<MarqueeProps> = ({
 
   return (
     <BlockWrapper
-      blockOptions={blockOptions}
+      // The flare theme is not a Block Settings choice: the strip toggle sets it.
+      blockOptions={accentStrip ? { ...blockOptions, theme_override: "flare" } : blockOptions}
       className={classNames("marquee-block", className)}
       id={id}
       style={{ "--marquee-duration": DURATIONS[speed] ?? DURATIONS.medium } as React.CSSProperties}
