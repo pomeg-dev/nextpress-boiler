@@ -40,7 +40,6 @@ add_filter( 'map_meta_cap', 'allow_unfiltered_html_for_admins', 10, 3 );
 
 function purge_all_wp_caches() {
     if ( ! isset( $_GET['purge'] ) ) return;
-    error_log('asd');
     wp_cache_flush();
 
     global $wpdb;
@@ -314,7 +313,6 @@ add_filter( 'tiny_mce_before_init', 'add_custom_format_styles' );
  * @return string The custom Local JSON path for the theme.
  */
 function acf_json_save_location( $path ) {
-    error_log( print_r( $path, true ) );
     if ( ! is_dir( get_template_directory() . '/assets/acf-json' ) ) {
         mkdir( get_template_directory() . '/assets/acf-json', 0755 );
     }
