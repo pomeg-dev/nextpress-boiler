@@ -105,7 +105,9 @@ const Button: React.FC<ButtonProps> = ({
       className,
       disabled && "disabled opacity-50 cursor-not-allowed pointer-events-none"
     ),
-    onClick: handleClick,
+    // Only attach a handler when needed: server components render this atom,
+    // and a function prop cannot cross into the client-side Link.
+    onClick: onClick || disabled ? handleClick : undefined,
   };
 
   return isLink ? (

@@ -103,7 +103,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
       data-theme="dark"
       aria-labelledby={`${id}-title`}
     >
-      <h2 id={`${id}-title`} className="heading-xs !mb-2">
+      <h2 id={`${id}-title`} className="heading-xs mb-2!">
         {companyName} uses cookies
       </h2>
       <p className="body-sm text-muted mb-md">
