@@ -1188,6 +1188,19 @@
 
     &:hover { translate: 0 -0.75rem; }
 
+    // Under the top chip only the flare square shows; the code stays for
+    // screen readers instead of peeking out as a clipped fragment.
+    &:not(:last-child) .chip-strip > span:first-child {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+
+      + * { margin-left: auto; }
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       animation: np-fan var(--dur-beat) var(--motion-ease-out) both;
       animation-delay: calc(240ms + (var(--count) - 1 - var(--i)) * var(--stagger));

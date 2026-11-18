@@ -55,7 +55,7 @@ const Timeline: React.FC<TimelineProps> = ({
                     {item.text && <p className="text-muted">{item.text}</p>}
                   </div>
                   {item.image?.src && (
-                    <div className="relative aspect-[3/2] overflow-hidden">
+                    <div className="img-duotone is-revealable relative aspect-[3/2] overflow-hidden">
                       <Image
                         src={item.image.src}
                         alt={item.image.alt ?? ""}
