@@ -150,6 +150,11 @@ function escapeHtml(text) {
 
 const join = (blocks) => blocks.join("\n\n") + "\n";
 
+// Chip codes: one running sequence across the site, like a swatch book.
+let chipCount = 0;
+const chip = (text) => `NP–${String(++chipCount).padStart(2, "0")} · ${text}`;
+const chips = (texts) => texts.map((text) => ({ text: chip(text) }));
+
 // ---------------------------------------------------------------------------
 // Home: the showpiece.
 // ---------------------------------------------------------------------------
@@ -162,7 +167,7 @@ function home() {
         "Nextpress pairs the WordPress editor with a Next.js front end. Editors build pages from blocks; the design system keeps every page on brand.",
       buttons: [{ link: link("See the platform", "platform") }, { link: link("Browse the studies", "work") }],
       images: [img("arch-monolith"), img("botanic-lily"), img("arch-rotunda"), img("studio-typewriter"), img("botanic-bloom")],
-      chip_labels: [{ text: "Structure" }, { text: "Stillness" }, { text: "Light" }, { text: "Type" }, { text: "Colour" }],
+      chip_labels: chips(["Structure", "Stillness", "Light", "Type", "Colour"]),
     }),
     acf(
       "marquee",
@@ -195,7 +200,7 @@ function home() {
         style: "narrative",
         flipped: 0,
         image: img("arch-nave"),
-        label: "Blocks",
+        label: chip("Blocks"),
         content:
           "<h2>Built from blocks, not templates.</h2><p>Each section is a block with fields an editor understands: a heading, an image, a list of links. Every block takes a colour theme and spacing from the same settings panel, so a page can change mood without new code.</p>",
         buttons: [{ link: link("How it works", "platform") }],
@@ -270,7 +275,7 @@ function about() {
   return join([
     acf("hero-image", {
       image: img("arch-stair"),
-      label: "About Nextpress",
+      label: chip("About"),
       heading: '<h1 class="heading-2xl">A boilerplate with a point of view.</h1>',
       content:
         "Nextpress is a starting point for headless WordPress sites: a block library, a token-driven design system and the plumbing between them.",
@@ -278,7 +283,7 @@ function about() {
       bottom_spacer: "xl",
       background_colour: "",
       text_colour: "",
-      background_tint: 0,
+      background_tint: 1,
     }),
     core.group(
       [
@@ -303,7 +308,7 @@ function about() {
       {
         heading: "Material and light",
         images: [img("arch-rotunda"), img("botanic-succulent"), img("arch-facade"), img("studio-desk"), img("arch-sky")],
-        captions: ["Light", "Texture", "Rhythm", "Craft", "Space"].map((text) => ({ text })),
+        captions: chips(["Light", "Texture", "Rhythm", "Craft", "Space"]),
         layout: "collage",
       },
       { theme: "light-secondary" }
@@ -313,7 +318,7 @@ function about() {
       flipped: 1,
       page_margin: 1,
       image: img("studio-typewriter"),
-      label: "Approach",
+      label: chip("Approach"),
       content:
         "<h2>Design in the system, not the page.</h2><p>Type, colour and spacing are tokens. Blocks use the tokens and pages use the blocks, so changing a token changes every page that uses it.</p>",
       top_spacer: "xl",
@@ -325,7 +330,7 @@ function about() {
         stats: [
           "<p>5</p><p>Pages on this site, made by one seed script</p>",
           "<p>15</p><p>Content blocks in the default theme</p>",
-          "<p>6</p><p>Colour themes any block can take</p>",
+          "<p>5</p><p>Colour themes any block can take</p>",
           "<p>2</p><p>Typefaces: Archivo and Geist Mono</p>",
         ].map((content) => ({ content })),
         columns: 4,
@@ -379,28 +384,30 @@ const FIELDS_EXCERPT = `[
   { "id": "items", "type": "repeater", "min": 1,
     "fields": [{ "id": "text", "type": "text" }] },
   { "id": "speed", "type": "select",
-    "choices": [{ "slow": "Slow" }, { "medium": "Medium" }, { "fast": "Fast" }] }
+    "choices": [{ "slow": "Slow" }, … ] }
 ]`;
 
 const API_EXCERPT = `{
   "default": [
-    { "id": "default--marquee", "blockName": "marquee", "fields": [ … ] },
-    { "id": "default--gallery", "blockName": "gallery", "fields": [ … ] }
+    { "id": "default--marquee", "fields": [ … ] },
+    { "id": "default--gallery", "fields": [ … ] }
   ]
 }`;
 
 const ROUTER_EXCERPT = `{
   "blockName": "acf/default--marquee",
   "data": {
-    "items": [{ "text": "deck-hero" }, { "text": "marquee" }],
+    "items": [{ "text": "deck-hero" }, … ],
     "speed": "slow",
     "theme_override": "dark"
   }
 }`;
 
 const REGISTRY_EXCERPT = `export const blocks = {
-  "acf/default--marquee": () => import("@themes/default/blocks/marquee"),
-  "acf/default--gallery": () => import("@themes/default/blocks/gallery"),
+  "acf/default--marquee": () =>
+    import("@themes/default/blocks/marquee"),
+  "acf/default--gallery": () =>
+    import("@themes/default/blocks/gallery"),
 };`;
 
 const COMPONENT_EXCERPT = `export function MarqueeBlock(props) {
@@ -420,8 +427,10 @@ const WRAPPER_EXCERPT = `// Every block's data carries the Block Settings fields
   …
 </BlockWrapper>
 
-// theme_override: light | light-secondary | dark | dark-secondary | overlay
-// padding_top, padding_bottom: 0 | xs | sm | md | lg | xl | margin | section`;
+// theme_override: light | light-secondary | dark
+//   | dark-secondary | overlay
+// padding_top, padding_bottom: 0 | xs | sm | md
+//   | lg | xl | margin | section`;
 
 function platform() {
   const { acf } = page("platform");
@@ -521,7 +530,7 @@ function platform() {
       flipped: 0,
       image: img("arch-ribbon"),
       image_tags: ["Next.js", "ACF", "Tailwind"].map((text) => ({ text })),
-      label: "Stack",
+      label: chip("Stack"),
       content:
         "<h2>The stack</h2><p>A Next.js App Router front end with Tailwind 4 driven by CSS tokens. WordPress with ACF Pro and Gravity Forms behind it, running locally in Docker.</p>",
       top_spacer: "xl",
@@ -575,7 +584,7 @@ function work() {
       {
         heading: "Studies",
         images: [img("arch-tower"), img("botanic-lily"), img("arch-nave"), img("botanic-bloom"), img("arch-column"), img("studio-typewriter")],
-        captions: ["Vertical", "Stillness", "Procession", "Warmth", "Taper", "Keys"].map((text) => ({ text })),
+        captions: chips(["Vertical", "Stillness", "Procession", "Warmth", "Taper", "Keys"]),
         layout: "filmstrip",
       },
       { top: "header" }
@@ -583,14 +592,7 @@ function work() {
     acf("gallery", {
       heading: "Six studies in composition",
       images: [img("arch-monolith"), img("botanic-succulent"), img("arch-facade"), img("land-dune"), img("arch-sky"), img("studio-desk")],
-      captions: [
-        "Study 01 — Editorial",
-        "Study 02 — Pattern",
-        "Study 03 — Grid",
-        "Study 04 — Horizon",
-        "Study 05 — Frame",
-        "Study 06 — Workspace",
-      ].map((text) => ({ text })),
+      captions: chips(["Editorial", "Pattern", "Grid", "Horizon", "Frame", "Workspace"]),
       layout: "mosaic",
     }),
     acf(
@@ -600,7 +602,7 @@ function work() {
         flipped: 1,
         image: img("arch-rotunda"),
         image_tags: ["Gallery", "Layouts", "No custom code"].map((text) => ({ text })),
-        label: "Method",
+        label: chip("Method"),
         content:
           "<h2>Same blocks, different pages.</h2><p>Every study here is the gallery block with a different layout setting: filmstrip, mosaic or stagger. Nothing on this page needed page-specific code.</p>",
         top_spacer: "xl",
@@ -620,7 +622,7 @@ function work() {
       {
         heading: "Quiet studies",
         images: [img("arch-stair"), img("arch-canopy"), img("botanic-bloom"), img("arch-ribbon")],
-        captions: ["Threshold", "Lattice", "Bloom", "Ribbon"].map((text) => ({ text })),
+        captions: chips(["Threshold", "Lattice", "Bloom", "Ribbon"]),
         layout: "stagger",
       },
       { theme: "light-secondary" }
