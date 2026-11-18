@@ -496,6 +496,24 @@
     --flow-space: 0.6em;
   }
 
+  // Core columns (package markup): the row sits a step below what precedes
+  // it, and each column keeps the same rhythm as the flow around it.
+  .flow > .columns-block {
+    --flow-space: var(--space-md);
+  }
+
+  .column-block {
+    --flow-space: 1em; // Not the row's space, which custom properties inherit.
+  }
+
+  .column-block > * + * {
+    margin-top: var(--flow-space);
+  }
+
+  .column-block > :is(h2, h3, h4, h5, h6) + * {
+    --flow-space: 0.6em;
+  }
+
   .flow :is(ul, ol) {
     padding-left: 1.25em;
   }
@@ -886,9 +904,10 @@
     }
   }
 
+  // Opens below the bar: the logo is an image and can't follow the dark theme.
   .mobile-menu {
     position: fixed;
-    inset: 0;
+    inset: var(--header-h) 0 0;
     z-index: 1;
     visibility: hidden;
     clip-path: inset(0 0 100% 0);
@@ -1241,12 +1260,15 @@
     grid-auto-flow: dense;
     gap: var(--space-xs);
 
-    @media (min-width: 64rem) {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
+    // Each run of six fills its rows exactly: 10 cells at 2 columns, 12 at 4.
     > :nth-child(6n + 1) { grid-column: span 2; grid-row: span 2; }
     > :nth-child(6n + 4) { grid-column: span 2; }
+
+    @media (min-width: 64rem) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+
+      > :is(:nth-child(6n + 5), :nth-child(6n)) { grid-column: span 2; }
+    }
   }
 
   .gallery-filmstrip {

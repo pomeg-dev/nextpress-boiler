@@ -24,6 +24,8 @@ const Stats: React.FC<StatsProps> = ({
   id,
 }) => {
   const cols = Math.min(Math.max(Number(columns) || 4, 1), 8);
+  // Tablet: 3 across only when it divides evenly, else 2 (no 3 + 1 orphan).
+  const colsMd = cols < 3 ? cols : cols % 3 === 0 ? 3 : 2;
 
   return (
     <BlockWrapper
@@ -39,7 +41,7 @@ const Stats: React.FC<StatsProps> = ({
         {stats && stats.length > 0 && (
           <ul
             className="stats-grid"
-            style={{ "--cols": cols, "--cols-md": Math.min(cols, 3) } as React.CSSProperties}
+            style={{ "--cols": cols, "--cols-md": colsMd } as React.CSSProperties}
           >
             {stats.map((stat, index) => (
               <li key={index} className="stat flow">

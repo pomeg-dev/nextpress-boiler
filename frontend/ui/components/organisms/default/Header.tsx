@@ -187,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({
           aria-label="Menu"
           aria-hidden={!isOpen}
         >
-          <nav aria-label="Main" className="container flex h-full flex-col justify-between pb-md pt-[calc(var(--header-h)+var(--space-md))]">
+          <nav aria-label="Main" className="container flex h-full flex-col justify-between py-md">
             <ul className="flex flex-col">
               {links.map((item, i) => (
                 <li key={item.ID ?? i} style={{ "--i": i } as React.CSSProperties}>
