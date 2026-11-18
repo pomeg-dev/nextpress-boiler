@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 770 100" width="770" height="100" role="img" aria-label="Nextpress">
+  <g fill="#edefe7">
+    <path d="M0 0H22L64 67.7V0H84V100H62L20 32.3V100H0Z"/>
+    <path transform="translate(94 0)" d="M0 0H64V20H20V40H58V60H20V80H64V100H0Z"/>
+    <path transform="translate(168 0)" d="M0 0H24L42 34L60 0H84L54 50L84 100H60L42 66L24 100H0L30 50Z"/>
+    <path transform="translate(262 0)" d="M0 0H72V20H46V100H26V20H0Z"/>
+    <path transform="translate(344 0)" fill-rule="evenodd" d="M0 0H42A30 30 0 0 1 42 60H20V100H0ZM20 20H42A10 10 0 0 1 42 40H20Z"/>
+    <g transform="translate(426 0)">
+      <path fill-rule="evenodd" d="M0 0H42A30 30 0 0 1 42 60H20V100H0ZM20 20H42A10 10 0 0 1 42 40H20Z"/>
+      <path d="M34 60H56L78 100H56Z"/>
+    </g>
+    <path transform="translate(514 0)" d="M0 0H64V20H20V40H58V60H20V80H64V100H0Z"/>
+  </g>
+  <g fill="none" stroke="#edefe7" stroke-width="20">
+    <path transform="translate(588 0)" d="M66 10H30A20 20 0 0 0 30 50H40A20 20 0 0 1 40 90H4"/>
+    <path transform="translate(668 0)" d="M66 10H30A20 20 0 0 0 30 50H40A20 20 0 0 1 40 90H4"/>
+  </g>
+  <rect x="750" y="80" width="20" height="20" fill="#ff3d7f"/>
+</svg>
