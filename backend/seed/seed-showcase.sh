@@ -69,8 +69,8 @@ clear_transients() {
     wp transient delete "$t" >/dev/null
   done
 }
-# The plugin caches router responses; drop them so pages show the new content.
-clear_router_cache() { clear_transients nextpress_router_; }
+# The plugin caches router responses, settings and Templates; drop them so the site shows the new content.
+clear_content_cache() { clear_transients nextpress_router_; clear_transients nextpress_settings_; clear_transients nextpress_templates_; }
 PRELUDE
 }
 
@@ -106,7 +106,7 @@ sql "SELECT CONCAT('@@', option_value) FROM \${P}options WHERE option_name = 'np
   wp db query "UPDATE \${P}options SET option_value = FROM_BASE64('\$value') WHERE option_name = '\$name'" >/dev/null
 done
 wp option delete np_seed_backup >/dev/null 2>&1 || true
-clear_router_cache
+clear_content_cache
 wp cache flush >/dev/null
 SH
   } | in_wpcli
@@ -271,7 +271,7 @@ wp option update options_default_after_content_0_style solid >/dev/null
 wp option update options_default_after_content_0_background_image "" >/dev/null
 wp option update options_default_after_content_0_copyright "© Nextpress. A headless WordPress boilerplate.
 Photography from Unsplash, credited in the media library." >/dev/null
-clear_router_cache
+clear_content_cache
 echo "@@ ok"
 SH
 } | in_wpcli | sed -n 's/^@@ //p' | while read -r line; do
