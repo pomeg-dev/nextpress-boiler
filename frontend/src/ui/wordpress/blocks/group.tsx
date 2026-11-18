@@ -4,17 +4,34 @@ import { BlockParser } from "@/nextpress.blocks";
 import classNames from "classnames";
 import TabbedContent from "@ui/components/organisms/default/TabbedContent";
 
-// Site override of core/group: renders the brand TabbedContent and defaults the text colour.
+// Editor background slug (theme.json) → colour theme in theme.scss.
+// A group with one of these backgrounds becomes that colour chip.
+const BACKGROUND_THEMES: Record<string, string> = {
+  primary: "dark",
+  black: "dark-secondary",
+  "card-fill": "light-secondary",
+  accent: "flare",
+  secondary: "flare",
+  white: "light",
+};
+
+// Site override of core/group: renders the brand TabbedContent hash handler and
+// maps the group's background to a colour theme. Top-level groups are page
+// sections (styled in theme.scss); nested groups only lay out their children.
 const Group: React.FC<BlockComponentProps> = ({ parser, language, ...block }) => {
   const { innerBlocks, innerContent, data } = block;
-  const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
-  const textColor = data?.style?.color?.text || data?.textColor || "primary";
+  const backgroundColor: string | undefined = data?.style?.color?.background || data?.backgroundColor;
+  const textColor: string | undefined = data?.style?.color?.text || data?.textColor;
   let id: string | undefined = undefined;
   if (innerContent?.[0]) {
     const regex = /id=["']([^"']*)["']/;
     const match = regex.exec(innerContent?.[0]);
     id = match ? match[1] : undefined;
   }
+
+  const theme = backgroundColor ? BACKGROUND_THEMES[backgroundColor] : undefined;
+  // A custom hex background has no theme: paint it and keep the inherited colours.
+  const customBackground = backgroundColor && !theme ? backgroundColor : undefined;
 
   const layoutType = data?.layout?.type;
   const flexWrap = data?.layout?.flexWrap;
@@ -28,8 +45,8 @@ const Group: React.FC<BlockComponentProps> = ({ parser, language, ...block }) =>
     'items-end': layoutType === 'flex' && verticalAlignment === 'bottom',
     'items-stretch': layoutType === 'flex' && verticalAlignment === 'stretch',
     'justify-between': layoutType === 'flex',
-    'gap-4': layoutType === 'flex',
-    'w-fit': layoutType === 'flex',
+    'gap-sm': layoutType === 'flex',
+    'flow': layoutType !== 'flex',
   });
 
   return (
@@ -37,34 +54,25 @@ const Group: React.FC<BlockComponentProps> = ({ parser, language, ...block }) =>
       id={id}
       className={classNames(
         "core-block group-block relative",
-        data?.style?.color?.text && "has-text-color",
-        layoutClasses,
+        textColor && "has-text-color",
         block?.className
       )}
+      data-theme={theme}
       style={{
+        ...(customBackground && {
+          backgroundColor: customBackground.includes('#') ? customBackground : `var(--color-${customBackground})`,
+        }),
         ...(textColor && {
-          color: textColor.includes('#') ? textColor : `var(--color-${textColor})`
+          color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
         }),
       }}
     >
       <TabbedContent />
-      {innerBlocks &&
-        backgroundColor ? (
-          <div
-            className="has-background break-out"
-            style={{
-              backgroundColor: 
-                backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
-            }}
-          >
-            <div className="container py-8">
-              <BlockParser blocks={innerBlocks} language={language} />
-            </div>
-          </div>
-        ) : (
+      {innerBlocks && (
+        <div className={classNames("group-inner", layoutClasses)}>
           <BlockParser blocks={innerBlocks} language={language} />
-        )
-      }
+        </div>
+      )}
     </div>
   );
 };

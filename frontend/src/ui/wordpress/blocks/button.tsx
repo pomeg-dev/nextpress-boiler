@@ -40,13 +40,14 @@ const ButtonBlock: React.FC<BlockComponentProps> = ({ parser, language, ...block
   };
 
   const buttonProps = extractButtonProps(block.innerHTML);
-  const backgroundColor = data?.style?.color?.background || data?.backgroundColor || "bg-blue-600";
-  const textColor = data?.style?.color?.text || data?.textColor || "text-white";
-  
+  // The editor's Outline style renders the secondary (outlined) button.
+  const isOutline = `${block?.className ?? ""} ${data?.className ?? ""}`.includes("is-style-outline");
+
   return (
     <Button
       size="md"
-      style="primary"
+      style={isOutline ? "secondary" : "primary"}
+      iconRight="ArrowRight"
       linkItem={{
         url: buttonProps.href,
         target: buttonProps.target,
