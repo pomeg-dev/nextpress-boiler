@@ -23,8 +23,6 @@ export function HeaderBlock(props: any) {
     logoAtts.alt = logo.alt;
     logoAtts.width = logo.width;
     logoAtts.height = logo.height;
-    logoAtts.className = "my-xs w-[160px]";
-    logoAtts.blurImage = logo.sizes?.thumbnail ?? undefined;
   }
 
   return (

@@ -5,8 +5,10 @@ import classNames from "classnames";
 import { ImageProps, MenuItemsProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { linkFilter } from "@pomeg-dev/nextpress-client";
 import Parser from "html-react-parser";
+import { ArrowRight } from "@ui/icons/icon-loader";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -20,6 +22,8 @@ type FooterProps = {
   className?: string;
 };
 
+const normalise = (path: string) => path.replace(/\/+$/, "") || "/";
+
 const Footer: React.FC<FooterProps> = ({
   logo,
   style = "image",
@@ -29,63 +33,81 @@ const Footer: React.FC<FooterProps> = ({
   copyright,
   className
 }) => {
+  const pathname = normalise(usePathname() || "/");
+  const hasImage = style === "image" && !!background_image?.src;
+
   return (
     <footer
-      className={classNames(
-        "footer",
-        className,
-        "relative z-[1] overflow-hidden pt-[140px] text-white bg-primary"
-      )}
+      className={classNames("site-footer relative isolate overflow-hidden", className)}
+      data-theme={hasImage ? "overlay" : "dark"}
       style={{
-        ...(background_colour ? { backgroundColor: background_colour } : {}),
+        ...(style === "solid" && background_colour ? { backgroundColor: background_colour } : {}),
       }}
       id="footer"
     >
-      {(style === "image" && background_image) && (
-        <div className="absolute left-0 top-0 z-[-1] h-full w-full">
+      {hasImage && (
+        <div className="scrim absolute inset-0 -z-10">
           <Image
-            src={background_image.src}
-            width={background_image.width}
-            height={background_image.height}
-            alt={background_image.alt}
-            className={background_image.className}
-            blurDataURL={background_image.blurImage ?? undefined}
-            placeholder={background_image.blurImage ? "blur" : undefined}
+            src={background_image!.src}
+            width={background_image!.width}
+            height={background_image!.height}
+            alt=""
+            sizes="100vw"
+            className="h-full w-full object-cover"
+            blurDataURL={background_image!.blurImage ?? undefined}
+            placeholder={background_image!.blurImage ? "blur" : undefined}
           />
         </div>
       )}
-      <div className="container flex items-end justify-between">
-        {menu_items &&
-          <ul className="flex flex-col gap-4 text-base">
-            {menu_items.map((item: MenuItemsProps, i: number) => (
-              <li key={i}>
-                <Link
-                  href={linkFilter(item.url, API_URL)}
-                  target={item.target}
-                  className={classNames(
-                    "inline-flex items-center border-b-[1px] border border-transparent hover:border-b-white transition-colors",
-                    item.classes
-                  )}
-                >
-                  {item.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        }
-        {copyright &&
-          <div className="max-w-[455px] text-[14px]">{Parser(copyright)}</div>
-        }
+
+      <div className="container grid grid-cols-1 gap-lg pt-xl md:grid-cols-12">
+        {menu_items && (
+          <nav aria-label="Footer" className="md:col-span-7">
+            <ul className="footer-nav">
+              {menu_items.map((item: MenuItemsProps, i: number) => {
+                const href = linkFilter(item.url, API_URL);
+                return (
+                  <li key={item.ID ?? i}>
+                    <Link
+                      href={href}
+                      target={item.target || undefined}
+                      aria-current={normalise(href) === pathname ? "page" : undefined}
+                      className="footer-nav-link"
+                    >
+                      {Parser(item.title)}
+                      <ArrowRight width="0.6em" height="0.6em" aria-hidden="true" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        )}
+
+        <div className="flex flex-col justify-between gap-md md:col-span-4 md:col-start-9">
+          {copyright && (
+            <div className="flow body-sm text-muted [&_a]:text-fg">{Parser(copyright)}</div>
+          )}
+          <a href="#header" className="button no-fill w-fit gap-2 text-body-sm">
+            Back to top
+            <ArrowRight width="1em" height="1em" className="-rotate-90" aria-hidden="true" />
+          </a>
+        </div>
       </div>
-      {logo &&
-        <Image
-          src={logo.src}
-          width={logo.width}
-          height={logo.height}
-          alt={logo.alt}
-          className={logo.className}
-        />
-      }
+
+      {logo?.src && (
+        <div className="container pb-sm pt-xl">
+          <Image
+            src={logo.src}
+            width={logo.width}
+            height={logo.height}
+            alt={logo.alt || ""}
+            sizes="100vw"
+            className="footer-wordmark h-auto w-full"
+            unoptimized={logo.src.endsWith(".svg")}
+          />
+        </div>
+      )}
     </footer>
   );
 };

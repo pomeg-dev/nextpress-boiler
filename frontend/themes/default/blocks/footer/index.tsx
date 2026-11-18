@@ -21,13 +21,11 @@ export function FooterBlock(props: any) {
 
   if (logo) {
     logo.src = logo.url;
-    logo.className = "w-full pt-8";
   }
 
   if (background_image) {
     background_image.src = background_image.url;
-    background_image.className = "absolute h-full w-full object-cover";
-    background_image.blurDataURL = background_image.sizes?.thumbnail ?? background_image.url;
+    background_image.blurImage = background_image.sizes?.thumbnail ?? undefined;
   }
 
   return (
