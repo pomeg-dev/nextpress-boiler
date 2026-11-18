@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T00:00:00Z",
+  "title": "Design System: Nextpress",
+  "extensions": {
+    "colorMeta": {
+      "np-chalk": { "role": "neutral", "displayName": "Chalk", "canonical": "#edefe7", "tonalRamp": ["#0b0b0a", "#252524", "#424240", "#61625e", "#82837f", "#a4a6a0", "#c8cac3", "#eef0e8"] },
+      "np-chalk-raised": { "role": "neutral", "displayName": "Chalk Raised", "canonical": "#f7f8f3", "tonalRamp": ["#0b0b0b", "#252524", "#424241", "#616160", "#828380", "#a5a5a2", "#c9cac6", "#eeefea"] },
+      "np-sage": { "role": "neutral", "displayName": "Sage", "canonical": "#d3ddcc", "tonalRamp": ["#0a0c09", "#242623", "#40433e", "#5e635b", "#7f857a", "#a0a89b", "#c3cdbd", "#e9f2e2"] },
+      "np-bottle": { "role": "primary", "displayName": "Bottle Green", "canonical": "#0f3b30", "tonalRamp": ["#001009", "#032c23", "#244a40", "#49695f", "#6e8980", "#95aba3", "#bdcec8", "#e7f1ee"] },
+      "np-bottle-raised": { "role": "primary", "displayName": "Bottle Raised", "canonical": "#164a3d", "tonalRamp": ["#001109", "#002d23", "#194c3f", "#426b5f", "#688b80", "#90aca3", "#b9cfc7", "#e3f3ed"] },
+      "np-ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0c1411", "tonalRamp": ["#060d0a", "#1f2724", "#3d4441", "#5d6360", "#7f8482", "#a2a6a4", "#c7cac9", "#edefee"] },
+      "np-ink-raised": { "role": "neutral", "displayName": "Ink Raised", "canonical": "#17211c", "tonalRamp": ["#060d09", "#1e2823", "#3b4440", "#5b635f", "#7d8481", "#a1a6a4", "#c6cac8", "#ecefee"] },
+      "np-flare": { "role": "secondary", "displayName": "Flare", "canonical": "#ff3d7f", "tonalRamp": ["#240006", "#4e001c", "#7c0236", "#ae1b51", "#e2316e", "#ff5a90", "#ff90b7", "#ffc1df"] },
+      "np-flare-deep": { "role": "secondary", "displayName": "Flare Deep", "canonical": "#b01350", "tonalRamp": ["#290005", "#53001a", "#800034", "#b01350", "#ce5073", "#eb7e97", "#ffabbe", "#ffd7e5"] },
+      "np-flare-light": { "role": "secondary", "displayName": "Flare Light", "canonical": "#ff8fb3", "tonalRamp": ["#16050a", "#3a1924", "#613040", "#8b495f", "#b8647f", "#e680a1", "#ffa4c5", "#ffcfeb"] },
+      "np-muted": { "role": "neutral", "displayName": "Muted", "canonical": "#46554d", "tonalRamp": ["#060d09", "#1d2822", "#38463e", "#57655d", "#79867f", "#9da8a2", "#c3ccc7", "#eaf0ed"] },
+      "np-muted-dark": { "role": "neutral", "displayName": "Muted Dark", "canonical": "#a9bbaf", "tonalRamp": ["#090c0a", "#212723", "#3c443f", "#5a645d", "#79867d", "#99aa9f", "#bdcec3", "#e4f3e9"] },
+      "np-white": { "role": "neutral", "displayName": "White", "canonical": "#ffffff", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (heading-3xl)", "purpose": "Hero lines." },
+      "headline": { "displayName": "Headline (heading-2xl)", "purpose": "Page titles and h1." },
+      "title": { "displayName": "Title (heading-xl)", "purpose": "Section titles (h2), marquee, mobile menu links, stat figures." },
+      "subtitle": { "displayName": "Subtitle (heading-lg)", "purpose": "h3, statements, stacked-link titles, footer nav, step numbers." },
+      "body-lg": { "displayName": "Lead (body-lg)", "purpose": "Lead text under headings." },
+      "body": { "displayName": "Body", "purpose": "Running text at 65ch; never below 16px." },
+      "label": { "displayName": "Label (Geist Mono)", "purpose": "Chip codes, pills, nav indices, markers, captions." }
+    },
+    "shadows": [
+      { "name": "shadow-lift", "value": "0 1px 2px rgb(12 20 17 / 0.12), 0 24px 48px -16px rgb(12 20 17 / 0.4)", "purpose": "Chips lying on top of something: deck chips, the overlapping collage chip, the cookie panel." }
+    ],
+    "motion": [
+      { "name": "dur-fast", "value": "160ms", "purpose": "Colour changes." },
+      { "name": "dur-base", "value": "320ms", "purpose": "State changes: buttons, underlines, sweeps." },
+      { "name": "dur-slow", "value": "640ms", "purpose": "Duotone reveal, mobile menu wipe, panels." },
+      { "name": "dur-beat", "value": "900ms", "purpose": "Entrances: the deck fan." },
+      { "name": "motion-ease-out", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Default easing." },
+      { "name": "motion-ease-in-out", "value": "cubic-bezier(0.65, 0, 0.35, 1)", "purpose": "Mobile menu wipe." },
+      { "name": "stagger", "value": "70ms", "purpose": "Delay between items in one reveal." },
+      { "name": "reveal-distance", "value": "1.5rem", "purpose": "Fade-up travel for [data-reveal]." }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "320px" },
+      { "name": "sm", "value": "390px" },
+      { "name": "md", "value": "720px" },
+      { "name": "lg", "value": "1080px" },
+      { "name": "xl", "value": "1440px" },
+      { "name": "2xl", "value": "1720px" },
+      { "name": "3xl", "value": "2000px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "One primary action per view: flare fill, ink label; hovers to bottle.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">See the platform <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 1rem; min-height: 2.75rem; padding: 1em 1.25em; border-radius: 3px; font-family: Archivo, Arial, sans-serif; font-weight: 500; font-size: 1rem; line-height: 1; text-decoration: none; transition: background-color 320ms cubic-bezier(0.22,1,0.36,1), color 320ms cubic-bezier(0.22,1,0.36,1), box-shadow 320ms cubic-bezier(0.22,1,0.36,1); } .ds-btn svg { transition: transform 320ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary { background: #ff3d7f; color: #0c1411; } .ds-btn-primary:hover { background: #0f3b30; color: #edefe7; } .ds-btn:hover svg { transform: translateX(0.25em); } .ds-btn:focus-visible { outline: 2px solid #b01350; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Transparent with a 1.5px ring in the text colour.",
+      "html": "<a class=\"ds-btn2\" href=\"#\">How it works</a>",
+      "css": ".ds-btn2 { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 1em 1.25em; border-radius: 3px; background: transparent; color: #0c1411; box-shadow: inset 0 0 0 1.5px currentColor; font-family: Archivo, Arial, sans-serif; font-weight: 500; line-height: 1; text-decoration: none; transition: background-color 320ms cubic-bezier(0.22,1,0.36,1), color 320ms cubic-bezier(0.22,1,0.36,1); } .ds-btn2:hover { background: #0f3b30; color: #edefe7; } .ds-btn2:focus-visible { outline: 2px solid #b01350; outline-offset: 3px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "custom",
+      "refersTo": "chip-strip",
+      "description": "Signature: a colour or image field over a white mono code strip.",
+      "html": "<figure class=\"ds-chip\"><div class=\"ds-chip-field\"></div><figcaption class=\"ds-chip-strip\"><span>NP–02 · Bottle</span><span class=\"ds-chip-mark\"></span></figcaption></figure>",
+      "css": ".ds-chip { display: flex; flex-direction: column; width: 14rem; margin: 0; background: #f7f8f3; color: #0c1411; } .ds-chip-field { aspect-ratio: 4 / 5; background: #0f3b30; } .ds-chip-strip { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.75rem; padding: 0 0.875rem; font-family: 'Geist Mono', ui-monospace, Menlo, monospace; font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; } .ds-chip-mark { width: 0.625rem; height: 0.625rem; background: #ff3d7f; }"
+    },
+    {
+      "name": "Pill",
+      "kind": "chip",
+      "refersTo": "pill",
+      "description": "Mono tag with a hairline ring; accent variant fills flare.",
+      "html": "<span class=\"ds-pill\">Next.js</span> <span class=\"ds-pill ds-pill-accent\">ACF</span>",
+      "css": ".ds-pill { display: inline-flex; align-items: center; padding: 0.375rem 0.625rem; border-radius: 2px; box-shadow: inset 0 0 0 1px rgb(12 20 17 / 0.16); font-family: 'Geist Mono', ui-monospace, Menlo, monospace; font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: #0c1411; } .ds-pill-accent { background: #ff3d7f; box-shadow: none; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-control",
+      "description": "Tinted fill with an underline that thickens on hover and focus.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Email<span class=\"ds-req\">*</span></span><input class=\"ds-input\" type=\"email\" placeholder=\"you@example.com\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.5rem; font-family: Archivo, Arial, sans-serif; } .ds-field-label { font-weight: 500; color: #0f3b30; } .ds-req { margin-left: 0.25em; color: #b01350; } .ds-input { min-height: 3rem; padding: 0.75rem 1rem; border: 0; border-radius: 2px; background: rgb(12 20 17 / 0.06); box-shadow: inset 0 -1px 0 #46554d; color: #0c1411; font: inherit; transition: box-shadow 160ms cubic-bezier(0.22,1,0.36,1); } .ds-input::placeholder { color: #46554d; } .ds-input:hover { box-shadow: inset 0 -2px 0 #0c1411; } .ds-input:focus-visible { outline: 2px solid #b01350; outline-offset: 2px; box-shadow: inset 0 -2px 0 #0c1411; }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "description": "Header link with a mono index; flare underline draws in from the left.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#\"><span class=\"ds-nav-index\">01</span>About</a><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\"><span class=\"ds-nav-index\">02</span>Platform</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 1.5rem; } .ds-nav-link { position: relative; display: inline-flex; align-items: center; min-height: 2.75rem; font-family: Archivo, Arial, sans-serif; font-size: 0.9375rem; font-weight: 500; color: #0c1411; text-decoration: none; } .ds-nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0.6rem; height: 1.5px; background: #ff3d7f; scale: 0 1; transform-origin: right; transition: scale 320ms cubic-bezier(0.22,1,0.36,1); } .ds-nav-link:hover::after { scale: 1 1; transform-origin: left; } .ds-nav-index { margin-right: 0.6em; font-family: 'Geist Mono', ui-monospace, Menlo, monospace; font-size: 0.8125rem; letter-spacing: 0.08em; color: #46554d; } .ds-nav-link[aria-current='page'] .ds-nav-index { color: #b01350; } .ds-nav-link:focus-visible { outline: 2px solid #b01350; outline-offset: 3px; }"
+    },
+    {
+      "name": "Stacked Link",
+      "kind": "custom",
+      "description": "Full-width row on hairlines; a flare field sweeps in on hover or focus.",
+      "html": "<a class=\"ds-row\" href=\"#\"><span class=\"ds-row-title\">Platform</span><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-row { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; padding: 1rem 0.5rem; border-block: 1px solid rgb(12 20 17 / 0.16); color: #0f3b30; text-decoration: none; } .ds-row::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #ff3d7f; clip-path: inset(0 100% 0 0); transition: clip-path 320ms cubic-bezier(0.22,1,0.36,1); } .ds-row:hover, .ds-row:focus-visible { color: #0c1411; } .ds-row:hover::before, .ds-row:focus-visible::before { clip-path: inset(0); } .ds-row svg { transition: translate 320ms cubic-bezier(0.22,1,0.36,1); } .ds-row:hover svg { translate: 0.25rem 0; } .ds-row-title { font-family: Archivo, Arial, sans-serif; font-size: 2.25rem; font-weight: 600; font-variation-settings: 'wdth' 108; line-height: 1; letter-spacing: -0.02em; }"
+    },
+    {
+      "name": "Palette Option",
+      "kind": "button",
+      "refersTo": "palette-option-selected",
+      "description": "Preset toggle; the selected one inverts and morphs to a pill.",
+      "html": "<button class=\"ds-pal\" aria-pressed=\"true\"><span class=\"ds-sw\"><i style=\"background:#edefe7\"></i><i style=\"background:#0f3b30\"></i><i style=\"background:#ff3d7f\"></i><i style=\"background:#d3ddcc\"></i></span>Default</button>",
+      "css": ".ds-pal { display: inline-flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.375rem 1rem 0.375rem 0.375rem; border: 0; border-radius: 2px; background: transparent; box-shadow: inset 0 0 0 1px rgb(12 20 17 / 0.16); font-family: Archivo, Arial, sans-serif; font-weight: 500; color: #0c1411; cursor: pointer; transition: border-radius 320ms cubic-bezier(0.22,1,0.36,1), background-color 160ms cubic-bezier(0.22,1,0.36,1); } .ds-pal:hover { box-shadow: inset 0 0 0 1px #0c1411; } .ds-pal[aria-pressed='true'] { border-radius: 999px; background: #0f3b30; color: #edefe7; box-shadow: none; } .ds-sw { display: flex; } .ds-sw i { width: 1.25rem; height: 2rem; box-shadow: inset 0 0 0 1px rgb(12 20 17 / 0.12); } .ds-sw i:first-child { border-radius: 999px 0 0 999px; } .ds-sw i:last-child { border-radius: 0 999px 999px 0; } .ds-pal:focus-visible { outline: 2px solid #b01350; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Swatch Book",
+    "overview": "The site is a swatch book of its own system. Every section is a whole colour field (a chip) picked from six named themes, and images and code excerpts are chips too: a field over a white code strip carrying a mono code such as `NP–02 · Bottle`. Because each chip is a token value, the site shows its own mechanism: a new project changes values in `theme.scss` and every section follows.\n\nThe palette runs 60/30/10: cool chalk ground, deep bottle-green fields, a hot flare pink used in small doses. Type is one expanded variable grotesk (Archivo, width axis pushed out for display) with Geist Mono for codes, labels, numerals and code. Corners are square or nearly so, structure is drawn with hairlines, and depth is almost absent. Photographs are unified by one duotone treatment in the section's own colours. All reveals share one motion beat.\n\nThe world refuses two looks by intent: the cream-and-italic-serif studio template and the dark SaaS hero.",
+    "keyCharacteristics": [
+      "Sections are whole colour fields chosen by `data-theme`; no white page with accents.",
+      "Chips: image or code over a white mono code strip.",
+      "Expanded Archivo display at very large fluid sizes, tight negative tracking.",
+      "Geist Mono for every code, label, numeral and nav index.",
+      "Square-ish corners (0–3px), 1px hairline rules, 2px accent rules.",
+      "One duotone image treatment; one lift shadow; one motion beat."
+    ],
+    "rules": [
+      { "name": "The Whole Field Rule", "body": "A section's colour is its theme, set on the section by `data-theme`. Do not paint a background inside a section to fake a different chip; nest a themed group instead.", "section": "colors" },
+      { "name": "The Flare Dose Rule", "body": "Flare is the 10%. It fills small marks and one primary action per view; as text it appears only through `--np-accent` (flare-deep, flare-light or flare, by theme). Flare is never body text on chalk.", "section": "colors" },
+      { "name": "The Re-declare Rule", "body": "Any role variable that a utility reads must be declared on every `[data-theme]`, because a value redefined only on a descendant does not reach utilities resolved higher up.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Display and body are both Archivo; character comes from the width axis and weight, not from a second face. No serif anywhere.", "section": "typography" },
+      { "name": "The Mono Means Code Rule", "body": "Geist Mono is reserved for codes, labels, numerals, indices and code. It never sets running body copy or a heading.", "section": "typography" },
+      { "name": "The Paper Rule", "body": "Surfaces are flat. A shadow means a chip is lying on top of something else. Cards, buttons and fields never take a shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** pick a section's colour through `theme_override`, a core group background slug, or `data-theme`; read colours through role tokens (`--surface`, `--fg`, `--heading`, `--np-accent`, `--np-accent-fill`).",
+      "**Do** caption images with a chip strip using the `NP–NN · Word` code format, mono, uppercase.",
+      "**Do** put every photograph through `.img-duotone` so mixed stock reads as one set.",
+      "**Do** draw structure with 1px `--rule` hairlines and keep corners at 0–3px.",
+      "**Do** use the shared motion tokens for every transition and keep the 2.75rem (44px) minimum on every interactive element.",
+      "**Do** change the look by changing values in `theme.scss`; keep token names and editor slug names stable."
+    ],
+    "donts": [
+      "**Don't** use flare (`--np-flare`) as small text on chalk or sage; use `--np-accent`, which resolves to an AA-safe tint per theme.",
+      "**Don't** add shadows to cards, buttons or fields; `--shadow-lift` is for chips lying on top of something.",
+      "**Don't** set a mono kicker or eyebrow above a heading; the label belongs in the chip strip or closes the text.",
+      "**Don't** introduce a serif, a second sans, or a cream ground.",
+      "**Don't** add a colour value outside the `--np-*` palette, or set values in Tailwind's `@theme` blocks.",
+      "**Don't** rename editor classes (`heading-*`, `text-teriary`, `font-secondary`) or the `--color-<slug>` variables."
+    ]
+  }
+}

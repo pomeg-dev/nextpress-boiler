@@ -1,6 +1,6 @@
 # Redesign plan (phase 2)
 
-Status: approved 2026-11-18 (decisions in section 8).
+Status: approved 2026-11-18 (decisions in section 8). Built; where the build differs (flare-deep #B01350, flare-light, a sixth `flare` theme, smaller display sizes), `DESIGN.md` records what shipped.
 
 ## 1. Direction: "The swatch book"
 

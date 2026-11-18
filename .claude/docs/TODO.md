@@ -17,6 +17,8 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] `archive/PostsList.tsx` wraps `PostCard` in a `<Link>`, and PostCard can contain button links → nested `<a>` (invalid HTML, hydration warning) when a post has `acf_data.link`/`download`. Fixing it changes archive-feed markup behaviour: needs approval.
 - [ ] No skip link. `<main>` is rendered by the package with no id, so a link has no target. Landmarks satisfy WCAG 2.4.1; add one if the package gives `<main>` an id.
 - [ ] `PostCard` in featured-posts has no link to the post itself (only `acf_data.link`). Left as is.
+- [ ] Legacy leftovers outside the new system: Tailwind colour aliases (`primary-dark`, `quaternary`, `dark`, `smoke`) and BlockWrapper's `"mission"` theme fallback. Remove once no saved content uses them.
+- [ ] Some component CSS in theme.scss uses raw `48rem`/`64rem` media queries instead of the Tailwind screens (md 720, lg 1080).
 
 ## Security / privacy
 - [ ] Plugin `ext-gravityforms.php` injects the full `GFAPI::get_form()` as `gfData` into public router JSON, including `notifications` (recipient emails, routing). Plugin is read-only: needs a decision (strip in plugin, or filter server-side).
@@ -27,6 +29,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] `next lint` is deprecated (Next 16 removes it). Migrate to the ESLint CLI.
 
 ## Environment
+- [ ] WordPress auto-updated core 7.1.4 → 7.1.5 when Docker started (2026-11-18). 27 files under `backend/wordpress/wp-admin` and `wp-includes` are modified and not committed. Decide whether to commit them or turn off core auto-updates.
 - [ ] `backend` compose `wpcli` service has no DB env vars; compose `version` attribute is obsolete. (Docker config is off-limits in this task.)
 - [ ] WordPress `frontend_url` setting is empty, which logs a console warning on every page. Setting it to `http://localhost:3000` was approved but **not applied**. The plugin uses the same value for its server-side `/api/blocks` fetch, which fails inside Docker. The fetch failure strips every block's fields and trips the plugin's circuit breaker. To fix this, the plugin must keep separate internal and public URLs (plugin is read-only: needs a decision). Frontend-only alternative, not applied (changes canonical/og:url): set `frontendUrl` in `frontend/src/nextpress.config.ts` from an env var. The package prefers it over the WordPress setting.
 - [ ] The package's core image renderer hardcodes `sizes`. Read-only; raise with package owners if it costs performance.
