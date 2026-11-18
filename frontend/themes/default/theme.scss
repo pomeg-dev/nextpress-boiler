@@ -976,6 +976,147 @@
   }
 
   // ----------------------------------------------------------------
+  // Block parts
+  // ----------------------------------------------------------------
+
+  // text-section column A: paragraphs set as a statement.
+  .statement p {
+    font-family: var(--font-heading);
+    font-size: var(--fs-heading-lg);
+    font-weight: var(--fw-medium);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--heading);
+  }
+
+  // stacked-links rows.
+  .stacked-link {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-xs) var(--space-md);
+    padding: var(--space-sm) var(--space-xs);
+    text-decoration: none;
+    color: var(--heading);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--np-accent-fill);
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path var(--dur-base) var(--motion-ease-out);
+    }
+
+    &:is(:hover, :focus-visible) {
+      color: var(--np-on-accent);
+
+      &::before { clip-path: inset(0 0 0 0); }
+      .stacked-link-text { color: inherit; }
+      .stacked-link-icon { translate: 0.25rem 0; }
+    }
+
+    @media (min-width: 64rem) {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) auto;
+    }
+  }
+
+  .stacked-link-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-heading-lg);
+    font-weight: var(--fw-heading);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .stacked-link-text {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: var(--measure);
+    color: var(--fg-muted);
+    transition: color var(--dur-fast) var(--motion-ease-out);
+
+    @media (min-width: 64rem) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+
+  .stacked-link-icon {
+    grid-column: 2;
+    grid-row: 1;
+    transition: translate var(--dur-base) var(--motion-ease-out);
+
+    @media (min-width: 64rem) { grid-column: 3; }
+  }
+
+  // stats: hairline grid; the first element of each stat is the figure.
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: var(--border-width) solid var(--rule);
+
+    @media (min-width: 48rem) {
+      grid-template-columns: repeat(var(--cols-md), minmax(0, 1fr));
+    }
+
+    @media (min-width: 64rem) {
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+  }
+
+  .stat {
+    padding: var(--space-sm) var(--space-sm) var(--space-md) 0;
+    border-bottom: var(--border-width) solid var(--rule);
+
+    > :first-child {
+      font-family: var(--font-code);
+      font-size: var(--fs-heading-xl);
+      font-weight: var(--fw-medium);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--heading);
+    }
+
+    > :not(:first-child) { color: var(--fg-muted); }
+  }
+
+  // parallax-image: the media layer is 120% tall and drifts as it scrolls.
+  @keyframes np-parallax {
+    from { translate: 0 -8%; }
+    to { translate: 0 8%; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .parallax-media {
+        animation: np-parallax linear both;
+        animation-timeline: view();
+      }
+    }
+  }
+
+  .parallax-frame {
+    color: var(--fg);
+  }
+
+  .parallax-link {
+    color: var(--heading);
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: var(--rule-width);
+    text-underline-offset: 0.18em;
+
+    &:hover { text-decoration-color: var(--np-accent-fill); }
+  }
+
+  // ----------------------------------------------------------------
   // Chips and image treatments
   // ----------------------------------------------------------------
 

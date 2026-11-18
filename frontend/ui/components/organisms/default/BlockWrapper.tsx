@@ -28,6 +28,17 @@ const SPACING_TOKENS: Record<string, string> = {
 const spacing = (value?: number | string) =>
   value === undefined || value === null || value === "" ? undefined : SPACING_TOKENS[String(value)];
 
+// Picks the Block Settings fields out of a block's `data`.
+export const getBlockOptions = (data?: Record<string, any>): BlockOptions => ({
+  theme_override: data?.theme_override,
+  padding_top: data?.padding_top,
+  padding_bottom: data?.padding_bottom,
+});
+
+// A block's own spacer field: dropped when Block Settings sets that side.
+export const ownSpacing = (value?: string, option?: number | string) =>
+  spacing(option) !== undefined ? undefined : spacing(value);
+
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   blockOptions,
   className,

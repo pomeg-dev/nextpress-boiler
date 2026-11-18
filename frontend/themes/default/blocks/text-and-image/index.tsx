@@ -3,6 +3,7 @@
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import TextAndImage from "@ui/components/organisms/default/TextAndImage";
 import classNames from "classnames";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 
 export function TextAndImageBlock(props: any) {
   const {
@@ -24,7 +25,6 @@ export function TextAndImageBlock(props: any) {
     imageAtts.alt = image.alt;
     imageAtts.width = image.width;
     imageAtts.height = image.height;
-    imageAtts.className = "h-full w-full object-cover";
     imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
   }
 
@@ -40,6 +40,7 @@ export function TextAndImageBlock(props: any) {
       buttons={buttons}
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}
+      blockOptions={getBlockOptions(props.data)}
       className={classNames(
         "custom-block text-and-image",
         props.className

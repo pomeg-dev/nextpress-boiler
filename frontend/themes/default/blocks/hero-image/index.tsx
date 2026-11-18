@@ -3,6 +3,7 @@
 import classNames from "classnames";
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import HeroImage from "@ui/components/organisms/default/HeroImage";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 
 export function HeroImageBlock(props: any) {
   const {
@@ -23,7 +24,6 @@ export function HeroImageBlock(props: any) {
       imageAtts.alt = image.alt;
       imageAtts.width = image.width;
       imageAtts.height = image.height;
-      imageAtts.className = "absolute left-0 top-0 h-full w-full object-cover";
       imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
     }
 
@@ -38,6 +38,7 @@ export function HeroImageBlock(props: any) {
       background_colour={background_colour}
       text_colour={text_colour}
       background_tint={background_tint}
+      blockOptions={getBlockOptions(props.data)}
       className={classNames(
         "custom-block hero-image",
         props.className

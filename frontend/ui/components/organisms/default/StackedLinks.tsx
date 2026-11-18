@@ -1,68 +1,66 @@
-import React, { ReactNode } from "react";
-import classNames from "classnames";
-import Parser from "html-react-parser";
-import { LinkItemProps } from "@pomeg-dev/nextpress-client/types";
-import Pill from "../../atoms/Pill";
+import React from "react";
+import { BlockOptions, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import { ArrowRight } from "../../../icons/icon-loader";
+import BlockWrapper, { ownSpacing } from "./BlockWrapper";
 
 type StackedLinksProps = {
   label?: string;
   rows?: { link: LinkItemProps, description: string}[];
   top_spacer?: "xl" | "lg" | "md" | "0";
   bottom_spacer?: "xl" | "lg" | "md" | "0";
+  blockOptions?: BlockOptions;
   className?: string;
   id?: string;
 };
 
+// Full-width type rows. The accent fill sweeps in behind a row on hover.
 const StackedLinks: React.FC<StackedLinksProps> = ({
   label,
   rows,
   top_spacer = "xl",
   bottom_spacer = "xl",
+  blockOptions,
   className,
   id,
 }) => {
-  return (
-    <div
-      className={classNames(
-        "container",
-        `pb-${bottom_spacer}`,
-        `pt-${top_spacer}`,
-        className
-      )}
-      id={id}
-      data-bg="white"
-    >
-      {label &&
-        <Pill
-          style="no-fill"
-          className="mb-sm"
-        >
-          {label}
-        </Pill>
-      }
-      {rows &&
-        <div className="flex flex-col">
-          {rows.map((row: any, index: number) => (
-            <Link
-              href={row.link.url}
-              target={row.link.target}
-              key={index}
-              className="group flex items-center justify-between border-b border-primary/20 py-md first:border-t first:border-primary/20"
+  const items = (rows ?? []).filter((row) => row?.link?.url);
 
-            >
-              <span className="w-[3em] text-heading-lg font-[500]">{(index + 1).toString().padStart(2, "0")}</span>
-              <h3 className="!m-0 w-[8em] !text-heading-lg font-[500]">{row.link.title}</h3>
-              <p className="!m-0 h-0 w-[calc(50%-8rem)] pr-20 text-lg font-[500] opacity-0 lg:h-auto lg:opacity-100">{row.description}</p>
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary md:h-auto md:w-auto md:bg-transparent">
-                <ArrowRight width="42px" height="36px" className="h-4 w-4 text-white md:h-auto md:w-auto md:text-primary" />
-              </div>
-            </Link>
-          ))}
-        </div>
-      }
-    </div>
+  return (
+    <BlockWrapper
+      blockOptions={blockOptions}
+      className={className}
+      id={id}
+      style={{
+        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
+        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+      }}
+    >
+      <div className="container">
+        {label && <h2 className="heading-md mb-md">{label}</h2>}
+        {items.length > 0 && (
+          <ul className="border-t border-rule">
+            {items.map((row, index) => (
+              <li key={index} className="border-b border-rule">
+                <Link
+                  href={row.link.url || "#"}
+                  target={row.link.target || undefined}
+                  className="stacked-link"
+                >
+                  <span className="stacked-link-title">{row.link.title}</span>
+                  {row.description && (
+                    <span className="stacked-link-text">{row.description}</span>
+                  )}
+                  <span className="stacked-link-icon" aria-hidden="true">
+                    <ArrowRight width="28" height="28" />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </BlockWrapper>
   );
 };
 

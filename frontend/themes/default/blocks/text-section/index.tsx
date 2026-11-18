@@ -2,6 +2,7 @@
 
 import TextSection from "@ui/components/organisms/default/TextSection";
 import classNames from "classnames";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 
 export function TextSectionBlock(props: any) {
   const {
@@ -18,6 +19,7 @@ export function TextSectionBlock(props: any) {
       content_b={content_b}
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}
+      blockOptions={getBlockOptions(props.data)}
       alignment={alignment}
       className={classNames(
         "custom-block text-section",

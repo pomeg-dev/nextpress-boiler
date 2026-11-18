@@ -1,125 +1,88 @@
-"use client";
-
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import React from "react";
 import classNames from "classnames";
-import Parser from "html-react-parser";
-import { ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
-import Button from "../../atoms/Button";
+import { BlockOptions, ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Image from "next/image";
 import Link from "next/link";
+import BlockWrapper, { ownSpacing } from "./BlockWrapper";
 
 type ButtonProps = {
   link: LinkItemProps;
 };
 
 type ParallaxImageProps = {
-  style?: "container" | "break-out";
   image?: ImageProps;
+  style?: "container" | "break-out";
   links?: ButtonProps[];
   top_spacer?: "xl" | "lg" | "md" | "0";
   bottom_spacer?: "xl" | "lg" | "md" | "0";
+  blockOptions?: BlockOptions;
   className?: string;
   id?: string;
 };
 
+// The image drifts with a CSS scroll-driven animation (theme.scss
+// `.parallax-media`). Without support, or with reduced motion, it is static.
 const ParallaxImage: React.FC<ParallaxImageProps> = ({
-  style = "break-out",
   image,
+  style = "break-out",
   links,
   top_spacer = "xl",
   bottom_spacer = "xl",
+  blockOptions,
   className,
   id,
 }) => {
-  const containerRef = useRef<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
-      }
-    };
-  }, []);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isVisible && containerRef.current) {
-        const image = containerRef.current.querySelector('img');
-        if (image) {
-          const rect = containerRef.current.getBoundingClientRect();
-          const scrollPosition = window.scrollY;
-          const offset = rect.top + scrollPosition;
-          const parallaxOffset = (scrollPosition - offset) * 0.5;
-          image.style.transform = `translateY(${parallaxOffset}px)`;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isVisible]);
+  const items = (links ?? []).filter((item) => item?.link?.url);
 
   return (
-    <div
-      className={classNames(
-        className,
-        `pb-${bottom_spacer}`,
-        `pt-${top_spacer}`,
-        style,
-      )}
+    <BlockWrapper
+      blockOptions={blockOptions}
+      className={classNames(style, className)}
       id={id}
+      style={{
+        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
+        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+      }}
     >
-      <div
-        className={classNames(
-          "relative overflow-hidden flex flex-col aspect-square md:aspect-[1440/800]",
-          style === "container" && "rounded-lg"
-        )}
-        style={{ willChange: "transform" }}
-        ref={containerRef}
-      >
-        {image && (
-          <Image
-            src={image.src}
-            alt={image.alt}
-            width={image.width ?? 800}
-            height={image.width ?? 600}
-            className={image.className ?? "h-full w-full object-cover"}
-            blurDataURL={image.blurImage ?? image.src}
-            placeholder="blur"
-          />
-        )}
-        <section className="absolute flex h-full w-full flex-col items-center justify-center text-white">
-          {(links && links.length > 0) &&
-            <div className="flex flex-wrap items-center justify-center gap-8">
-              {links.map((item: ButtonProps, index: number) => (
-                <React.Fragment key={index}>
-                  {index !== 0 && <span className="text-lg font-[500] md:text-heading-md">•</span>}
+      <div className={style === "container" ? "container" : undefined}>
+        <div
+          className={classNames(
+            "parallax-frame scrim relative flex aspect-[4/5] items-center justify-center overflow-hidden sm:aspect-[3/2] lg:aspect-[21/9]",
+            style === "container" && "rounded-md"
+          )}
+          data-theme="overlay"
+        >
+          {image?.src && (
+            <div className="parallax-media absolute inset-x-0 -top-[10%] h-[120%]">
+              <Image
+                src={image.src}
+                alt={image.alt ?? ""}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
+              />
+            </div>
+          )}
+          {items.length > 0 && (
+            <ul className="relative z-[1] flex flex-wrap items-center justify-center gap-x-md gap-y-xs px-margin">
+              {items.map((item, index) => (
+                <li key={index} className="flex items-center gap-x-md">
+                  {index !== 0 && <span className="size-2 bg-accent-fill" aria-hidden="true" />}
                   <Link
-                    href={item.link.url || '#'}
-                    target={item.link.target || '_self'}
-                    className="inline-flex items-center border-b border-transparent text-lg font-[500] transition-colors hover:border-white md:text-heading-lg"
+                    href={item.link.url || "#"}
+                    target={item.link.target || undefined}
+                    className="parallax-link heading-lg"
                   >
                     {item.link.title}
                   </Link>
-                </React.Fragment>
+                </li>
               ))}
-            </div>
-          }
-        </section>
+            </ul>
+          )}
+        </div>
       </div>
-    </div>
+    </BlockWrapper>
   );
 };
 

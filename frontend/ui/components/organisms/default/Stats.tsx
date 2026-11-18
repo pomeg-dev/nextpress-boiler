@@ -1,53 +1,55 @@
-import React, { ReactNode } from "react";
-import classNames from "classnames";
+import React from "react";
 import Parser from "html-react-parser";
+import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
+import BlockWrapper, { ownSpacing } from "./BlockWrapper";
 
 type StatsProps = {
   stats?: { content: string}[];
-  columns?: 1 | 2 | 3 | 4;
+  columns?: number;
   top_spacer?: "xl" | "lg" | "md" | "0";
   bottom_spacer?: "xl" | "lg" | "md" | "0";
+  blockOptions?: BlockOptions;
   className?: string;
   id?: string;
 };
 
+// Figures on a hairline grid. Each stat's first element is the figure.
 const Stats: React.FC<StatsProps> = ({
   stats,
   columns = 4,
   top_spacer = "xl",
   bottom_spacer = "xl",
+  blockOptions,
   className,
   id,
 }) => {
-  const getGridClass = (columns: number) => {
-    return `flex flex-col md:grid grid-cols-${columns} gap-8`; 
-  };
+  const cols = Math.min(Math.max(Number(columns) || 4, 1), 8);
 
   return (
-    <div
-      className={classNames(
-        "container",
-        `pb-${bottom_spacer}`,
-        `pt-${top_spacer}`,
-        className
-      )}
+    <BlockWrapper
+      blockOptions={blockOptions}
+      className={className}
       id={id}
-      data-bg="white"
+      style={{
+        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
+        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+      }}
     >
-      {stats &&
-        <div
-          className={getGridClass(columns)}
-        >
-          {stats.map((stat: any, index: number) => (
-            <div
-              key={index}
-            >
-              {Parser(stat.content)}
-            </div>
-          ))}
-        </div>
-      }
-    </div>
+      <div className="container">
+        {stats && stats.length > 0 && (
+          <ul
+            className="stats-grid"
+            style={{ "--cols": cols, "--cols-md": Math.min(cols, 3) } as React.CSSProperties}
+          >
+            {stats.map((stat, index) => (
+              <li key={index} className="stat flow">
+                {Parser(stat.content ?? "")}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </BlockWrapper>
   );
 };
 

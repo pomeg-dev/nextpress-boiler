@@ -3,6 +3,7 @@
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import ParallaxImage from "@ui/components/organisms/default/ParallaxImage";
 import classNames from "classnames";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 
 export function ParallaxImageBlock(props: any) {
   const {
@@ -19,7 +20,6 @@ export function ParallaxImageBlock(props: any) {
     imageAtts.alt = image.alt;
     imageAtts.width = image.width;
     imageAtts.height = image.height;
-    imageAtts.className = "absolute top-0 h-[120%] w-full object-cover";
     imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
   }
 
@@ -30,6 +30,7 @@ export function ParallaxImageBlock(props: any) {
       links={links}
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}
+      blockOptions={getBlockOptions(props.data)}
       className={classNames(
         "custom-block parallax-image",
         props.className
