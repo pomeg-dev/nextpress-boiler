@@ -62,12 +62,15 @@ wp() { command wp --user=1 --skip-plugins=imagify,wordpress-seo,wordpress-seo-pr
 id_of() { grep -E '^[0-9]+$' | tail -n 1; }
 # One SQL value, selected as CONCAT('@@', …), without the PHP notices.
 sql() { wp db query "$1" --skip-column-names | sed -n 's/^@@//p'; }
-# The plugin caches router responses; drop them so pages show the new content.
-clear_router_cache() {
-  for t in $(sql "SELECT CONCAT('@@', SUBSTRING(option_name, 12)) FROM ${P}options WHERE option_name LIKE '\_transient\_nextpress\_router\_%'"); do
+# Deletes the transients whose name starts with $1 (plugin caches only).
+clear_transients() {
+  like=$(printf '%s' "_transient_$1" | sed 's/_/\\_/g')
+  for t in $(sql "SELECT CONCAT('@@', SUBSTRING(option_name, 12)) FROM ${P}options WHERE option_name LIKE '$like%'"); do
     wp transient delete "$t" >/dev/null
   done
 }
+# The plugin caches router responses; drop them so pages show the new content.
+clear_router_cache() { clear_transients nextpress_router_; }
 PRELUDE
 }
 
@@ -110,6 +113,26 @@ SH
   echo "Reset done: seeded items deleted, Home and the templates restored."
   exit 0
 fi
+
+# ---------------------------------------------------------------------------
+# 0. Refresh the plugin's cached block list (12h), so new blocks get their
+# fields. The plugin refetches it from the frontend's /api/blocks on the next
+# REST request. Its own URL check (GET / with a 2s timeout) can fail while
+# the frontend renders, and then it uses localhost, which is unreachable
+# from the container. So check the frontend here and pin the URL it found.
+# ---------------------------------------------------------------------------
+in_wpcli <<'SH' | sed -n 's/^@@ //p' | grep . >&2 && exit 1
+status=$(wp eval 'echo "@@", wp_remote_retrieve_response_code(wp_remote_get("http://host.docker.internal:3000/api/blocks/", ["timeout" => 60]));' | sed -n 's/^@@//p')
+[ "$status" = 200 ] || { echo "@@ Error: the frontend is not reachable at host.docker.internal:3000 (got '$status'). Start it and re-run."; exit 0; }
+wp transient delete nextpress_docker_url >/dev/null; wp transient set nextpress_docker_url http://host.docker.internal:3000 600 >/dev/null
+clear_transients nextpress_blocks_blocks_api_ # Rate limit and circuit breaker: the frontend is up.
+clear_transients nextpress_blocks_next_blocks_default_
+SH
+curl -sf -o /dev/null "$SITE_URL/wp-json/" || true
+in_wpcli <<'SH' | sed -n 's/^@@ //p' | grep . >&2 && exit 1
+[ -n "$(sql "SELECT CONCAT('@@', option_id) FROM ${P}options WHERE option_name = '_transient_nextpress_blocks_next_blocks_default_blocks'")" ] ||
+  echo "@@ Error: the plugin could not fetch the block list. Check wp-content/debug.log, wait 5 minutes and re-run."
+SH
 
 # ---------------------------------------------------------------------------
 # 1. Media and pages exist (created on the first run, found after).
@@ -182,9 +205,7 @@ LOGO_CHALK=$(lookup "img:wordmark-chalk")
 
 {
   # Back up what the seed overwrites, once, as base64 (restored in SQL).
-  # Then drop the plugin's cached block list (12h) so new blocks get their fields.
   cat <<SH
-for t in default_blocks default_templates; do wp transient delete "nextpress_blocks_next_blocks_\$t" >/dev/null 2>&1 || true; done
 if [ -z "\$(sql "SELECT CONCAT('@@', meta_id) FROM \${P}postmeta WHERE post_id = $HOME_ID AND meta_key = '_np_seed_original_content'")" ]; then
   wp db query "INSERT INTO \${P}postmeta (post_id, meta_key, meta_value) SELECT ID, '_np_seed_original_content', REPLACE(TO_BASE64(post_content), CHAR(10), '') FROM \${P}posts WHERE ID = $HOME_ID"
 fi
@@ -260,7 +281,29 @@ SH
 done
 
 # ---------------------------------------------------------------------------
-# 4. Check the router serves each page with its blocks.
+# 4. Ask the frontend to drop its cached pages and settings. Signed with the
+# token derived from NEXTPRESS_CLIENT_SECRET in frontend/.env (read by node,
+# sent only to localhost). Skipped when there is no secret or no frontend.
+# Paths end in a slash: the site uses trailingSlash, and revalidatePath
+# ignores a path that is not the route's own.
+# ---------------------------------------------------------------------------
+FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+node - "$BACKEND_DIR/../frontend/.env" "$FRONTEND_URL" / /about/ /platform/ /work/ /contact/ <<'JS' || echo "Frontend not revalidated: restart the dev server to see new content." >&2
+const [, , envFile, base, ...paths] = process.argv;
+const fs = require("fs");
+const env = fs.existsSync(envFile) ? fs.readFileSync(envFile, "utf8") : "";
+const secret = env.match(/^NEXTPRESS_CLIENT_SECRET=["']?([^"'\n]+)/m)?.[1];
+if (!secret) process.exit(1);
+const token = require("crypto").createHmac("sha256", secret).update("nextpress:revalidate:v1").digest("hex");
+const query = ["tag=settings", ...paths.map((p) => `path=${encodeURIComponent(p)}`)];
+Promise.all(query.map((q) =>
+  fetch(`${base}/api/revalidate/?${q}`, { headers: { "x-nextpress-revalidate-secret": token } })
+    .then((r) => { if (!r.ok) throw new Error(`${q}: ${r.status}`); })
+)).catch((e) => { console.error(e.message); process.exit(1); });
+JS
+
+# ---------------------------------------------------------------------------
+# 5. Check the router serves each page with its blocks.
 # An ACF block with only the 3 Block Settings keys means the plugin could not
 # fetch the block list from the frontend (dev server down, or its rate limit or
 # circuit breaker: see CLAUDE.md). Start the frontend, wait 5 minutes, re-run.

@@ -429,7 +429,7 @@ function platform() {
     acf(
       "text-section",
       {
-        content_a: '<p><span class="heading-2xl">WordPress for the words. Next.js for the rest.</span></p>',
+        content_a: '<h1><span class="heading-2xl">WordPress for the words. Next.js for the rest.</span></h1>',
         content_b:
           "<p>Nextpress keeps editing in WordPress and moves rendering to a Next.js front end. The two talk over REST: the editor saves blocks, and the front end fetches and renders them.</p>",
         alignment: "col",
