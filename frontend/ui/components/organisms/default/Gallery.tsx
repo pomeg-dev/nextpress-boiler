@@ -38,7 +38,7 @@ const Gallery: React.FC<GalleryProps> = ({
 
   const items = images.map((image, index) => (
     <figure key={index} className="gallery-item chip">
-      <div className="gallery-media relative overflow-hidden">
+      <div className="gallery-media img-duotone is-revealable relative overflow-hidden">
         <Image
           src={image.src}
           alt={image.alt ?? ""}

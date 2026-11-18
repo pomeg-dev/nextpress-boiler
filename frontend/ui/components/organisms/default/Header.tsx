@@ -145,6 +145,7 @@ const Header: React.FC<HeaderProps> = ({
                     aria-current={isActive(item) ? "page" : undefined}
                     className="nav-link"
                   >
+                    <span className="nav-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                     {Parser(item.title)}
                   </Link>
                 </li>
@@ -198,6 +199,7 @@ const Header: React.FC<HeaderProps> = ({
                     className="mobile-menu-link"
                     onClick={() => close(false)}
                   >
+                    <span className="nav-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                     {Parser(item.title)}
                   </Link>
                 </li>

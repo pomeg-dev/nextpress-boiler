@@ -37,7 +37,7 @@ const StackedLinks: React.FC<StackedLinksProps> = ({
       }}
     >
       <div className="container">
-        {label && <h2 className="heading-md mb-md">{label}</h2>}
+        {label && <h2 className="heading-xl mb-lg">{label}</h2>}
         {items.length > 0 && (
           <ul className="border-t border-rule">
             {items.map((row, index) => (

@@ -498,8 +498,14 @@
 
   // Core columns (package markup): the row sits a step below what precedes
   // it, and each column keeps the same rhythm as the flow around it.
-  .flow > .columns-block {
+  .flow > .columns-block,
+  .flow > .columns-block + * {
     --flow-space: var(--space-md);
+  }
+
+  // The package wraps core code in an inline <code>, which drops the flow margin.
+  .flow > code:has(> pre) {
+    display: block;
   }
 
   .column-block {
@@ -837,7 +843,7 @@
     font-weight: var(--fw-medium);
     text-decoration: none;
 
-    // Underline that draws in from the left; a square marks the current page.
+    // Underline that draws in from the left; the index marks the current page.
     &::after {
       content: "";
       position: absolute;
@@ -854,13 +860,24 @@
       transform-origin: left;
     }
 
-    &[aria-current="page"]::before {
-      content: "";
-      width: 0.4em;
-      height: 0.4em;
-      margin-right: 0.5em;
-      background-color: var(--np-accent-fill);
+  }
+
+  // Chip-code numbering on nav items (desktop and mobile menu).
+  .nav-index {
+    margin-right: 0.6em;
+    font-family: var(--font-code);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    font-variation-settings: normal;
+    letter-spacing: var(--tracking-label);
+    color: var(--fg-muted);
+
+    .mobile-menu-link & {
+      align-self: flex-start;
+      margin-top: 0.5em;
     }
+
+    [aria-current="page"] > & { color: var(--np-accent); }
   }
 
   .menu-toggle {
@@ -1139,9 +1156,10 @@
   }
 
   // deck-hero: chips riveted at their bottom-left corner. The top chip stands
-  // upright; the ones under it fan clockwise across `--spread`.
+  // upright; the ones under it fan clockwise across `--spread`. From lg the
+  // deck runs on into the page margin.
   .deck {
-    --spread: 40deg;
+    --spread: 56deg;
     --step: calc(var(--spread) / max(var(--count) - 1, 1));
 
     position: relative;
@@ -1150,7 +1168,12 @@
     aspect-ratio: 1;
     justify-self: center;
 
-    @media (min-width: 64rem) { justify-self: end; }
+    @media (min-width: 64rem) {
+      width: calc(100% + var(--space-margin));
+      max-width: none;
+      margin-right: calc(-1 * var(--space-margin));
+      justify-self: end;
+    }
   }
 
   .deck-chip {
@@ -1321,7 +1344,8 @@
 
       > * { grid-column: span 4; grid-row: span 3; }
       > :nth-child(1) { grid-area: 1 / 1 / 5 / 7; }
-      > :nth-child(2) { grid-area: 3 / 6 / 7 / 10; z-index: 1; box-shadow: var(--shadow-lift); }
+      // Overlaps the first chip's image only: no chip covers another's strip.
+      > :nth-child(2) { grid-area: 3 / 5 / 7 / 9; z-index: 1; box-shadow: var(--shadow-lift); }
       > :nth-child(3) { grid-area: 1 / 9 / 4 / 13; }
       > :nth-child(4) { grid-area: 5 / 2 / 8 / 5; }
       > :nth-child(5) { grid-area: 5 / 10 / 9 / 13; }

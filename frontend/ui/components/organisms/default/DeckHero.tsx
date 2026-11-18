@@ -67,7 +67,7 @@ const DeckHero: React.FC<DeckHeroProps> = ({
                     alt={image.alt ?? ""}
                     fill
                     priority={index === count - 1}
-                    sizes="(min-width: 1024px) 22vw, 50vw"
+                    sizes="(min-width: 1024px) 24vw, 50vw"
                     className="object-cover"
                     {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
                   />

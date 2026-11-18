@@ -75,8 +75,6 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
   const layout = LAYOUTS[style] ?? LAYOUTS.narrative;
   const isCard = style === "card" || style === "centered-card";
   const isCentered = style === "centered-card";
-  // Narrative and wide images take the section's duotone; hover shows colour.
-  const isDuotone = style === "narrative" || style === "wide";
   const side = flipped && !isCentered ? 1 : 0;
   const hasImage = Boolean(image?.src);
   const tags = (image_tags ?? []).filter((tag) => tag?.text);
@@ -84,11 +82,8 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
 
   const figure = hasImage && image && (
     <figure className={classNames("chip", layout.image[side], isCentered ? "md:row-start-2" : "md:row-start-1")}>
-      <div className={classNames(
-        "relative overflow-hidden",
-        layout.ratio,
-        isDuotone && "img-duotone is-revealable"
-      )}>
+      {/* The section's duotone; hover shows colour. */}
+      <div className={classNames("img-duotone is-revealable relative overflow-hidden", layout.ratio)}>
         <Image
           src={image.src}
           alt={image.alt ?? ""}
