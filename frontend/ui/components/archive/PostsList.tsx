@@ -9,13 +9,13 @@ export function PostsList({ posts }: {
   return (
     <div className="archive-posts">
       <div
-        className="relative my-[50px] grid w-full grid-cols-1 items-start gap-x-[19px] gap-y-[35px] md:grid-cols-2 lg:grid-cols-3"
+        className="relative my-lg grid w-full grid-cols-1 items-stretch gap-x-sm gap-y-md md:grid-cols-2 lg:grid-cols-3"
       >
         {posts &&
           posts.map((post: any, index: number) => {
             return (
               <div className="archive-post-item flex flex-col" key={index}>
-                <Link href={post.path}>
+                <Link href={post.path} className="block h-full no-underline">
                   <PostCard post={post} />
                 </Link>
               </div>

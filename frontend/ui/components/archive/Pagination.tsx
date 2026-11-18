@@ -43,7 +43,7 @@ export function Pagination({ totalPages, currentPage, setCurrentPage }: {
   return (
     <div
       className={cn(
-        "archive-pagination flex flex-row my-[20px] items-center justify-center gap-2 transition-[opacity,transform]",
+        "archive-pagination my-md flex flex-row flex-wrap items-center justify-center gap-2 transition-[opacity,transform] duration-[var(--dur-base)]",
         totalPages > 1 ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-0 translate-y-[100px]"
       )}
     >

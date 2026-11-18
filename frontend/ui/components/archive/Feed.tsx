@@ -12,6 +12,7 @@ import { WPQuery } from "@pomeg-dev/nextpress-client/types";
 import Button from "@ui/components/atoms/Button";
 import Parser from "html-react-parser";
 import Loader from "../atoms/Loader";
+import BlockWrapper, { getBlockOptions } from "../organisms/default/BlockWrapper";
 
 type Props = {
   data: {
@@ -115,22 +116,26 @@ export function Feed({ data, firstPosts }: Props) {
       .catch((err) => console.log(err));
   }, [currentPage, taxFilters, searchTerm]);
 
-  console.log(data);
-
   return (
-    <div id="archive-feed" className="archive-feed container pb-8 pt-[160px]">
+    <BlockWrapper
+      blockOptions={getBlockOptions(data)}
+      id="archive-feed"
+      className="archive-feed"
+      style={{ paddingTop: "var(--space-xl)", paddingBottom: "var(--space-xl)" }}
+    >
+    <div className="container">
       <Loader isLoading={isLoading} />
       <div className="archive-container relative">
         {data.heading &&
-          <div className="animation-slide-up [&_h1]:!mb-8">{Parser(data.heading)}</div>
+          <div className="flow mb-md">{Parser(data.heading)}</div>
         }
-        <div className="animation-slide-up flex flex-col justify-between gap-4 border-b border-primary/20 pb-10 md:flex-row md:items-end">
+        <div className="flex flex-col justify-between gap-md border-b border-rule pb-md md:flex-row md:items-end">
           <div className="max-w-col-10 w-full">
             {data.description &&
-              <p className="text-primary/70">{Parser(data.description)}</p>
+              <p className="body-lg measure text-muted">{Parser(data.description)}</p>
             }
           </div>
-          <div className="archive-filters flex flex-col gap-4">
+          <div className="archive-filters flex flex-col gap-sm">
             {data.show_search && (
               <SearchBox
                 label={data.search_field_label}
@@ -195,7 +200,7 @@ export function Feed({ data, firstPosts }: Props) {
           />
         )}
         {data.load_more === "load_more" && currentPage != totalPages && (
-          <div className="archive-load-more">
+          <div className="archive-load-more flex justify-center">
             <Button
               type="button"
               size="md"
@@ -211,5 +216,6 @@ export function Feed({ data, firstPosts }: Props) {
         )}
       </div>
     </div>
+    </BlockWrapper>
   );
 }

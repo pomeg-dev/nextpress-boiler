@@ -1,59 +1,33 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { Post } from "@pomeg-dev/nextpress-client/types";
 import Image from "next/image";
 import Parser from "html-react-parser";
 import Button from "../atoms/Button";
-import { Bullet } from "@ui/icons/icon-loader";
 import Pill from "../atoms/Pill";
 
 type PostCardProps = {
   post: Post,
 };
 
+// A chip: image over a raised panel. Categories and the label sit on the image.
 const PostCard: React.FC<PostCardProps> = ({
   post,
 }) => {
-  const getIcon = (category: string) => {
-    let fillColour = "#FFAA00";
-    switch (category) {
-      case "Downloadable Guide":
-        fillColour = "#FFAA00";
-        break;
-      case "Course":
-        fillColour = "#A4DCFF";
-        break;
-      case "Resource":
-        fillColour = "#746FA9";
-        break;
-    }
-
-    return <Bullet fill={fillColour} />
-  };
+  const categories = (post.category_names ?? []).filter((category: string) => category !== "Uncategorized");
 
   return (
-    <div className="flex w-full flex-col rounded-lg bg-[#F9FAFB] text-primary">
+    <div className="flex h-full w-full flex-col bg-surface-raised text-fg">
       {post.image && (
-        <div className="relative aspect-[664/442] w-full overflow-hidden rounded-lg md:aspect-auto md:h-[300px] lg:h-[442px]">
-          {(post.acf_data.label || post.category_names) && (
-            <div className="absolute left-[12px] top-4 z-10 flex gap-2">
-              {post.category_names.map((category: string, i: number) => {
-                if (category === "Uncategorized") return;
-                return (
-                  <Pill
-                    key={i}
-                    size="sm"
-                    style="high-contrast"
-                    iconLeft={getIcon(category)}
-                  >
-                    {category}
-                  </Pill>
-                );
-              })}
+        <div className="relative aspect-[3/2] w-full overflow-hidden">
+          {(post.acf_data.label || categories.length > 0) && (
+            <div className="absolute left-xs top-xs z-10 flex flex-wrap gap-2">
+              {categories.map((category: string, i: number) => (
+                <Pill key={i} size="sm" style="high-contrast">
+                  {category}
+                </Pill>
+              ))}
               {post.acf_data.label && (
-                <Pill
-                  size="sm"
-                  style="high-contrast"
-                >
+                <Pill size="sm" style="accent">
                   {post.acf_data.label}
                 </Pill>
               )}
@@ -63,34 +37,35 @@ const PostCard: React.FC<PostCardProps> = ({
             src={post.image.full}
             alt={post.title}
             fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover"
           />
         </div>
       )}
-      <div className="flex w-full flex-col overflow-hidden rounded-lg py-4 pl-4 pr-8 md:h-[calc(100%-300px)] lg:h-[calc(100%-442px)]">
-        <h3 className="mb-2">{post.title}</h3>
+      <div className="flow flex flex-1 flex-col p-sm">
+        <h3 className="heading-md">{post.title}</h3>
         {post.acf_data.subtitle && (
-          <p className="text-sm font-[500] text-[#3A658C]">
+          <p className="body-sm font-medium text-secondary">
             {post.acf_data.subtitle}
           </p>
         )}
         {post.acf_data.description && (
-          <div className="my-4 text-base font-[500] [&_ul]:list-disc [&_ul]:pl-4">
+          <div className="flow text-muted">
             {Parser(post.acf_data.description)}
           </div>
         )}
         {post.acf_data.postscript && (
-          <p className="text-base text-[rgba(13,71,124,0.50)]">
+          <p className="body-sm text-muted">
             {post.acf_data.postscript}
           </p>
         )}
         {post.acf_data.link && !post.acf_data.download && (
           <Button
             linkItem={post.acf_data.link}
-            style="high-contrast"
+            style="secondary"
             size="md"
-            special={true}
-            className="mt-auto justify-center"
+            iconRight="ArrowRight"
+            className="mt-auto! self-start"
           />
         )}
         {post.acf_data.download && (
@@ -99,10 +74,10 @@ const PostCard: React.FC<PostCardProps> = ({
               url: post.acf_data.download.url,
               target: "_blank"
             }}
-            style="high-contrast"
+            style="secondary"
             size="md"
-            special={true}
-            className="mt-auto justify-center"
+            iconRight="ArrowRight"
+            className="mt-auto! self-start"
           >
             Download now
           </Button>

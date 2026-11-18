@@ -2,6 +2,7 @@ import { getPosts } from "@/nextpress.config";
 import React from "react";
 import classNames from "classnames";
 import FeaturedPosts from "@ui/components/organisms/default/FeaturedPosts";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 import { Cards, Post, WPQuery } from "@pomeg-dev/nextpress-client/types";
 
 export async function FeaturedPostsBlock(props: any) {
@@ -63,6 +64,7 @@ export async function FeaturedPostsBlock(props: any) {
       button={button}
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}
+      blockOptions={getBlockOptions(props.data)}
       card={card}
       className={classNames("custom-block featured-posts", props.className)}
       id={props.id}

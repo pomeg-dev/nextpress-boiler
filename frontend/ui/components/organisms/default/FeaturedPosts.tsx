@@ -1,9 +1,10 @@
 import React from "react";
 import classNames from "classnames";
-import { Cards, LinkItemProps, Post } from "@pomeg-dev/nextpress-client/types";
+import { BlockOptions, Cards, LinkItemProps, Post } from "@pomeg-dev/nextpress-client/types";
 import Parser from "html-react-parser";
 import PostCard from "../../molecules/PostCard";
 import Button from "../../atoms/Button";
+import BlockWrapper, { ownSpacing } from "./BlockWrapper";
 
 type FeaturedPostsProps = {
   posts: Post[];
@@ -12,6 +13,7 @@ type FeaturedPostsProps = {
   button?: LinkItemProps;
   top_spacer?: "xl" | "lg" | "md" | "0";
   bottom_spacer?: "xl" | "lg" | "md" | "0";
+  blockOptions?: BlockOptions;
   className?: string;
   id?: string;
 };
@@ -23,6 +25,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
   button,
   top_spacer = "xl",
   bottom_spacer = "xl",
+  blockOptions,
   className,
   id,
 }) => {
@@ -43,31 +46,29 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
     "md:grid-cols-3";
 
   return (
-    <div className={classNames("break-out overflow-hidden", className)} id={id}>
-      <div
-        className={classNames(
-          "container w-full max-w-full max-h-screen min-h-0 min-w-0",
-          `pb-${bottom_spacer}`,
-          `pt-${top_spacer}`
-        )}
-      >
-        <div className="flex flex-wrap items-end justify-between">
-          {heading && <div className="heading text-primary">{Parser(heading)}</div>}
-          <div className="flex gap-2.5">
-            {button && <Button linkItem={button} style="secondary" size="md" circular={true} />}
-          </div>
+    <BlockWrapper
+      blockOptions={blockOptions}
+      className={className}
+      id={id}
+      style={{
+        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
+        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+      }}
+    >
+      <div className="container">
+        <div className="mb-md flex flex-wrap items-end justify-between gap-sm">
+          {heading && <div className="flow">{Parser(heading)}</div>}
+          {button && <Button linkItem={button} style="secondary" size="md" iconRight="ArrowRight" />}
         </div>
-        <div className={classNames("mt-4 grid grid-cols-1 gap-4", mdColsClass)}>
-          {posts.map((post: any, i: number) => {
-            return (
-              <div className="featured-posts-item" key={post.ID}>
-                <DynamicComponent componentName={post?.card || card} data={post} />
-              </div>
-            );
-          })}
+        <div className={classNames("grid grid-cols-1 gap-sm", mdColsClass)}>
+          {posts.map((post: any) => (
+            <div className="featured-posts-item" key={post.ID}>
+              <DynamicComponent componentName={post?.card || card} data={post} />
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </BlockWrapper>
   );
 };
 

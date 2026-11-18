@@ -15,10 +15,10 @@ const Loader: React.FC<LoaderProps> = ({
   if (!isLoading) return null;
   return (
     <div className={classNames(
-      "fixed w-screen h-screen bg-white/80 top-0 left-0 z-[999] flex flex-col justify-center items-center",
+      "fixed inset-0 z-[999] flex flex-col items-center justify-center bg-surface/80",
       className
     )}>
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+      <div role="status" aria-label="Loading" className="size-12 animate-spin rounded-full border-4 border-solid border-accent-fill border-t-transparent motion-reduce:animate-none"></div>
     </div>
   );
 };
