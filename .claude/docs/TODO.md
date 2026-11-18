@@ -27,7 +27,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 
 ## Environment
 - [ ] `backend` compose `wpcli` service has no DB env vars; compose `version` attribute is obsolete. (Docker config is off-limits in this task.)
-- [ ] WordPress `frontend_url` setting is empty, which logs a console warning on every page.
+- [ ] WordPress `frontend_url` setting is empty, which logs a console warning on every page. Setting it to `http://localhost:3000` was approved but **not applied**. The plugin uses the same value for its server-side `/api/blocks` fetch, which fails inside Docker. The fetch failure strips every block's fields and trips the plugin's circuit breaker. To fix this, the plugin must keep separate internal and public URLs (plugin is read-only: needs a decision).
 - [ ] The package's core image renderer hardcodes `sizes`. Read-only; raise with package owners if it costs performance.
 - [x] Confirm the "Disable REST API" plugin lets anonymous `gf/v2` submissions through. (Yes, after the GF REST API was enabled in wp-admin.)
 - [ ] `@react-three/fiber` and `@react-three/drei` are dependencies but nothing imports them. Remove them to cut install size (needs approval: dependency change).
