@@ -16,9 +16,7 @@ export default async function CategoryArchive({
     notFound();
   }
 
-  const allowedTerms = ["business-of-luxury", "glion-spirit", "hospitality-uncovered", "leadership-insights", "living-well", "podcast"];
   const allTerms = await getTaxTerms(taxonomy);
-  const filteredTerms = allTerms.filter((term: { slug: string; }) => allowedTerms.includes(term.slug));
 
   const archiveData = {
     post_type: 'post',
@@ -42,7 +40,7 @@ export default async function CategoryArchive({
         label: "",
         placeholder: "All",
         taxonomy: taxonomy,
-        terms: filteredTerms,
+        terms: allTerms,
         type: "select"
       }
     ]
@@ -50,7 +48,7 @@ export default async function CategoryArchive({
 
   return (
     <Suspense fallback={<Loader isLoading={true} />}>
-      <main data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
+      <main id="main" data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
         <Feed data={archiveData} />
       </main>
     </Suspense>

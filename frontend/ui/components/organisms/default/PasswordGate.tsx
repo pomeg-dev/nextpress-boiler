@@ -28,7 +28,7 @@ const PasswordGate: React.FC<PasswordGateProps> = ({ password, children }) => {
   }
 
   return (
-    <main className="no-sidebar">
+    <main id="main" className="no-sidebar">
       <div className="container flex flex-col items-center justify-center min-h-[40vh] py-16">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4 w-full max-w-sm">
           <h2 className="text-xl font-[600]">This page is password protected</h2>

@@ -10,7 +10,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 
 ## Code hygiene (needs approval — PHP or out of scope)
 - [x] `nextpress-theme/functions.php` debug `error_log` calls removed (1052dd48).
-- [ ] `frontend/src/ui/category-archive.tsx` hardcodes Glion term slugs.
+- [x] `category-archive.tsx` lists every term (Glion slug filter removed). Untested in the browser: tax routes need a WordPress posts page (`page_for_posts_slug`), and this site has none.
 - [ ] `frontend/themes/default/_partials/*.json` are not loaded by anything (`/api/blocks` serves raw JSON).
 - [ ] `frontend/src/lib/themeLoader.ts` is unused.
 - [x] `ui/components/archive/Feed.tsx` stray `console.log(data)` removed (phase 5 restyle).

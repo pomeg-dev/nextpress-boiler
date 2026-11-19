@@ -18,7 +18,7 @@ export default async function NotFound() {
         <BlockParser blocks={settings.before_content} />
       )}
       {settings.posts_404 && post ? (
-        <main data-pageurl={post.path} data-postid={post.id}>
+        <main id="main" data-pageurl={post.path} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
       ) : (
