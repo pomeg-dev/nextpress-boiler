@@ -19,6 +19,13 @@ export const nextpress = createNextpress({
   coreBlocks: {
     columnGap: "var(--space-md)",
     groupInnerClassName: "container",
+    // Every alignment renders in the page container: --pagewidth 1680px less
+    // --space-margin (4vw a side, 4rem max). Update if alignwide/full get styles.
+    imageSizes: {
+      full: "(min-width: 1680px) 1552px, 92vw",
+      wide: "(min-width: 1680px) 1552px, 92vw",
+      content: "(min-width: 1680px) 1552px, 92vw",
+    },
   },
   // trailingSlash matches next.config.js (default true).
   cacheWarmer: {

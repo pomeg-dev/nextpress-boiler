@@ -32,6 +32,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] WordPress auto-updated core 7.1.4 → 7.1.5 when Docker started; committed (cb20c20f). Core auto-updates are still on, so this can recur.
 - [x] Compose `wpcli` shares the `wordpress` DB env (YAML anchor); obsolete `version` removed. The seed and CLAUDE.md no longer copy env from the container (2026-11-19).
 - [x] Public site URL: `frontendUrl` in `nextpress.config.ts` reads `NEXT_PUBLIC_SITE_URL` (2026-11-19), so canonical/og:url are absolute. WordPress `frontend_url` stays empty: the plugin uses it for its server-side `/api/blocks` fetch, which fails inside Docker. Optional plugin change: keep separate internal and public URLs.
-- [ ] The package's core image renderer hardcodes `sizes` (`src/blocks/core/image.tsx`). Change requested from the nextpress-client session on 2026-11-19 (sizes derived from align/width, configurable widths). When it is published, bump the package and check an editor image.
+- [x] Core image `sizes`: nextpress-client 0.5.0 `coreBlocks.imageSizes`, set in `nextpress.config.ts` to the page container (every alignment renders there; the theme has no alignwide/alignfull styles). Checked on a temp page at 390/1280/1920, deleted afterwards (2026-11-19).
+- [ ] Package core image falls back to 800×600 when the saved `<img>` has no dimensions (wrong reserved ratio → CLS; resized images get e.g. 400×600 and a Next warning). Reported to the nextpress-client session 2026-11-19; bump when fixed.
 - [x] Confirm the "Disable REST API" plugin lets anonymous `gf/v2` submissions through. (Yes, after the GF REST API was enabled in wp-admin.)
 - [x] Unused `@react-three/fiber` and `@react-three/drei` removed (approved 2026-11-19).
