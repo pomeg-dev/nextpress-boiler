@@ -110,4 +110,6 @@ const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
   }
 );
 
+SelectInput.displayName = "SelectInput";
+
 export default SelectInput;
