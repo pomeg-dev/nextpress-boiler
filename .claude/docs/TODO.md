@@ -17,7 +17,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] Post cards: the title links to the post and stretches over the card (`.post-card-link`); buttons sit above it. Fixes the archive's nested `<a>` and gives featured-posts cards a post link (approved 2026-11-19).
 - [x] Skip link added in `app/layout.tsx` once nextpress-client 0.4.2 gave `<main>` the id `main`.
 - [x] Legacy Tailwind colour aliases (`primary-dark`, `quaternary`, `dark`, `smoke`) and BlockWrapper's `"mission"` theme fallback removed (unused in code and saved content, 2026-11-19).
-- [ ] Some component CSS in theme.scss uses raw `48rem`/`64rem` media queries instead of the Tailwind screens (md 720, lg 1080).
+- [x] theme.scss component media queries now use the Tailwind md/lg widths (45rem/67.5rem) instead of 48rem/64rem (2026-11-19).
 
 ## Security / privacy
 - [ ] Plugin `ext-gravityforms.php` injects the full `GFAPI::get_form()` as `gfData` into public router JSON, including `notifications` (recipient emails, routing). Plugin is read-only: needs a decision (strip in plugin, or filter server-side).
