@@ -17,7 +17,6 @@ Headless WordPress (Docker, `backend/`) + Next.js 15 App Router / Tailwind 4 / T
 - Demo content: `backend/seed/seed-showcase.sh [--reset]` (idempotent; backs up what it overwrites; refreshes all the caches above). Needs the frontend on :3000.
 - Gravity Forms: a block field `gravity_form` makes the plugin inject `gfData`. The browser posts to `/wp-json/gf/v2/forms/<id>/submissions` (public; GF REST API enabled). The contact form is ID 1.
 - Editor classes from `tiny_mce_before_init` in `nextpress-theme/functions.php` are in saved content. Never rename them (`text-teriary` typo is intentional).
-- `.claude/docs/DESIGN_SYSTEM.md` and the `scaffold-block` skill describe another project (`style.css`, `bNN-` folders). Not true here; follow the existing blocks.
 
 ## Commands (run in `frontend/`)
 - Checks: `npx tsc --noEmit`, `npm run lint`, `npm run build`. tsc + lint pass on baseline.

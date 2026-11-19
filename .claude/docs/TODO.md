@@ -24,7 +24,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 
 ## Content (user's wp-admin)
 - [x] GF form 1 "Project Type" choices set to New website / Redesign / Design system / Something else (one-off WP-CLI, 2026-11-19; the seed still never edits forms).
-- [ ] `.claude/docs/DESIGN_SYSTEM.md` and `.claude/skills/scaffold-block` describe another project's structure. Rewrite once the new design system lands.
+- [x] `.claude/docs/DESIGN_SYSTEM.md` (another project's structure) deleted; DESIGN.md replaces it. `scaffold-block` skill rewritten for this repo (2026-11-19).
 - [ ] `next lint` is deprecated (Next 16 removes it). Migrate to the ESLint CLI.
 
 ## Environment

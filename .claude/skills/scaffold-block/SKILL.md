@@ -1,265 +1,209 @@
 ---
 name: scaffold-block
-description: Scaffold a new default theme block (fields.json + index.tsx) and its presentational organism, following the b01–b03 pattern. Use when the user asks to create/add a new block or component for the default theme.
+description: Scaffold a new default theme block (fields.json + index.tsx) and its presentational organism, following the existing blocks (e.g. stats, text-section). Use when the user asks to create/add a new block or component for the default theme.
 ---
 
-# Scaffold an default block
+# Scaffold a default block
 
-A block = **two files** in `frontend/themes/default/blocks/bNN-<name>/`
+A block = **two files** in `frontend/themes/default/blocks/<name>/`
 (`fields.json` + `index.tsx`) plus **one organism** in
-`frontend/ui/components/organisms/default/<Name>.tsx`. The block file is a
-thin adapter: it reads ACF data and renders the organism inside a `BlockWrapper`.
-The organism is pure presentation.
+`frontend/ui/components/organisms/default/<Name>.tsx`. The block file is a thin
+adapter: it reads the ACF data and passes it on. The organism renders inside
+`BlockWrapper` and holds all the markup.
+
+`stats` is the reference block: copy its shape.
 
 ## 1. Gather inputs (ask the user if missing)
 
-- **Block number** — `bNN` (e.g. `b07`). Check the folder for the next free number.
-- **Kebab name** — folder slug, e.g. `feature-list` → folder `b07-feature-list`.
-- **Human title** — for reference only.
-- **Fields** — the ACF fields the editor needs (id + type each).
-- **Inner blocks?** — does it nest other blocks? (use the inner-blocks variant)
-- **Shared partials** — reuse any of `buttons`, `text-card` via `{ "$ref": "<id>" }`?
+- **Kebab name**: the folder, e.g. `feature-list`. It becomes the block name
+  `acf/default--feature-list`. Never rename an existing block later: saved
+  content refers to it by name.
+- **Fields**: the ACF fields the editor needs (id + type each).
+- **Shared partials**: reuse `buttons` or `text-card` via `{ "$ref": "<name>" }`?
 
 Derive names:
-- folder: `bNN-kebab-name`
 - block export: `<PascalName>Block` (e.g. `FeatureListBlock`)
 - organism file + component: `<PascalName>.tsx` / `<PascalName>`
 
-## 2. File locations
+## 2. `fields.json`: an array of ACF fields
 
-```
-frontend/themes/default/blocks/bNN-<name>/fields.json
-frontend/themes/default/blocks/bNN-<name>/index.tsx
-frontend/ui/components/organisms/default/<Name>.tsx
-```
-
-Import aliases:
-- organism: `@ui/components/organisms/default/<Name>`
-- wrapper:  `@ui/components/organisms/default/BlockWrapper`
-- block parser: `{ BlockParser }` from `@/ui/block-parser`
-
-## 3. `fields.json` — ACF field-schema ARRAY
-
-A top-level JSON array of field objects, each `{ "id", "type", ... }`. Pull shared
-partials with `{ "$ref": "<partial-id>" }` (resolves to
-`frontend/themes/default/_partials/<id>.json`).
-
-Field types and their extra keys:
+A top-level JSON array of `{ "id", "type", ... }` objects. `/api/blocks` serves
+it to the plugin, which registers the ACF block.
 
 | type | extra keys |
 |---|---|
-| `text` / `textarea` | `default_value` (optional) |
-| `wysiwyg` | `default_value` (HTML string, optional) |
-| `image` | — |
-| `link` | — |
+| `text` / `textarea` | `default_value`, `instructions` |
+| `wysiwyg` | `default_value` (HTML string) |
+| `image` / `link` | none |
+| `number` | `min`, `max`, `default_value` |
 | `select` | `choices`: array of `{ "value": "Label" }` objects; `default_value` |
 | `true_false` | `ui: 1`, `default_value: 1` |
-| `repeater` | `layout: "block"`, `fields`: nested array of field objects |
-| `inner_blocks` | `choices`: e.g. `[{ "all": "Show All" }]`; optional `conditional_logic` |
+| `repeater` | `layout: "block"`, `fields`: nested field array, optional `min` |
 
-`{ "$ref": "buttons" }` → repeater of `{ link, style, min_width, clicky }`
-(field id `buttons`). `{ "$ref": "text-card" }` → repeater `text_card_items` of
-`{ size, content }`. Check `_partials/` for the current list.
+Partials: `{ "$ref": "buttons" }` inlines `themes/default/_partials/buttons.json`
+(repeater `buttons` of `{ link, style, min_width, clicky }`). Check `_partials/`
+for the current list.
 
-Template:
+Do **not** add `theme_override`, `padding_top` or `padding_bottom`: every block
+gets them from the Block Settings ACF group. Most blocks also have their own
+`top_spacer`/`bottom_spacer` selects (copy them from `stats/fields.json`).
 
 ```json
 [
-  { "id": "title", "type": "text" },
-  {
-    "id": "content",
-    "type": "wysiwyg",
-    "default_value": "<h2>Title</h2><p>Description</p>"
-  },
-  {
-    "id": "variant",
-    "type": "select",
-    "choices": [
-      { "default": "Default" },
-      { "wide": "Wide" }
-    ],
-    "default_value": "default"
-  },
+  { "id": "content", "type": "wysiwyg" },
   {
     "id": "items",
     "type": "repeater",
     "layout": "block",
-    "fields": [
-      { "id": "label", "type": "text" }
-    ]
+    "fields": [{ "id": "label", "type": "text" }]
   },
-  { "$ref": "buttons" }
+  { "$ref": "buttons" },
+  {
+    "id": "top_spacer",
+    "type": "select",
+    "choices": [{ "xl": "Large" }, { "lg": "Medium" }, { "md": "Small" }, { "0": "None" }],
+    "default_value": "xl"
+  },
+  {
+    "id": "bottom_spacer",
+    "type": "select",
+    "choices": [{ "xl": "Large" }, { "lg": "Medium" }, { "md": "Small" }, { "0": "None" }],
+    "default_value": "xl"
+  }
 ]
 ```
 
-Inner-blocks variant (add to the array; `conditional_logic` is optional):
+## 3. `index.tsx`: block adapter
 
-```json
-{
-  "id": "inner_blocks",
-  "type": "inner_blocks",
-  "choices": [{ "all": "Show All" }],
-  "conditional_logic": [
-    [{ "field": "variant", "operator": "==", "value": "wide" }]
-  ]
-}
-```
-
-## 4. `index.tsx` — block adapter
-
-Destructure `props.data` (ACF values keyed by field id) plus block options
-`padding_top`, `padding_bottom`, `theme_override`. Wrap the organism in
-`BlockWrapper`. className is always `"custom-block bNN-<name>"`.
+The package block parser uses the module's default export, or else its first
+named export. Pass `getBlockOptions(props.data)` for the Block Settings fields.
+The className is always `custom-block <name>`.
 
 ```tsx
-import <Name> from "@ui/components/organisms/default/<Name>";
-import BlockWrapper from "@ui/components/organisms/default/BlockWrapper";
-import classNames from "classnames";
+"use client";
 
-export function <Name>Block(props: any) {
-  const {
-    title,
-    content,
-    variant,
-    items,
-    buttons,
-    padding_top,
-    padding_bottom,
-    theme_override
-  } = props.data;
+import FeatureList from "@ui/components/organisms/default/FeatureList";
+import classNames from "classnames";
+import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
+
+export function FeatureListBlock(props: any) {
+  const { content, items, buttons, top_spacer, bottom_spacer } = props.data;
 
   return (
-    <BlockWrapper
-      blockOptions={{ padding_bottom, padding_top, theme_override }}
-      className={classNames("custom-block bNN-<name>", props.className)}
+    <FeatureList
+      content={content}
+      items={items}
+      buttons={buttons}
+      top_spacer={top_spacer}
+      bottom_spacer={bottom_spacer}
+      blockOptions={getBlockOptions(props.data)}
+      className={classNames("custom-block feature-list", props.className)}
       id={props.id}
-    >
-      <<Name>
-        title={title}
-        content={content}
-        variant={variant}
-        items={items}
-        buttons={buttons}
-      />
-    </BlockWrapper>
+    />
   );
 }
 ```
 
-Inner-blocks variant — also destructure `inner_blocks` and pass
-`inner_blocks={inner_blocks && props?.innerBlocks}` to the organism (the schema
-flag gates rendering; the resolved blocks live on `props.innerBlocks`):
+## 4. Organism: `<Name>.tsx`
 
-```tsx
-const { /* …, */ inner_blocks } = props.data;
-// …
-<<Name> /* … */ inner_blocks={inner_blocks && props?.innerBlocks} />
-```
+A typed presentational component with a default export and no data fetching.
 
-## 5. Organism — `<Name>.tsx`
-
-Pure, typed presentational component. Default export. **No data fetching.**
-
-- `React.FC<Props>` with a typed props object mirroring the fields you pass.
-- **Early-return `null`** when required data is empty (e.g. `if (!items?.length) return null;`).
-- Render `wysiwyg` strings with `HTMLReactParser(content)` from `html-react-parser`.
-- Use **design-system classes** (see §6) — `.container`, `.stack`, typography
-  classes, color/spacing utilities. Do **not** invent class names.
-- Add `"use client"` at the top **only** if interactive (state, effects, handlers).
-- For inner blocks: accept `inner_blocks?: Block[]` and render
-  `<BlockParser blocks={inner_blocks} />`.
+- Wrap everything in `BlockWrapper`. It sets `data-theme` and the Block Settings
+  padding. `ownSpacing(top_spacer, blockOptions?.padding_top)` gives the block's
+  own spacer, unless Block Settings sets that side.
+- Return `null` (or nothing inside the wrapper) when required data is empty.
+- Render `wysiwyg` strings with `Parser` from `html-react-parser`.
+- Add `"use client"` only if it is interactive (state, effects, handlers).
+- Buttons: `Button` from `@ui/components/atoms/Button`, e.g.
+  `<Button linkItem={b.link} style={b.style} size="md" />`.
 
 ```tsx
 import React from "react";
-import HTMLReactParser from "html-react-parser";
+import Parser from "html-react-parser";
+import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
+import BlockWrapper, { ownSpacing } from "./BlockWrapper";
 
-type Item = { label?: string };
-
-type <Name>Props = {
-  title?: string;
+type FeatureListProps = {
   content?: string;
-  variant?: "default" | "wide";
-  items?: Item[];
+  items?: { label?: string }[];
+  top_spacer?: "xl" | "lg" | "md" | "0";
+  bottom_spacer?: "xl" | "lg" | "md" | "0";
+  blockOptions?: BlockOptions;
+  className?: string;
+  id?: string;
 };
 
-const <Name>: React.FC<<Name>Props> = ({ title, content, variant, items }) => {
+const FeatureList: React.FC<FeatureListProps> = ({
+  content,
+  items,
+  top_spacer = "xl",
+  bottom_spacer = "xl",
+  blockOptions,
+  className,
+  id,
+}) => {
   if (!items?.length) return null;
 
   return (
-    <div className="container text-primary stack">
-      {title && <h2 className="heading-xl">{title}</h2>}
-      {content && <div className="stack">{HTMLReactParser(content)}</div>}
-      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-md">
-        {items.map((item, i) => (
-          <article key={i} className="info-card">
-            {item.label}
-          </article>
-        ))}
+    <BlockWrapper
+      blockOptions={blockOptions}
+      className={className}
+      id={id}
+      style={{
+        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
+        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+      }}
+    >
+      <div className="container">
+        {content && <div className="flow measure">{Parser(content)}</div>}
+        <ul className="mt-md grid grid-cols-1 gap-sm md:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <li key={i} className="border-t border-rule pt-xs">{item.label}</li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </BlockWrapper>
   );
 };
 
-export default <Name>;
+export default FeatureList;
 ```
 
-Inner-blocks variant — add the import and prop, render where appropriate:
+## 5. Styling
 
-```tsx
-import { BlockParser } from "@/ui/block-parser";
-import { Block } from "@/lib/types";
-// props: inner_blocks?: Block[]
-{inner_blocks && (
-  <div className="inner-blocks">
-    <BlockParser blocks={inner_blocks} />
-  </div>
-)}
-```
+Read `DESIGN.md` (repo root) before styling. It is the source of truth for the
+palette, type scale, themes, spacing and component rules. In short:
 
-For buttons, import `Button` from `@ui/components/atoms/Button` and map
-`buttons` (typed `ButtonProps[]` from `@/lib/types`) inside a `.button-group`.
+- Layout: `.container`, `.flow` (vertical rhythm), `.measure`, the 12-column
+  grid. Spacing utilities use the named scale: `p-md`, `gap-sm`, `py-section`.
+- Type: the `.heading-3xl … xs`, `.body-lg/.body/.body-sm` and `.label`
+  classes, or the `text-heading-*` utilities.
+- Colour: role utilities only (`bg-surface`, `bg-surface-raised`, `text-fg`,
+  `text-muted`, `border-rule`, `text-accent`). They follow the block's
+  `data-theme`, so never hard-code a palette colour on a themed surface.
+- Breakpoints: mobile-first, `md:` 720px and `lg:` 1080px (`xl:` 1440px).
+  Component CSS in `theme.scss` uses the same widths (45rem / 67.5rem).
+- New component CSS goes in `themes/default/theme.scss`, using tokens.
+  Never change values in the `@theme` blocks of `src/ui/globals.css`.
 
-## 6. Design system — source of truth
+## 6. Register and check
 
-**Read `.claude/docs/DESIGN_SYSTEM.md` before styling.** It lists every available
-utility, semantic class, component class, and breakpoint. Use those — do not
-invent classes. Quick reference:
+1. Run `npm run gen:registry` in `frontend/` (predev/prebuild also run it).
+   Never edit `src/blocks.registry.generated.ts` by hand.
+2. Delete the plugin's block-list transients (`nextpress_blocks_next_blocks_*`)
+   with WP-CLI (see CLAUDE.md). Until you do, the editor shows the old block list
+   and new blocks return only the 3 Block Settings keys.
+3. Add the block to a page in wp-admin, or to `backend/seed/content.mjs` for the
+   demo site, then check `curl localhost/wp-json/nextpress/router/<path>`.
+4. Look at it at 390, 720, 1080 and 1440px in each theme it can take.
+5. `npx tsc --noEmit` and `npm run lint` in `frontend/`.
 
-- **Layout:** `.container` (page width), `.stack` (vertical rhythm — prefer over
-  `space-y-*` for content flows), `w-col-1..16`.
-- **Typography = classes, not utilities:** `heading-2xl…xs`, `body-xl…sm`,
-  `label-xl…sm` (or just the matching HTML tag). There is **no** `text-heading-*`.
-- **Color utilities:** `text-primary` (text role ≈ black, *not* a fill),
-  `bg-page`, `bg-paper-white`, `bg-optimisic-yellow` (sic), `bg-black`. Opacity
-  modifiers work: `bg-optimisic-yellow/10`.
-- **Spacing:** `p-md`, `gap-lg`, `py-section`, `px-canvas-margin`, etc.
-- **Radius:** `rounded-sm/md/lg/xl`. **Components:** `.button`, `.info-card`,
-  `.accordion`, `.card-group`, `.badge`, `.usp`, … (see §8 of the guide).
-- **Theming:** wrap a subtree with `data-theme="overlay|accent|light-secondary"`.
+## Checklist
 
-## 7. Conventions / gotchas
-
-- **Mobile-first.** Base styles target the smallest screen; step up with
-  breakpoints **`tablet:` / `laptop:` / `desktop:`** (768 / 1080 / 1440) — **not**
-  `sm/md/lg`.
-- **CSS-var arbitrary values:** use the v4 shorthand `bg-(--token)` /
-  `w-(--width-col-3)` (= `[var(--token)]`). Color **shades** (`--optimisic-yellow-500`)
-  are raw vars, not utilities.
-- **Arbitrary values need `_` for spaces** inside brackets, e.g.
-  `bg-[linear-gradient(180deg,rgba(0,0,0,0.4)_0%,...)]`.
-- **`max-w-col-*` / `min-w-col-*` don't exist** — use `max-w-(--width-col-3)`.
-  Border role colors use `border-(--border-strong)`.
-- className on the block is always `custom-block bNN-<name>` (kebab folder name).
-
-## 8. Checklist
-
-1. [ ] `fields.json` created (array of field objects; partials via `$ref`).
-2. [ ] `index.tsx` created (`<Name>Block`, destructures `props.data` + padding/theme,
-       wraps organism in `BlockWrapper`, className `custom-block bNN-<name>`).
-3. [ ] Organism `<Name>.tsx` created (typed `React.FC`, default export, early
-       `return null`, `HTMLReactParser` for wysiwyg, `"use client"` only if interactive).
-4. [ ] Imports wired (organism alias, `BlockWrapper`, `BlockParser`/`Button` as needed).
-5. [ ] Inner blocks (if any): schema flag + `inner_blocks={inner_blocks && props?.innerBlocks}`
-       + `<BlockParser>` in the organism.
-6. [ ] Styling verified against `.claude/docs/DESIGN_SYSTEM.md` (no invented classes;
-       `tablet/laptop/desktop` breakpoints; `.container`/`.stack`; mobile-first).
+1. [ ] `fields.json`: field array; partials via `$ref`; no Block Settings fields.
+2. [ ] `index.tsx`: `<Name>Block`, passes `getBlockOptions(props.data)`,
+       className `custom-block <name>`.
+3. [ ] Organism: typed, default export, inside `BlockWrapper`, renders every
+       field, `"use client"` only if interactive.
+4. [ ] Styling follows DESIGN.md: role colours, named spacing, `md`/`lg`.
+5. [ ] Registry regenerated, transients cleared, rendered and checked.
