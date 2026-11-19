@@ -93,11 +93,6 @@
   --color-bottle: var(--np-bottle);
   --color-ink: var(--np-ink);
   --color-flare: var(--np-flare);
-  /* Legacy names still used by older components. */
-  --color-primary-dark: var(--np-ink);
-  --color-quaternary: var(--fg-muted);
-  --color-dark: var(--np-ink);
-  --color-smoke: var(--np-sage);
 }
 
 /* Type. Fluid sizes for the `text-heading-*` utilities; the matching

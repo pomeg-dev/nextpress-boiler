@@ -16,7 +16,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] `ui/components/archive/Feed.tsx` stray `console.log(data)` removed (phase 5 restyle).
 - [x] Post cards: the title links to the post and stretches over the card (`.post-card-link`); buttons sit above it. Fixes the archive's nested `<a>` and gives featured-posts cards a post link (approved 2026-11-19).
 - [x] Skip link added in `app/layout.tsx` once nextpress-client 0.4.2 gave `<main>` the id `main`.
-- [ ] Legacy leftovers outside the new system: Tailwind colour aliases (`primary-dark`, `quaternary`, `dark`, `smoke`) and BlockWrapper's `"mission"` theme fallback. Remove once no saved content uses them.
+- [x] Legacy Tailwind colour aliases (`primary-dark`, `quaternary`, `dark`, `smoke`) and BlockWrapper's `"mission"` theme fallback removed (unused in code and saved content, 2026-11-19).
 - [ ] Some component CSS in theme.scss uses raw `48rem`/`64rem` media queries instead of the Tailwind screens (md 720, lg 1080).
 
 ## Security / privacy

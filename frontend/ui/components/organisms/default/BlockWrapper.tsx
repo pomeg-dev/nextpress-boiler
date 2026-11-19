@@ -49,7 +49,7 @@ const BlockWrapper: React.FC<BlockWrapperProps> = ({
 }) => {
   // Every block gets a colour theme so nested blocks never inherit the wrong one.
   const themeOverride = blockOptions?.theme_override;
-  const theme = themeOverride && themeOverride !== "mission" ? themeOverride : "light";
+  const theme = themeOverride || "light";
 
   // The option wins over the block's own spacer fields when set.
   const paddingTop = spacing(blockOptions?.padding_top);
