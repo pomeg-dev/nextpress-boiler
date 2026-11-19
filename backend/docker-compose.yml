@@ -1,4 +1,11 @@
-version: "3.6"
+# Database settings shared by wordpress and wpcli.
+x-wordpress-db-env: &wordpress-db-env
+  - WORDPRESS_DB_NAME=${COMPOSE_PROJECT_NAME:-wordpress}
+  - WORDPRESS_TABLE_PREFIX=${WORDPRESS_TABLE_PREFIX:-wp_}
+  - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST:-mysql}
+  - WORDPRESS_DB_USER=${DATABASE_USER:-root}
+  - WORDPRESS_DB_PASSWORD=${DATABASE_PASSWORD:-password}
+
 services:
   wordpress:
     image: wordpress:${WORDPRESS_VERSION:-latest}
@@ -6,12 +13,7 @@ services:
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/php.ini
       - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html
-    environment:
-      - WORDPRESS_DB_NAME=${COMPOSE_PROJECT_NAME:-wordpress}
-      - WORDPRESS_TABLE_PREFIX=${WORDPRESS_TABLE_PREFIX:-wp_}
-      - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST:-mysql}
-      - WORDPRESS_DB_USER=${DATABASE_USER:-root}
-      - WORDPRESS_DB_PASSWORD=${DATABASE_PASSWORD:-password}
+    environment: *wordpress-db-env
     depends_on:
       - mysql
       - phpmyadmin
@@ -52,6 +54,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}_wpcli
     volumes:
       - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html
+    environment: *wordpress-db-env
     working_dir: /var/www/html
 
   # Check availability of essential services

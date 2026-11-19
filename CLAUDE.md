@@ -25,11 +25,7 @@ Headless WordPress (Docker, `backend/`) + Next.js 15 App Router / Tailwind 4 / T
 - Playwright MCP can only write inside the repo: screenshots go to `.playwright-mcp/`.
 
 ## WP-CLI
-The `wpcli` compose service has no DB env. Copy it from the running container:
-```sh
-cd backend; for v in $(docker exec wordpress sh -c 'env | grep -E "^WORDPRESS_" | cut -d= -f1'); do export $v="$(docker exec wordpress printenv $v)"; done
-docker compose run --rm -T -e WORDPRESS_DB_PASSWORD -e WORDPRESS_DB_HOST -e WORDPRESS_DB_USER -e WORDPRESS_DB_NAME -e WORDPRESS_TABLE_PREFIX wpcli wp <cmd>
-```
+`cd backend; docker compose run --rm -T wpcli wp <cmd>` (shares the `wordpress` service's DB env).
 Inspect content: `curl localhost/wp-json/nextpress/router/<path>`; menus/settings via `/wp-json/nextpress/...`.
 
 ## Open issues

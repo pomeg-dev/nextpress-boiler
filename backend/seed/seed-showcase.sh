@@ -37,14 +37,10 @@ RESET=0
 OUT_DIR=$(mktemp -d)
 trap 'rm -rf "$OUT_DIR"' EXIT
 
-# The wpcli service has no DB env: copy it from the running wordpress container.
 docker inspect -f '{{.State.Running}}' wordpress >/dev/null 2>&1 || {
   echo "The wordpress container is not running. Start the backend first." >&2
   exit 1
 }
-for v in $(docker exec wordpress sh -c 'env | grep -E "^WORDPRESS_" | cut -d= -f1'); do
-  export "$v=$(docker exec wordpress printenv "$v")"
-done
 
 # Runs a POSIX sh script (stdin) in one wpcli container. Inside it, `wp` runs
 # as the admin user without Imagify (it would send uploads to its API) or Yoast.
@@ -53,7 +49,6 @@ done
 in_wpcli() {
   { cat <<'PRELUDE'; cat; } | docker compose run --rm -T \
     -v "$SEED_DIR:/seed:ro" -v "$OUT_DIR:/seed-out:ro" \
-    -e WORDPRESS_DB_PASSWORD -e WORDPRESS_DB_HOST -e WORDPRESS_DB_USER -e WORDPRESS_DB_NAME -e WORDPRESS_TABLE_PREFIX \
     wpcli sh -s 2> >(grep -v -E '^ ?(Container|Network) |level=warning' >&2)
 set -e
 P=${WORDPRESS_TABLE_PREFIX:-wp_}
