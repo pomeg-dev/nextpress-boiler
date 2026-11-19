@@ -6,7 +6,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] Figma vars removed from `frontend/.env.sample` (Figma API no longer used). The old token is still in git history (a2681581): revoke it in Figma.
 
 ## Licensing
-- [ ] `frontend/public/fonts` holds trial/commercial fonts (TT Ramillas Trial, PP Neue Montreal, HelveticaNowDisplay, F37 Caslon, TT Firs, Paralex). Not used by the redesign; confirm licences or remove.
+- [x] Unused trial/commercial fonts in `frontend/public/fonts` deleted (2026-11-19).
 
 ## Code hygiene (needs approval — PHP or out of scope)
 - [x] `nextpress-theme/functions.php` debug `error_log` calls removed (1052dd48).
