@@ -21,7 +21,7 @@ Headless WordPress (Docker, `backend/`) + Next.js 15 App Router / Tailwind 4 / T
 
 ## Commands (run in `frontend/`)
 - Checks: `npx tsc --noEmit`, `npm run lint`, `npm run build`. tsc + lint pass on baseline.
-- Dev and build share `.next`: stop the dev server before `npm run build`. `Cannot find module './vendor-chunks/...'` = stale cache → `rm -rf .next`.
+- Dev and build share `.next`: stop the dev server before `npm run build`. Check :3000 before starting a dev server; a second one (it falls back to :3001) corrupts the shared `.next`. `Cannot find module './vendor-chunks/...'` = stale cache → `rm -rf .next`.
 - Stop dev servers by PID only — never `pkill -f "next dev"` (kills other projects).
 - Playwright MCP can only write inside the repo: screenshots go to `.playwright-mcp/`.
 

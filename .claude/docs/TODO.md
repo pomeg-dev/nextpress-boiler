@@ -15,7 +15,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] `frontend/src/lib/themeLoader.ts` is unused.
 - [x] `ui/components/archive/Feed.tsx` stray `console.log(data)` removed (phase 5 restyle).
 - [ ] `archive/PostsList.tsx` wraps `PostCard` in a `<Link>`, and PostCard can contain button links → nested `<a>` (invalid HTML, hydration warning) when a post has `acf_data.link`/`download`. Fixing it changes archive-feed markup behaviour: needs approval.
-- [ ] No skip link. `<main>` is rendered by the package with no id, so a link has no target. Landmarks satisfy WCAG 2.4.1; add one if the package gives `<main>` an id.
+- [x] Skip link added in `app/layout.tsx` once nextpress-client 0.4.2 gave `<main>` the id `main`.
 - [ ] `PostCard` in featured-posts has no link to the post itself (only `acf_data.link`). Left as is.
 - [ ] Legacy leftovers outside the new system: Tailwind colour aliases (`primary-dark`, `quaternary`, `dark`, `smoke`) and BlockWrapper's `"mission"` theme fallback. Remove once no saved content uses them.
 - [ ] Some component CSS in theme.scss uses raw `48rem`/`64rem` media queries instead of the Tailwind screens (md 720, lg 1080).

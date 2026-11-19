@@ -818,6 +818,29 @@
     z-index: 1;
   }
 
+  // First tab stop on every page (app/layout.tsx); hidden until focused.
+  .skip-link {
+    position: fixed;
+    top: var(--space-xs);
+    left: var(--space-margin);
+    z-index: 70;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--corner-md);
+    background-color: var(--np-flare);
+    color: var(--np-ink);
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+    translate: 0 calc(-100% - var(--space-md));
+    transition: translate var(--dur-fast) var(--motion-ease-out);
+
+    &:focus {
+      translate: none;
+    }
+  }
+
   // ----------------------------------------------------------------
   // Site header (Templates → header layout)
   // ----------------------------------------------------------------

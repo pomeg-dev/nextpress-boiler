@@ -74,6 +74,9 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
     <LocaleProvider defaultLocale={defaultLocale}>
       <html {...themeProps} lang={defaultLocale} className={fontVariables}>
         <body suppressHydrationWarning>
+          <a href="#main" className="skip-link">
+            Skip to content
+          </a>
           {/* Google Consent Mode default — inline so it executes at parse time,
               before GTM boots and before OneTrust injects, giving every tag a
               known (denied) starting state. OneTrust is expected to emit the
