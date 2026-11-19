@@ -465,7 +465,7 @@ function platform() {
           {
             label: "WordPress",
             title: "WordPress registers it",
-            text: "The Nextpress plugin reads the block list from the front end and registers each block as acf/default--name.",
+            text: "The Nextpress plugin reads the block list from the front end and registers each one as an ACF block.",
             code: API_EXCERPT,
             code_label: "GET /api/blocks/",
           },
