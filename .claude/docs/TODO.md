@@ -3,7 +3,7 @@
 Items found during the redesign that are out of scope or need a decision. Newest at the bottom of each section.
 
 ## Security
-- [ ] `frontend/.env.sample` commits a real-looking Figma token (`FIGMA_ACCESS_TOKEN=figd_...`). Rotate it and blank the sample value.
+- [x] Figma vars removed from `frontend/.env.sample` (Figma API no longer used). The old token is still in git history (a2681581): revoke it in Figma.
 
 ## Licensing
 - [ ] `frontend/public/fonts` holds trial/commercial fonts (TT Ramillas Trial, PP Neue Montreal, HelveticaNowDisplay, F37 Caslon, TT Firs, Paralex). Not used by the redesign; confirm licences or remove.
