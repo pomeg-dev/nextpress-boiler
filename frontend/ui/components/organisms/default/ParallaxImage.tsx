@@ -12,6 +12,8 @@ type ButtonProps = {
 type ParallaxImageProps = {
   image?: ImageProps;
   style?: "container" | "break-out";
+  parallax?: boolean;
+  heading?: string;
   links?: ButtonProps[];
   top_spacer?: "xl" | "lg" | "md" | "0";
   bottom_spacer?: "xl" | "lg" | "md" | "0";
@@ -21,10 +23,13 @@ type ParallaxImageProps = {
 };
 
 // The image drifts with a CSS scroll-driven animation (theme.scss
-// `.parallax-media`). Without support, or with reduced motion, it is static.
+// `.parallax-media.is-moving`). Without support, with reduced motion or with
+// the toggle off, it is static.
 const ParallaxImage: React.FC<ParallaxImageProps> = ({
   image,
   style = "break-out",
+  parallax = true,
+  heading,
   links,
   top_spacer = "xl",
   bottom_spacer = "xl",
@@ -47,13 +52,13 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
       <div className={style === "container" ? "container" : undefined}>
         <div
           className={classNames(
-            "parallax-frame scrim relative flex aspect-[4/5] items-center justify-center overflow-hidden sm:aspect-[3/2] lg:aspect-[21/9]",
+            "parallax-frame scrim relative flex aspect-4/5 flex-col items-center justify-center gap-md overflow-clip px-margin py-lg md:aspect-3/2 lg:aspect-21/9",
             style === "container" && "rounded-md"
           )}
           data-theme="overlay"
         >
           {image?.src && (
-            <div className="parallax-media absolute inset-x-0 -top-[10%] h-[120%]">
+            <div className={classNames("parallax-media absolute inset-x-0 top-[-10%] h-[120%]", parallax && "is-moving")}>
               <Image
                 src={image.src}
                 alt={image.alt ?? ""}
@@ -64,15 +69,18 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
               />
             </div>
           )}
+          {heading && (
+            <h2 className="heading-xl relative z-1 max-w-[18ch] text-center text-balance">{heading}</h2>
+          )}
           {items.length > 0 && (
-            <ul className="relative z-[1] flex flex-wrap items-center justify-center gap-x-md gap-y-xs px-margin">
+            <ul className="relative z-1 flex flex-wrap items-center justify-center gap-x-md gap-y-xs">
               {items.map((item, index) => (
                 <li key={index} className="flex items-center gap-x-md">
                   {index !== 0 && <span className="size-2 bg-accent-fill" aria-hidden="true" />}
                   <Link
                     href={item.link.url || "#"}
                     target={item.link.target || undefined}
-                    className="parallax-link heading-lg"
+                    className={classNames("parallax-link", heading ? "heading-md" : "heading-lg")}
                   >
                     {item.link.title}
                   </Link>

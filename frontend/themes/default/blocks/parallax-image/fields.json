@@ -9,8 +9,19 @@
     "default_value": "break-out"
   },
   {
+    "id": "parallax",
+    "type": "true_false",
+    "ui": 1,
+    "default_value": 1,
+    "instructions": "Image drifts as the page scrolls. Always static with reduced motion."
+  },
+  {
     "id": "image",
     "type": "image"
+  },
+  {
+    "id": "heading",
+    "type": "text"
   },
   {
     "id": "links",

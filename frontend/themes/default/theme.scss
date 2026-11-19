@@ -1152,9 +1152,11 @@
     to { translate: 0 8%; }
   }
 
+  // The frame clips with overflow: clip, not hidden. A hidden frame is a scroll
+  // container, and view() would track the image against the frame, not the page.
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      .parallax-media {
+      .parallax-media.is-moving {
         animation: np-parallax linear both;
         animation-timeline: view();
       }

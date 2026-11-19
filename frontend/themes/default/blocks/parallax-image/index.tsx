@@ -8,7 +8,9 @@ import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 export function ParallaxImageBlock(props: any) {
   const {
     style,
+    parallax,
     image,
+    heading,
     links,
     top_spacer,
     bottom_spacer,
@@ -27,6 +29,9 @@ export function ParallaxImageBlock(props: any) {
     <ParallaxImage
       image={imageAtts}
       style={style}
+      // Content saved before the toggle existed has no value: keep it moving.
+      parallax={parallax === undefined || parallax === null || !!parallax}
+      heading={heading}
       links={links}
       top_spacer={top_spacer}
       bottom_spacer={bottom_spacer}

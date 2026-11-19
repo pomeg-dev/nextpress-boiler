@@ -249,7 +249,9 @@ function home() {
       "parallax-image",
       {
         style: "break-out",
+        parallax: 1,
         image: img("arch-canopy"),
+        heading: "One set of blocks, any number of sites.",
         links: [{ link: link("Platform", "platform") }, { link: link("Studies", "work") }],
         top_spacer: "0",
         bottom_spacer: "0",
@@ -612,7 +614,9 @@ function work() {
     ),
     acf("parallax-image", {
       style: "container",
+      parallax: 1,
       image: img("botanic-cluster"),
+      heading: "Every study here uses the same blocks.",
       links: [{ link: link("About", "about") }, { link: link("Contact", "contact") }],
       top_spacer: "xl",
       bottom_spacer: "xl",
