@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import classNames from "classnames";
 import ToggleControlItem, { ToggleControlItemProps } from "../atoms/ToggleControlItem";
 import { ChevronDown } from "@ui/icons/icon-loader";
@@ -23,16 +23,8 @@ const ToggleControl: React.FC<ToggleControlProps> = ({
   onClick
 }) => {
   const [showOverflow, setShowOverflow] = useState<boolean>(false);
-  const [toggleItems, setToggleItems] = useState<ToggleControlItemProps[]>(items);
-  const [overflowItems, setOverflowItems] = useState<ToggleControlItemProps[]>([]);
-
-  useEffect(() => {
-    if (overflow && overflow > 0) {
-      const allItems = [...items];
-      setOverflowItems(allItems.splice(overflow));
-      setToggleItems(allItems.splice(0, overflow));
-    }
-  }, [overflow]);
+  const toggleItems = overflow > 0 ? items.slice(0, overflow) : items;
+  const overflowItems = overflow > 0 ? items.slice(overflow) : [];
 
   return (
     <div

@@ -1,8 +1,6 @@
 "use client";
 
 import TextInput from "@ui/components/molecules/TextInput";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
 export const SearchBox = ({
   label,
@@ -19,15 +17,6 @@ export const SearchBox = ({
   setCurrentPage: any;
   setLoadMore: any;
 }) => {
-  const urlParams = useSearchParams();
-
-  useEffect(() => {
-    const searchUrlParam = urlParams.get('search');
-    if (searchUrlParam) {
-      setSearchTerm(searchUrlParam);
-    }
-  }, []);
-
   return (
     <div className="filter-search max-w-lg transition-[opacity,transform]">
       <TextInput

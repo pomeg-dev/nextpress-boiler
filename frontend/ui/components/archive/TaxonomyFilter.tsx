@@ -1,7 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { Suspense } from "react";
 import cn from "classnames";
 import SelectInput from "@ui/components/molecules/SelectInput";
 import Button from "@ui/components/atoms/Button";
@@ -30,8 +29,6 @@ const TaxonomyFilterInner = ({
   setCurrentPage: any;
   setLoadMore: any;
 }) => {
-  const urlParams = useSearchParams();
-
   const setFilter = (term: string) => {
     const tempTax = [...taxFilters];
     const filter: any = {
@@ -62,20 +59,6 @@ const TaxonomyFilterInner = ({
     setCurrentPage(1);
     setLoadMore(false);
   }
-  
-  useEffect(() => {
-    const tempTax: any[] = [];
-    urlParams.forEach((value, key) => {
-      if (key.includes('filter_')) {
-        const filter: any = {
-          taxonomy: key.replace('filter_', ''),
-          terms: value,
-        };
-        tempTax.push(filter);
-      }
-    });
-    setTaxFilters(tempTax);
-  }, []);
 
   const taxTerms = terms.map((term: { term_id: any; slug: any; name: any; }) => {
     const { term_id, slug, name } = term;

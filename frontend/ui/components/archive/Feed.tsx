@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SearchBox } from "./SearchBox";
 import { TaxonomyFilter } from "./TaxonomyFilter";
 import { PostsList } from "./PostsList";
@@ -36,35 +36,34 @@ type Props = {
 };
 
 export function Feed({ data, firstPosts }: Props) {
+  // The URL query (written by `update_url`) sets the starting page, search and filters.
+  const urlParams = useSearchParams();
   const [totalPosts, setTotalPosts] = useState(data.number_of_posts);
   const [totalPages, setTotalPages] = useState(1);
   const [posts, setPosts] = useState(firstPosts);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [taxFilters, setTaxFilters] = useState<any>([]);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = parseInt(urlParams.get("page") ?? "");
+    return data.load_more === "pagination" && page > 1 ? page : 1;
+  });
+  const [searchTerm, setSearchTerm] = useState(() =>
+    (data.show_search && urlParams.get("search")) || ""
+  );
+  const [taxFilters, setTaxFilters] = useState<any>(() => {
+    if (!data.taxonomy_filters?.length) return [];
+    return Array.from(urlParams.entries())
+      .filter(([key]) => key.includes("filter_"))
+      .map(([key, value]) => ({ taxonomy: key.replace("filter_", ""), terms: value }));
+  });
   const [loadMore, setLoadMore] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  const updateUrl = (params: any) => {
-    delete params.post_type;
-    delete params.per_page;
-    delete params.exclude;
-    delete params.include_content;
-    if (params.page === 1 || loadMore) {
-      delete params.page;
-    }
-    const searchParams = params
-      ? "?" + new URLSearchParams(params).toString()
-      : "";
-    router.push(searchParams, { scroll: false });
-  };
+  const { post_type, number_of_posts, load_more, update_url, redirect_on_filter, tax_query } = data;
 
   useEffect(() => {
     setIsLoading(true);
 
     // Redirect if true.
-    if (data?.redirect_on_filter && taxFilters && taxFilters.length > 0) {
+    if (redirect_on_filter && taxFilters && taxFilters.length > 0) {
       const currentUrl = window.location.href;
       const filterTarget = taxFilters[0].terms;
       const newUrl = currentUrl.replace(/\/[^/]*\/$/, `/${filterTarget}/`);
@@ -73,14 +72,14 @@ export function Feed({ data, firstPosts }: Props) {
     }
 
     const params: WPQuery = {
-      post_type: data.post_type,
+      post_type,
       page: currentPage,
-      per_page: parseInt(data.number_of_posts),
+      per_page: parseInt(number_of_posts),
       include_content: true,
     };
 
-    if (taxFilters.length < 1 && data.tax_query && data.tax_query.length > 0) {
-      data.tax_query.map((filter: any) => {
+    if (taxFilters.length < 1 && tax_query && tax_query.length > 0) {
+      tax_query.map((filter: any) => {
         params[`filter_${filter.taxonomy}`] = filter.term;
       });
     }
@@ -95,26 +94,33 @@ export function Feed({ data, firstPosts }: Props) {
       }
     });
 
-    if (data.update_url) {
-      updateUrl(JSON.parse(JSON.stringify(params)));
+    if (update_url) {
+      const urlQuery: Record<string, any> = { ...params };
+      delete urlQuery.post_type;
+      delete urlQuery.per_page;
+      delete urlQuery.exclude;
+      delete urlQuery.include_content;
+      if (urlQuery.page === 1 || loadMore) {
+        delete urlQuery.page;
+      }
+      router.push("?" + new URLSearchParams(urlQuery).toString(), { scroll: false });
     }
 
     getPosts(params, true)
       .then((response) => {
         const totalPosts =
-          response.headers.get("X-WP-Total") ?? data.number_of_posts;
-        const totalPages = response.headers.get("X-WP-TotalPages") ?? 1;
-        const postsArray =
-          data.load_more && loadMore
-            ? posts?.concat(response.posts)
-            : response.posts;
+          response.headers.get("X-WP-Total") ?? number_of_posts;
+        const totalPages = Number(response.headers.get("X-WP-TotalPages") ?? 1);
         setTotalPosts(totalPosts);
         setTotalPages(totalPages);
-        setPosts(postsArray);
+        setPosts((current) =>
+          load_more && loadMore ? current?.concat(response.posts) : response.posts
+        );
         setIsLoading(false);
       })
       .catch((err) => console.log(err));
-  }, [currentPage, taxFilters, searchTerm]);
+    // loadMore only ever changes together with currentPage or a filter.
+  }, [currentPage, taxFilters, searchTerm, loadMore, post_type, number_of_posts, load_more, update_url, redirect_on_filter, tax_query, router]);
 
   return (
     <BlockWrapper

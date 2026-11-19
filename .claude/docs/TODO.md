@@ -26,7 +26,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] GF form 1 "Project Type" choices set to New website / Redesign / Design system / Something else (one-off WP-CLI, 2026-11-19; the seed still never edits forms).
 - [x] `.claude/docs/DESIGN_SYSTEM.md` (another project's structure) deleted; DESIGN.md replaces it. `scaffold-block` skill rewritten for this repo (2026-11-19).
 - [x] `next lint` replaced by the ESLint CLI: ESLint 9, eslint-config-next 15.5.26, flat `eslint.config.mjs`, script `eslint .` (2026-11-19). It now also lints `ui/` and `themes/`, which `next lint` skipped; 3 missing display names fixed.
-- [ ] 7 lint warnings in `ui/` (first seen with the ESLint CLI): `react-hooks/exhaustive-deps` in archive `Feed`, `Pagination`, `SearchBox`, `TaxonomyFilter`, `ToggleControl`, `CookieManager`, and `no-img-element` in `Modal`. Fixing the hook deps changes behaviour (archive-feed needs approval).
+- [x] The 7 lint warnings in `ui/` fixed (2026-11-19, approved). Archive feed: `Feed` reads page/search/filters from the URL as initial state (the child effects are gone), which also fixes `?page=2` → Next going to page 21, the select ignoring `?filter_*`, and Next showing on the last page. `CookieManager`: a returning visitor's stored consent now reaches GTM (it was always sent as denied). `ToggleControl` derives its lists from props. `Modal` keeps `<img>` (unknown dimensions) with a reasoned disable. Tested on a temporary posts page, deleted afterwards; GTM runs in production only, so the consent change is untested in the browser.
 
 ## Environment
 - [x] WordPress auto-updated core 7.1.4 → 7.1.5 when Docker started; committed (cb20c20f). Core auto-updates are still on, so this can recur.

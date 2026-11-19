@@ -1,7 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import cn from "classnames";
 import Button from "@ui/components/atoms/Button";
 
@@ -10,14 +8,6 @@ export function Pagination({ totalPages, currentPage, setCurrentPage }: {
   currentPage: number,
   setCurrentPage: any,
 }) {
-  const urlParams = useSearchParams();
-  useEffect(() => {
-    const pageUrlParam = urlParams.get('page');
-    if (pageUrlParam && parseInt(pageUrlParam) > 1) {
-      setCurrentPage(pageUrlParam);
-    }
-  }, []);
-
   const paginationButtons = [];
   for (let i = 1; i <= totalPages; i++) {
     const button = (page: any) => {

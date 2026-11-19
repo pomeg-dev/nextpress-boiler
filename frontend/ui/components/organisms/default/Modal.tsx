@@ -284,6 +284,8 @@ const Modal: React.FC<ModalProps> = ({
 			);
 		} else {
 			return (
+				// Any image from the page, at its natural size: dimensions are unknown, so not next/image.
+				// eslint-disable-next-line @next/next/no-img-element
 				<img
 					src={lightbox.currentMedia.src}
 					alt={lightbox.currentMedia.alt}

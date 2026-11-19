@@ -38,24 +38,92 @@ const pageview = (url: string) => {
   });
 };
 
+const updateConsent = (preferences: CookiePreferences) => {
+  gtag('consent', 'update', {
+    'ad_storage': preferences.marketing ? 'granted' : 'denied',
+    'analytics_storage': preferences.analytics ? 'granted' : 'denied',
+    'ad_user_data': preferences.marketing ? 'granted' : 'denied',
+    'ad_personalization': preferences.marketing ? 'granted' : 'denied',
+    'personalization_storage': preferences.functional ? 'granted' : 'denied',
+    'functionality_storage': preferences.functional ? 'granted' : 'denied',
+    'security_storage': preferences.necessary ? 'granted' : 'denied',
+  });
+};
+
+// Everything starts denied; a stored choice is applied straight after.
+const initializeGTM = (gtmId: string, stored: CookiePreferences | null) => {
+  // Check if GTM is already initialized
+  if (window.dataLayer?.find(item =>
+    typeof item === 'object' && item !== null && 'gtm.start' in item
+  )) {
+    return;
+  }
+
+  window.dataLayer = window.dataLayer || [];
+
+  window.gtag = function gtag() {
+    window.dataLayer?.push(arguments);
+  };
+
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'personalization_storage': 'denied',
+    'functionality_storage': 'denied',
+    'security_storage': 'granted',
+    'wait_for_update': 500
+  });
+  if (stored) updateConsent(stored);
+
+  window.dataLayer.push({
+    'gtm.start': new Date().getTime(),
+    event: 'gtm.js'
+  });
+
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
+  
+  const firstScript = document.getElementsByTagName('script')[0];
+  if (firstScript && firstScript.parentNode) {
+    firstScript.parentNode.insertBefore(script, firstScript);
+  } else {
+    document.head.appendChild(script);
+  }
+
+  // Fallback
+  const noscript = document.createElement('noscript');
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://www.googletagmanager.com/ns.html?id=${gtmId}`;
+  iframe.height = '0';
+  iframe.width = '0';
+  iframe.style.display = 'none';
+  iframe.style.visibility = 'hidden';
+  noscript.appendChild(iframe);
+  document.body.appendChild(noscript);
+};
+
 export function CookieManager({ settings }: CookieManagerProps) {
   const [preferences, setPreferences] = useState<CookiePreferences | null>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { google_tag_manager_enabled: gtmEnabled, google_tag_manager_id: gtmId } = settings;
 
   useEffect(() => {
     const storedConsent = getCookie('cookie-consent');
-    const parsed = storedConsent ? JSON.parse(storedConsent) : preferences;
-    setPreferences(parsed);
+    const stored: CookiePreferences | null = storedConsent ? JSON.parse(storedConsent) : null;
+    setPreferences(stored);
 
     // Proceed on production only.
     if (process.env.NODE_ENV !== 'production') return;
 
     // GTM immediately starts.
-    if (settings.google_tag_manager_enabled && settings.google_tag_manager_id) {
-      initializeGTM(settings.google_tag_manager_id);
+    if (gtmEnabled && gtmId) {
+      initializeGTM(gtmId, stored);
     }
-  }, []);
+  }, [gtmEnabled, gtmId]);
 
   // Push pageview.
   useEffect(() => {
@@ -64,73 +132,9 @@ export function CookieManager({ settings }: CookieManagerProps) {
     }
   }, [pathname, searchParams]);
 
-  const initializeGTM = (gtmId: string) => {
-    // Check if GTM is already initialized
-    if (window.dataLayer?.find(item => 
-      typeof item === 'object' && item !== null && 'gtm.start' in item
-    )) {
-      return;
-    }
-
-    window.dataLayer = window.dataLayer || [];
-
-    window.gtag = function gtag() {
-      window.dataLayer?.push(arguments);
-    };
-
-    if (!preferences) {
-      gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'analytics_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'personalization_storage': 'denied',
-        'functionality_storage': 'denied',
-        'security_storage': 'granted',
-        'wait_for_update': 500
-      });
-    }
-
-    window.dataLayer.push({
-      'gtm.start': new Date().getTime(),
-      event: 'gtm.js'
-    });
-
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
-    
-    const firstScript = document.getElementsByTagName('script')[0];
-    if (firstScript && firstScript.parentNode) {
-      firstScript.parentNode.insertBefore(script, firstScript);
-    } else {
-      document.head.appendChild(script);
-    }
-
-    // Fallback
-    const noscript = document.createElement('noscript');
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.googletagmanager.com/ns.html?id=${gtmId}`;
-    iframe.height = '0';
-    iframe.width = '0';
-    iframe.style.display = 'none';
-    iframe.style.visibility = 'hidden';
-    noscript.appendChild(iframe);
-    document.body.appendChild(noscript);
-  };
-
   const handleConsentChange = (newPreferences: CookiePreferences) => {
     setPreferences(newPreferences);
-
-    gtag('consent', 'update', {
-      'ad_storage': newPreferences.marketing ? 'granted' : 'denied',
-      'analytics_storage': newPreferences.analytics ? 'granted' : 'denied',
-      'ad_user_data': newPreferences.marketing ? 'granted' : 'denied',
-      'ad_personalization': newPreferences.marketing ? 'granted' : 'denied',
-      'personalization_storage': newPreferences.functional ? 'granted' : 'denied',
-      'functionality_storage': newPreferences.functional ? 'granted' : 'denied',
-      'security_storage': newPreferences.necessary ? 'granted' : 'denied',
-    });
+    updateConsent(newPreferences);
   };
 
   return (
