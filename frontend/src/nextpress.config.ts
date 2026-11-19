@@ -7,6 +7,8 @@ if (!apiUrl) {
 
 export const nextpress = createNextpress({
   apiUrl,
+  // Wins over WordPress `frontend_url`, which must stay empty in Docker dev.
+  frontendUrl: process.env.NEXT_PUBLIC_SITE_URL,
   // Same value as NEXTPRESS_CLIENT_SECRET in wp-config.php.
   secret: process.env.NEXTPRESS_CLIENT_SECRET,
   settings: {
