@@ -24,7 +24,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] Plugin `ext-gravityforms.php` injects the full `GFAPI::get_form()` as `gfData` into public router JSON, including `notifications` (recipient emails, routing). Plugin is read-only: needs a decision (strip in plugin, or filter server-side).
 
 ## Content (user's wp-admin)
-- [ ] GF form 1 "Project Type" still has GF default choices (First/Second/Third Choice). Seed never edits forms: update them in wp-admin.
+- [x] GF form 1 "Project Type" choices set to New website / Redesign / Design system / Something else (one-off WP-CLI, 2026-11-19; the seed still never edits forms).
 - [ ] `.claude/docs/DESIGN_SYSTEM.md` and `.claude/skills/scaffold-block` describe another project's structure. Rewrite once the new design system lands.
 - [ ] `next lint` is deprecated (Next 16 removes it). Migrate to the ESLint CLI.
 
@@ -34,4 +34,4 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] Public site URL: `frontendUrl` in `nextpress.config.ts` reads `NEXT_PUBLIC_SITE_URL` (2026-11-19), so canonical/og:url are absolute. WordPress `frontend_url` stays empty: the plugin uses it for its server-side `/api/blocks` fetch, which fails inside Docker. Optional plugin change: keep separate internal and public URLs.
 - [ ] The package's core image renderer hardcodes `sizes`. Read-only; raise with package owners if it costs performance.
 - [x] Confirm the "Disable REST API" plugin lets anonymous `gf/v2` submissions through. (Yes, after the GF REST API was enabled in wp-admin.)
-- [ ] `@react-three/fiber` and `@react-three/drei` are dependencies but nothing imports them. Remove them to cut install size (needs approval: dependency change).
+- [x] Unused `@react-three/fiber` and `@react-three/drei` removed (approved 2026-11-19).
