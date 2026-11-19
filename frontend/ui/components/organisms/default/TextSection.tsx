@@ -2,13 +2,11 @@ import React from "react";
 import classNames from "classnames";
 import Parser from "html-react-parser";
 import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type TextSectionProps = {
   content_a?: string;
   content_b?: string;
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   alignment?: "row" | "row-reverse" | "col";
   blockOptions?: BlockOptions;
   className?: string;
@@ -25,8 +23,6 @@ const PLACEMENT = {
 const TextSection: React.FC<TextSectionProps> = ({
   content_a,
   content_b,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   alignment = "row",
   blockOptions,
   className,
@@ -40,8 +36,8 @@ const TextSection: React.FC<TextSectionProps> = ({
       className={className}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className={classNames(

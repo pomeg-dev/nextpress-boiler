@@ -12,7 +12,6 @@ export function HeroImageBlock(props: any) {
     heading,
     content,
     buttons,
-    bottom_spacer,
     background_colour,
     text_colour,
     background_tint
@@ -34,7 +33,6 @@ export function HeroImageBlock(props: any) {
       heading={heading}
       content={content}
       buttons={buttons}
-      bottom_spacer={bottom_spacer}
       background_colour={background_colour}
       text_colour={text_colour}
       background_tint={background_tint}

@@ -8,8 +8,6 @@ export function TextSectionBlock(props: any) {
   const {
     content_a,
     content_b,
-    top_spacer,
-    bottom_spacer,
     alignment
   } = props.data;
 
@@ -17,8 +15,6 @@ export function TextSectionBlock(props: any) {
     <TextSection
       content_a={content_a}
       content_b={content_b}
-      top_spacer={top_spacer}
-      bottom_spacer={bottom_spacer}
       blockOptions={getBlockOptions(props.data)}
       alignment={alignment}
       className={classNames(

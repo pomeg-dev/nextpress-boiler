@@ -15,8 +15,6 @@ export async function FeaturedPostsBlock(props: any) {
     tag,
     number_posts,
     featured_posts,
-    top_spacer,
-    bottom_spacer,
   } = props.data;
 
   let posts = [];
@@ -62,8 +60,6 @@ export async function FeaturedPostsBlock(props: any) {
       posts={posts}
       heading={heading}
       button={button}
-      top_spacer={top_spacer}
-      bottom_spacer={bottom_spacer}
       blockOptions={getBlockOptions(props.data)}
       card={card}
       className={classNames("custom-block featured-posts", props.className)}

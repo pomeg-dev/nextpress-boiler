@@ -2,13 +2,11 @@ import React from "react";
 import { BlockOptions, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import { ArrowRight } from "../../../icons/icon-loader";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type StackedLinksProps = {
   label?: string;
   rows?: { link: LinkItemProps, description: string}[];
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -18,8 +16,6 @@ type StackedLinksProps = {
 const StackedLinks: React.FC<StackedLinksProps> = ({
   label,
   rows,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -32,8 +28,8 @@ const StackedLinks: React.FC<StackedLinksProps> = ({
       className={className}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className="container">

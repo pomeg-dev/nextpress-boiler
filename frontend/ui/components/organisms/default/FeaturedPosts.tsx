@@ -4,15 +4,13 @@ import { BlockOptions, Cards, LinkItemProps, Post } from "@pomeg-dev/nextpress-c
 import Parser from "html-react-parser";
 import PostCard from "../../molecules/PostCard";
 import Button from "../../atoms/Button";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type FeaturedPostsProps = {
   posts: Post[];
   card: Cards;
   heading?: string;
   button?: LinkItemProps;
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -23,8 +21,6 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
   card = "PostCard",
   heading,
   button,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -51,8 +47,8 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
       className={className}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className="container">

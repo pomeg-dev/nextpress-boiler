@@ -12,7 +12,7 @@ type BlockWrapperProps = {
 };
 
 // Block Settings padding values (ACF group_69d607b467ad1) → spacing tokens.
-// "" (default) leaves the block's own spacing; "0" removes it.
+// "" (default) keeps the block's default padding (its `style`); "0" removes it.
 const SPACING_TOKENS: Record<string, string> = {
   "0": "0",
   xs: "var(--space-xs)",
@@ -35,10 +35,6 @@ export const getBlockOptions = (data?: Record<string, any>): BlockOptions => ({
   padding_bottom: data?.padding_bottom,
 });
 
-// A block's own spacer field: dropped when Block Settings sets that side.
-export const ownSpacing = (value?: string, option?: number | string) =>
-  spacing(option) !== undefined ? undefined : spacing(value);
-
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   blockOptions,
   className,
@@ -51,7 +47,7 @@ const BlockWrapper: React.FC<BlockWrapperProps> = ({
   const themeOverride = blockOptions?.theme_override;
   const theme = themeOverride || "light";
 
-  // The option wins over the block's own spacer fields when set.
+  // The option wins over the block's default padding when set.
   const paddingTop = spacing(blockOptions?.padding_top);
   const paddingBottom = spacing(blockOptions?.padding_bottom);
 

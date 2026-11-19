@@ -12,8 +12,6 @@ export function ParallaxImageBlock(props: any) {
     image,
     heading,
     links,
-    top_spacer,
-    bottom_spacer,
   } = props.data;
 
   let imageAtts: ImageProps = { src: "", alt: ""};
@@ -33,8 +31,6 @@ export function ParallaxImageBlock(props: any) {
       parallax={parallax === undefined || parallax === null || !!parallax}
       heading={heading}
       links={links}
-      top_spacer={top_spacer}
-      bottom_spacer={bottom_spacer}
       blockOptions={getBlockOptions(props.data)}
       className={classNames(
         "custom-block parallax-image",

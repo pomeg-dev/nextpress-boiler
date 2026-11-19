@@ -15,8 +15,6 @@ export function TextAndImageBlock(props: any) {
     label,
     content,
     buttons,
-    top_spacer,
-    bottom_spacer,
   } = props.data;
 
   let imageAtts: ImageProps = { src: "", alt: ""};
@@ -38,8 +36,6 @@ export function TextAndImageBlock(props: any) {
       label={label}
       content={content}
       buttons={buttons}
-      top_spacer={top_spacer}
-      bottom_spacer={bottom_spacer}
       blockOptions={getBlockOptions(props.data)}
       className={classNames(
         "custom-block text-and-image",

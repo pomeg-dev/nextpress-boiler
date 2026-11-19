@@ -189,8 +189,6 @@ function home() {
         content_b:
           "<p>Content lives in WordPress. Layout, type and colour live in code. Editors choose blocks and fill in fields, and the front end decides how they look, so pages stay consistent without locking anyone out of the editor.</p>",
         alignment: "row",
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { top: "section", bottom: "section" }
     ),
@@ -204,8 +202,6 @@ function home() {
         content:
           "<h2>Built from blocks, not templates.</h2><p>Each section is a block with fields an editor understands: a heading, an image, a list of links. Every block takes a colour theme and spacing from the same settings panel, so a page can change mood without new code.</p>",
         buttons: [{ link: link("How it works", "platform") }],
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { theme: "dark" }
     ),
@@ -240,8 +236,6 @@ function home() {
           { link: link("Work", "work"), description: "Layout studies: filmstrip, mosaic, stagger and parallax." },
           { link: link("Contact", "contact"), description: "A Gravity Form with validation, error and success states." },
         ],
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { theme: "light-secondary" }
     ),
@@ -253,10 +247,8 @@ function home() {
         image: img("arch-canopy"),
         heading: "One set of blocks, any number of sites.",
         links: [{ link: link("Platform", "platform") }, { link: link("Studies", "work") }],
-        top_spacer: "0",
-        bottom_spacer: "0",
       },
-      { theme: "overlay" }
+      { theme: "overlay", top: "0", bottom: "0" }
     ),
     core.group(
       [
@@ -282,7 +274,6 @@ function about() {
       content:
         "Nextpress is a starting point for headless WordPress sites: a block library, a token-driven design system and the plumbing between them.",
       buttons: [{ link: link("See the studies", "work") }],
-      bottom_spacer: "xl",
       background_colour: "",
       text_colour: "",
       background_tint: 1,
@@ -323,8 +314,6 @@ function about() {
       label: chip("Approach"),
       content:
         "<h2>Design in the system, not the page.</h2><p>Type, colour and spacing are tokens. Blocks use the tokens and pages use the blocks, so changing a token changes every page that uses it.</p>",
-      top_spacer: "xl",
-      bottom_spacer: "xl",
     }),
     acf(
       "stats",
@@ -336,8 +325,6 @@ function about() {
           "<p>2</p><p>Typefaces: Archivo and Geist Mono</p>",
         ].map((content) => ({ content })),
         columns: 4,
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { theme: "dark" }
     ),
@@ -373,8 +360,6 @@ function about() {
       image: img("land-dune"),
       content: "<h2>See it in use.</h2><p>The studies page puts the same blocks through different layouts.</p>",
       buttons: [{ link: link("Browse the studies", "work") }],
-      top_spacer: "xl",
-      bottom_spacer: "xl",
     }),
   ]);
 }
@@ -444,8 +429,6 @@ function platform() {
         content_b:
           "<p>Nextpress keeps editing in WordPress and moves rendering to a Next.js front end. The two talk over REST: the editor saves blocks, and the front end fetches and renders them.</p>",
         alignment: "col",
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { theme: "dark-secondary", top: "section" }
     ),
@@ -535,8 +518,6 @@ function platform() {
       label: chip("Stack"),
       content:
         "<h2>The stack</h2><p>A Next.js App Router front end with Tailwind 4 driven by CSS tokens. WordPress with ACF Pro and Gravity Forms behind it, running locally in Docker.</p>",
-      top_spacer: "xl",
-      bottom_spacer: "xl",
     }),
     acf(
       "marquee",
@@ -607,8 +588,6 @@ function work() {
         label: chip("Method"),
         content:
           "<h2>Same blocks, different pages.</h2><p>Every study here is the gallery block with a different layout setting: filmstrip, mosaic or stagger. Nothing on this page needed page-specific code.</p>",
-        top_spacer: "xl",
-        bottom_spacer: "xl",
       },
       { theme: "dark" }
     ),
@@ -618,8 +597,6 @@ function work() {
       image: img("botanic-cluster"),
       heading: "Every study here uses the same blocks.",
       links: [{ link: link("About", "about") }, { link: link("Contact", "contact") }],
-      top_spacer: "xl",
-      bottom_spacer: "xl",
     }),
     acf(
       "gallery",
@@ -666,8 +643,6 @@ function contact() {
         { link: link("Work", "work"), description: "Layout studies built from the same blocks." },
         { link: link("About", "about"), description: "Why Nextpress exists and how a build runs." },
       ],
-      top_spacer: "xl",
-      bottom_spacer: "xl",
     }),
     acf("marquee", {
       items: ["Say hello", "Start a project", "Ask a question"].map((text) => ({ text })),

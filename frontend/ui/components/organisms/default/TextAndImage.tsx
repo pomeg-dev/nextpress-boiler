@@ -4,7 +4,7 @@ import Parser from "html-react-parser";
 import { BlockOptions, ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Button from "../../atoms/Button";
 import Image from "next/image";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type ButtonProps = {
   link: LinkItemProps;
@@ -19,8 +19,6 @@ type TextAndImageProps = {
   label?: string;
   content?: string;
   buttons?: ButtonProps[];
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -67,8 +65,6 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
   label,
   content,
   buttons,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -147,8 +143,8 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
       className={classNames(style, className)}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className={page_margin || !isCard ? "container" : "px-margin"}>

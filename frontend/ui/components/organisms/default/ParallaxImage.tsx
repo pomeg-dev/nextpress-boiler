@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { BlockOptions, ImageProps, LinkItemProps } from "@pomeg-dev/nextpress-client/types";
 import Image from "next/image";
 import Link from "next/link";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type ButtonProps = {
   link: LinkItemProps;
@@ -15,8 +15,6 @@ type ParallaxImageProps = {
   parallax?: boolean;
   heading?: string;
   links?: ButtonProps[];
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -31,8 +29,6 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
   parallax = true,
   heading,
   links,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -45,8 +41,8 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
       className={classNames(style, className)}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className={style === "container" ? "container" : undefined}>

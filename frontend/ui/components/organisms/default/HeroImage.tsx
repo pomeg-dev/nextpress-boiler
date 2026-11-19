@@ -4,7 +4,7 @@ import Parser from "html-react-parser";
 import { BlockOptions, ButtonProps, ImageProps } from "@pomeg-dev/nextpress-client/types";
 import Button from "../../atoms/Button";
 import Image from "next/image";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type HeroImageProps = {
   image?: ImageProps;
@@ -12,7 +12,6 @@ type HeroImageProps = {
   heading?: string;
   content?: string;
   buttons?: ButtonProps[];
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   background_colour?: string;
   text_colour?: string;
   background_tint?: boolean;
@@ -29,7 +28,6 @@ const HeroImage: React.FC<HeroImageProps> = ({
   heading,
   content,
   buttons,
-  bottom_spacer = "xl",
   background_colour,
   text_colour,
   background_tint,
@@ -49,7 +47,8 @@ const HeroImage: React.FC<HeroImageProps> = ({
     >
       <div
         className="container grid gap-lg pt-lg lg:min-h-[calc(100svh-var(--header-h))] lg:grid-cols-12 lg:items-end"
-        style={{ paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom) }}
+        // Inside the min-height box; BlockWrapper applies Block Settings padding instead.
+        style={{ paddingBottom: blockOptions?.padding_bottom ? undefined : "var(--space-xl)" }}
       >
         <div className="flow lg:col-span-7 lg:pb-lg">
           {heading && <div className="flow">{Parser(heading)}</div>}

@@ -44,9 +44,9 @@ Partials: `{ "$ref": "buttons" }` inlines `themes/default/_partials/buttons.json
 (repeater `buttons` of `{ link, style, min_width, clicky }`). Check `_partials/`
 for the current list.
 
-Do **not** add `theme_override`, `padding_top` or `padding_bottom`: every block
-gets them from the Block Settings ACF group. Most blocks also have their own
-`top_spacer`/`bottom_spacer` selects (copy them from `stats/fields.json`).
+Do **not** add spacing or colour fields (`top_spacer`, `theme_override` …).
+Every block gets `theme_override`, `padding_top` and `padding_bottom` from the
+Block Settings ACF group, and that is the only spacing control.
 
 ```json
 [
@@ -57,19 +57,7 @@ gets them from the Block Settings ACF group. Most blocks also have their own
     "layout": "block",
     "fields": [{ "id": "label", "type": "text" }]
   },
-  { "$ref": "buttons" },
-  {
-    "id": "top_spacer",
-    "type": "select",
-    "choices": [{ "xl": "Large" }, { "lg": "Medium" }, { "md": "Small" }, { "0": "None" }],
-    "default_value": "xl"
-  },
-  {
-    "id": "bottom_spacer",
-    "type": "select",
-    "choices": [{ "xl": "Large" }, { "lg": "Medium" }, { "md": "Small" }, { "0": "None" }],
-    "default_value": "xl"
-  }
+  { "$ref": "buttons" }
 ]
 ```
 
@@ -87,15 +75,13 @@ import classNames from "classnames";
 import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
 
 export function FeatureListBlock(props: any) {
-  const { content, items, buttons, top_spacer, bottom_spacer } = props.data;
+  const { content, items, buttons } = props.data;
 
   return (
     <FeatureList
       content={content}
       items={items}
       buttons={buttons}
-      top_spacer={top_spacer}
-      bottom_spacer={bottom_spacer}
       blockOptions={getBlockOptions(props.data)}
       className={classNames("custom-block feature-list", props.className)}
       id={props.id}
@@ -109,8 +95,9 @@ export function FeatureListBlock(props: any) {
 A typed presentational component with a default export and no data fetching.
 
 - Wrap everything in `BlockWrapper`. It sets `data-theme` and the Block Settings
-  padding. `ownSpacing(top_spacer, blockOptions?.padding_top)` gives the block's
-  own spacer, unless Block Settings sets that side.
+  padding. Give the wrapper the block's default padding in `style`
+  (usually `var(--space-xl)`); Block Settings overrides it per side when set.
+  Put that padding on the wrapper, not an inner element, or the two add up.
 - Return `null` (or nothing inside the wrapper) when required data is empty.
 - Render `wysiwyg` strings with `Parser` from `html-react-parser`.
 - Add `"use client"` only if it is interactive (state, effects, handlers).
@@ -121,13 +108,11 @@ A typed presentational component with a default export and no data fetching.
 import React from "react";
 import Parser from "html-react-parser";
 import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type FeatureListProps = {
   content?: string;
   items?: { label?: string }[];
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -136,8 +121,6 @@ type FeatureListProps = {
 const FeatureList: React.FC<FeatureListProps> = ({
   content,
   items,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -150,8 +133,8 @@ const FeatureList: React.FC<FeatureListProps> = ({
       className={className}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className="container">
@@ -200,7 +183,7 @@ palette, type scale, themes, spacing and component rules. In short:
 
 ## Checklist
 
-1. [ ] `fields.json`: field array; partials via `$ref`; no Block Settings fields.
+1. [ ] `fields.json`: field array; partials via `$ref`; no spacing or theme fields.
 2. [ ] `index.tsx`: `<Name>Block`, passes `getBlockOptions(props.data)`,
        className `custom-block <name>`.
 3. [ ] Organism: typed, default export, inside `BlockWrapper`, renders every

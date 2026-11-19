@@ -1,13 +1,11 @@
 import React from "react";
 import Parser from "html-react-parser";
 import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
-import BlockWrapper, { ownSpacing } from "./BlockWrapper";
+import BlockWrapper from "./BlockWrapper";
 
 type StatsProps = {
   stats?: { content: string}[];
   columns?: number;
-  top_spacer?: "xl" | "lg" | "md" | "0";
-  bottom_spacer?: "xl" | "lg" | "md" | "0";
   blockOptions?: BlockOptions;
   className?: string;
   id?: string;
@@ -17,8 +15,6 @@ type StatsProps = {
 const Stats: React.FC<StatsProps> = ({
   stats,
   columns = 4,
-  top_spacer = "xl",
-  bottom_spacer = "xl",
   blockOptions,
   className,
   id,
@@ -33,8 +29,8 @@ const Stats: React.FC<StatsProps> = ({
       className={className}
       id={id}
       style={{
-        paddingTop: ownSpacing(top_spacer, blockOptions?.padding_top),
-        paddingBottom: ownSpacing(bottom_spacer, blockOptions?.padding_bottom),
+        paddingTop: "var(--space-xl)",
+        paddingBottom: "var(--space-xl)",
       }}
     >
       <div className="container">
