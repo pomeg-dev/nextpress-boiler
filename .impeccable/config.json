@@ -1,0 +1,53 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "consolas",
+        "files": [
+          "backend/wordpress/wp-content/plugins/redis-cache/assets/css/admin.css"
+        ],
+        "createdAt": "2026-11-19T11:50:29.253Z",
+        "reason": "Claude: vendored WordPress core/plugin file, not part of the frontend design system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "roboto",
+        "files": [
+          "backend/wordpress/readme.html"
+        ],
+        "createdAt": "2026-11-19T11:50:29.273Z",
+        "reason": "Claude: vendored WordPress core/plugin file, not part of the frontend design system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "consolas",
+        "files": [
+          "backend/wordpress/readme.html"
+        ],
+        "createdAt": "2026-11-19T11:50:29.290Z",
+        "reason": "Claude: vendored WordPress core/plugin file, not part of the frontend design system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "hyperwavetwo",
+        "files": [
+          "backend/wordpress/wp-content/themes/nextpress-theme/assets/css/editor-style.css"
+        ],
+        "createdAt": "2026-11-19T12:43:09.040Z",
+        "reason": "WordPress editor (admin) stylesheet, not the frontend design system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "times new roman",
+        "files": [
+          "backend/wordpress/wp-content/themes/nextpress-theme/assets/css/editor-style.css"
+        ],
+        "createdAt": "2026-11-19T12:43:09.058Z",
+        "reason": "WordPress editor (admin) stylesheet, not the frontend design system"
+      }
+    ]
+  }
+}
