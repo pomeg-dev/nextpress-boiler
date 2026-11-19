@@ -10,3 +10,5 @@ ip-ranges.json
 .DS_Store
 # Playwright MCP screenshots and logs
 .playwright-mcp/
+# Third-party design inspiration, local only
+.claude/screens/

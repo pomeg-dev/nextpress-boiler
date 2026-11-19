@@ -29,7 +29,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] `next lint` is deprecated (Next 16 removes it). Migrate to the ESLint CLI.
 
 ## Environment
-- [ ] WordPress auto-updated core 7.1.4 → 7.1.5 when Docker started (2026-11-18). 27 files under `backend/wordpress/wp-admin` and `wp-includes` are modified and not committed. Decide whether to commit them or turn off core auto-updates.
+- [x] WordPress auto-updated core 7.1.4 → 7.1.5 when Docker started; committed (cb20c20f). Core auto-updates are still on, so this can recur.
 - [ ] `backend` compose `wpcli` service has no DB env vars; compose `version` attribute is obsolete. (Docker config is off-limits in this task.)
 - [x] Public site URL: `frontendUrl` in `nextpress.config.ts` reads `NEXT_PUBLIC_SITE_URL` (2026-11-19), so canonical/og:url are absolute. WordPress `frontend_url` stays empty: the plugin uses it for its server-side `/api/blocks` fetch, which fails inside Docker. Optional plugin change: keep separate internal and public URLs.
 - [ ] The package's core image renderer hardcodes `sizes`. Read-only; raise with package owners if it costs performance.
