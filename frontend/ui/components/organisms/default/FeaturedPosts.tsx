@@ -36,7 +36,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
   const DynamicComponent = ({ componentName, data }: { componentName: string; data: any }) => {
     const SelectedComponent = componentMap[componentName];
     if (!SelectedComponent) return <div>Invalid component name: {componentName}</div>;
-    return <SelectedComponent post={data} />;
+    return <SelectedComponent post={data} href={data?.path} />;
   };
 
   // Adapt the column count to how many posts there are so 1–2 posts don't leave
@@ -62,7 +62,7 @@ const FeaturedPosts: React.FC<FeaturedPostsProps> = ({
         </div>
         <div className={classNames("grid grid-cols-1 gap-sm", mdColsClass)}>
           {posts.map((post: any) => (
-            <div className="featured-posts-item" key={post.ID}>
+            <div className="featured-posts-item" key={post.id}>
               <DynamicComponent componentName={post?.card || card} data={post} />
             </div>
           ))}

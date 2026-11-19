@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import PostCard from "@ui/components/molecules/PostCard";
 
 export function PostsList({ posts }: {
@@ -15,9 +14,7 @@ export function PostsList({ posts }: {
           posts.map((post: any, index: number) => {
             return (
               <div className="archive-post-item flex flex-col" key={index}>
-                <Link href={post.path} className="block h-full no-underline">
-                  <PostCard post={post} />
-                </Link>
+                <PostCard post={post} href={post.path} />
               </div>
             );
           })

@@ -1180,6 +1180,30 @@
     &:hover { text-decoration-color: var(--np-accent-fill); }
   }
 
+  // Post cards: the title link covers the card; the focus ring goes on the card.
+  .post-card-link {
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: var(--rule-width);
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color var(--dur-fast) var(--motion-ease-out);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    &:focus-visible { outline: none; }
+
+    .post-card:hover & { text-decoration-color: var(--np-accent-fill); }
+  }
+
+  .post-card:has(.post-card-link:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
   // deck-hero: chips riveted at their bottom-left corner. The top chip stands
   // upright; the ones under it fan clockwise across `--spread`. From lg the
   // deck runs on into the page margin.

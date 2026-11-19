@@ -1,26 +1,31 @@
 import React from "react";
 import { Post } from "@pomeg-dev/nextpress-client/types";
 import Image from "next/image";
+import Link from "next/link";
 import Parser from "html-react-parser";
 import Button from "../atoms/Button";
 import Pill from "../atoms/Pill";
 
 type PostCardProps = {
   post: Post,
+  href?: string,
 };
 
 // A chip: image over a raised panel. Categories and the label sit on the image.
+// With `href`, the title links to the post and stretches over the whole card
+// (theme.scss `.post-card-link`); the card's own buttons stay above it.
 const PostCard: React.FC<PostCardProps> = ({
   post,
+  href,
 }) => {
   const categories = (post.category_names ?? []).filter((category: string) => category !== "Uncategorized");
 
   return (
-    <div className="flex h-full w-full flex-col bg-surface-raised text-fg">
+    <div className="post-card relative flex h-full w-full flex-col bg-surface-raised text-fg">
       {post.image && (
         <div className="relative aspect-[3/2] w-full overflow-hidden">
           {(post.acf_data.label || categories.length > 0) && (
-            <div className="absolute left-xs top-xs z-10 flex flex-wrap gap-2">
+            <div className="pointer-events-none absolute left-xs top-xs z-10 flex flex-wrap gap-2">
               {categories.map((category: string, i: number) => (
                 <Pill key={i} size="sm" style="high-contrast">
                   {category}
@@ -43,7 +48,9 @@ const PostCard: React.FC<PostCardProps> = ({
         </div>
       )}
       <div className="flow flex flex-1 flex-col p-sm">
-        <h3 className="heading-md">{post.title}</h3>
+        <h3 className="heading-md">
+          {href ? <Link href={href} className="post-card-link">{post.title}</Link> : post.title}
+        </h3>
         {post.acf_data.subtitle && (
           <p className="body-sm font-medium text-secondary">
             {post.acf_data.subtitle}
@@ -65,7 +72,7 @@ const PostCard: React.FC<PostCardProps> = ({
             style="secondary"
             size="md"
             iconRight="ArrowRight"
-            className="mt-auto! self-start"
+            className="relative z-1 mt-auto! self-start"
           />
         )}
         {post.acf_data.download && (
@@ -77,7 +84,7 @@ const PostCard: React.FC<PostCardProps> = ({
             style="secondary"
             size="md"
             iconRight="ArrowRight"
-            className="mt-auto! self-start"
+            className="relative z-1 mt-auto! self-start"
           >
             Download now
           </Button>
