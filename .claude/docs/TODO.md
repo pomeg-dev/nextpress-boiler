@@ -11,8 +11,8 @@ Items found during the redesign that are out of scope or need a decision. Newest
 ## Code hygiene (needs approval — PHP or out of scope)
 - [x] `nextpress-theme/functions.php` debug `error_log` calls removed (1052dd48).
 - [x] `category-archive.tsx` lists every term (Glion slug filter removed). Untested in the browser: tax routes need a WordPress posts page (`page_for_posts_slug`), and this site has none.
-- [ ] `frontend/themes/default/_partials/*.json` are not loaded by anything (`/api/blocks` serves raw JSON).
-- [ ] `frontend/src/lib/themeLoader.ts` is unused.
+- [x] `_partials/*.json` are resolved again (`$ref`, nextpress-client 0.4.3).
+- [x] Unused `src/lib/themeLoader.ts` deleted.
 - [x] `ui/components/archive/Feed.tsx` stray `console.log(data)` removed (phase 5 restyle).
 - [ ] `archive/PostsList.tsx` wraps `PostCard` in a `<Link>`, and PostCard can contain button links → nested `<a>` (invalid HTML, hydration warning) when a post has `acf_data.link`/`download`. Fixing it changes archive-feed markup behaviour: needs approval.
 - [x] Skip link added in `app/layout.tsx` once nextpress-client 0.4.2 gave `<main>` the id `main`.

@@ -7,7 +7,7 @@ Headless WordPress (Docker, `backend/`) + Next.js 15 App Router / Tailwind 4 / T
 - `@pomeg-dev/nextpress-client` (node_modules) and the generated `frontend/src/blocks.registry.generated.ts` (written by `npm run gen:registry` on predev/prebuild).
 
 ## Block pipeline
-`frontend/themes/default/blocks/<name>/fields.json` → served raw by `/api/blocks` (no `_partials`/`$ref` resolution) → plugin registers ACF block `acf/default--<name>` → saved content returned by `/wp-json/nextpress/router/<path>` (`content[]`, each with `data`) → package BlockParser → registry → `blocks/<name>/index.tsx` → organism in `frontend/ui/components/organisms/default/`.
+`frontend/themes/default/blocks/<name>/fields.json` → served by `/api/blocks` (inlines `{ "$ref": "<name>" }` entries from `themes/default/_partials/<name>.json`) → plugin registers ACF block `acf/default--<name>` → saved content returned by `/wp-json/nextpress/router/<path>` (`content[]`, each with `data`) → package BlockParser → registry → `blocks/<name>/index.tsx` → organism in `frontend/ui/components/organisms/default/`.
 - Every block's `data` also carries `theme_override`, `padding_top`, `padding_bottom` from ACF group `group_69d607b467ad1` (`nextpress-theme/assets/acf-json`). Styled by `BlockWrapper.tsx`.
 - Core blocks render from the package; site overrides live in `frontend/src/nextpress.blocks.ts`. Package resolves editor colours as `var(--color-<slug>)` (slugs from `nextpress-theme/theme.json`) — keep those token names.
 - Design system rules: `DESIGN.md` (root; describes the shipped build, `.claude/docs/REDESIGN_PLAN.md` is the superseded plan). Tokens and colour themes (`[data-theme=…]`) live in `frontend/themes/default/theme.scss`; `src/ui/globals.css` maps them to Tailwind via `@theme inline`. Change values in theme.scss, never in `@theme`. A var redefined in a descendant doesn't reach utilities resolved higher up, so role vars are re-declared on every `[data-theme]`.
@@ -17,7 +17,7 @@ Headless WordPress (Docker, `backend/`) + Next.js 15 App Router / Tailwind 4 / T
 - Demo content: `backend/seed/seed-showcase.sh [--reset]` (idempotent; backs up what it overwrites; refreshes all the caches above). Needs the frontend on :3000.
 - Gravity Forms: a block field `gravity_form` makes the plugin inject `gfData`. The browser posts to `/wp-json/gf/v2/forms/<id>/submissions` (public; GF REST API enabled). The contact form is ID 1.
 - Editor classes from `tiny_mce_before_init` in `nextpress-theme/functions.php` are in saved content. Never rename them (`text-teriary` typo is intentional).
-- `.claude/docs/DESIGN_SYSTEM.md` and the `scaffold-block` skill describe another project (`style.css`, `bNN-` folders, `$ref` partials). Not true here; follow the existing blocks.
+- `.claude/docs/DESIGN_SYSTEM.md` and the `scaffold-block` skill describe another project (`style.css`, `bNN-` folders). Not true here; follow the existing blocks.
 
 ## Commands (run in `frontend/`)
 - Checks: `npx tsc --noEmit`, `npm run lint`, `npm run build`. tsc + lint pass on baseline.
