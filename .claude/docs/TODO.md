@@ -20,7 +20,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] theme.scss component media queries now use the Tailwind md/lg widths (45rem/67.5rem) instead of 48rem/64rem (2026-11-19).
 
 ## Security / privacy
-- [ ] Plugin `ext-gravityforms.php` injects the full `GFAPI::get_form()` as `gfData` into public router JSON, including `notifications` (recipient emails, routing). Plugin is read-only: needs a decision (strip in plugin, or filter server-side).
+- [x] Plugin `ext-gravityforms.php` no longer sends GF `notifications` (recipient emails, routing) in `gfData`/`*_data` or from `/wp-json/nextpress/form/<id>` (`get_public_form()`, plugin edit approved for this fix, 2026-11-19). Uncommitted in the plugin repo.
 
 ## Content (user's wp-admin)
 - [x] GF form 1 "Project Type" choices set to New website / Redesign / Design system / Something else (one-off WP-CLI, 2026-11-19; the seed still never edits forms).
