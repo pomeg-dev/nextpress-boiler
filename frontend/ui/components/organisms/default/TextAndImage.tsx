@@ -44,10 +44,11 @@ const LAYOUTS = {
     text: ["md:col-span-4 md:col-start-9", "md:col-span-4 md:col-start-1"],
     ratio: "aspect-[5/6]", align: "md:items-start",
   },
+  // Splits from lg: the card's padding leaves a tablet text column too narrow.
   card: {
-    image: ["md:col-span-6", "md:col-span-6 md:col-start-7"],
-    text: ["md:col-span-5 md:col-start-8", "md:col-span-5 md:col-start-1"],
-    ratio: "aspect-[3/2]", align: "md:items-center",
+    image: ["md:col-span-12 lg:col-span-6", "md:col-span-12 lg:col-span-6 lg:col-start-7"],
+    text: ["md:col-span-12 lg:col-span-5 lg:col-start-8", "md:col-span-12 lg:col-span-5 lg:col-start-1"],
+    ratio: "aspect-[3/2]", align: "lg:items-center",
   },
   // Stacked: centred text over a strip-ratio image. Flipping does not apply.
   "centered-card": {
@@ -79,9 +80,10 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
   const hasImage = Boolean(image?.src);
   const tags = (image_tags ?? []).filter((tag) => tag?.text);
   const hasStrip = Boolean(label) || tags.length > 0;
+  const row = style === "card" ? "lg:row-start-1" : "md:row-start-1";
 
   const figure = hasImage && image && (
-    <figure className={classNames("chip", layout.image[side], isCentered ? "md:row-start-2" : "md:row-start-1")}>
+    <figure className={classNames("chip", layout.image[side], isCentered ? "md:row-start-2" : row)}>
       {/* The section's duotone; hover shows colour. */}
       <div className={classNames("img-duotone is-revealable relative overflow-hidden", layout.ratio)}>
         <Image
@@ -113,7 +115,8 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
 
   const text = (
     <div className={classNames(
-      "flow md:row-start-1",
+      "flow",
+      row,
       layout.text[side],
       isCentered && "text-center",
     )}>
