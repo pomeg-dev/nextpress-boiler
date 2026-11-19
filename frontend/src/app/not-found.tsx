@@ -1,6 +1,6 @@
 import { getPostByPath, getSettings } from "@/nextpress.config";
 import { BlockParser } from "@/nextpress.blocks";
-import classNames from "classnames";
+import Button from "@ui/components/atoms/Button";
 
 export default async function NotFound() {
   const settings = await getSettings([
@@ -17,23 +17,27 @@ export default async function NotFound() {
       {settings?.before_content && (
         <BlockParser blocks={settings.before_content} />
       )}
-      {settings.posts_404 && post ? (
+      {post ? (
         <main id="main" data-pageurl={post.path} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
       ) : (
-        <div className="page-404 flex min-h-screen flex-col justify-between">
-          <div
-            className={classNames(
-              "overflow-hidden bg-white",
-            )}
-          >
-            <div className="py-[100px] text-center">
-              <h1 className="text-[50px] font-bold">404</h1>
-              <p className="text-[20px]">Page not found</p>
+        // Fallback when WordPress has no 404 page set.
+        <main id="main" className="page-404">
+          <div className="container grid min-h-[calc(100svh-var(--header-h))] content-center py-section">
+            <div className="flow max-w-160">
+              <h1 className="heading-3xl">Nothing here.</h1>
+              <p className="body-lg measure text-muted">
+                The link may be out of date, or the page may have moved. Start again from the home page, or get in touch.
+              </p>
+              <div className="mt-md! flex flex-wrap gap-xs">
+                <Button linkItem={{ url: "/", title: "Back to home" }} size="lg" iconRight="ArrowRight" />
+                <Button linkItem={{ url: "/contact/", title: "Contact" }} size="lg" style="secondary" />
+              </div>
+              <p className="label mt-lg! border-t border-rule pt-xs text-muted">NP–404 · Missing</p>
             </div>
           </div>
-        </div>
+        </main>
       )}
       {settings?.after_content && (
         <BlockParser blocks={settings.after_content} />
