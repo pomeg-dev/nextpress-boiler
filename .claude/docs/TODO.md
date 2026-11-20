@@ -37,3 +37,8 @@ Items found during the redesign that are out of scope or need a decision. Newest
   - [ ] Push the plugin branch `feat/core-image-natural-dimensions` (38de144) and open its PR. Until it is deployed, images without dimensions keep the 800×600 ratio.
 - [x] Confirm the "Disable REST API" plugin lets anonymous `gf/v2` submissions through. (Yes, after the GF REST API was enabled in wp-admin.)
 - [x] Unused `@react-three/fiber` and `@react-three/drei` removed (approved 2026-11-19).
+
+## Blog (2026-11-20)
+- [ ] Post cards show only image, category and title: posts have no ACF fields, so `acf_data.description` is never set. Options: a post description field (ACF change, needs approval) or a PostCard fallback to `post.excerpt`.
+- [ ] The post hero renders in Templates → Post → Before Content, outside `<main>`, so the skip link lands below the post title. Fix would need the package's `renderMain` slot or a hero inside the post content.
+- [ ] Archive feed `heading`/`description` are read by `Feed.tsx` but not in its `fields.json` (the Blog page uses a text-section instead).

@@ -1,4 +1,4 @@
-// Builds the block markup for the five showcase pages and the demo posts.
+// Builds the block markup for the six showcase pages and the demo posts.
 //
 //   node content.mjs <media.json> <site-url>
 //
@@ -655,6 +655,40 @@ function contact() {
 }
 
 // ---------------------------------------------------------------------------
+// Blog: the archive feed over the demo posts below.
+// ---------------------------------------------------------------------------
+function blog() {
+  const { acf } = page("blog");
+  return join([
+    acf(
+      "text-section",
+      {
+        content_a: '<h1><span class="heading-2xl">Notes from the build.</span></h1>',
+        content_b:
+          "<p>Guides, engineering notes and release notes on building with Nextpress. Search, or filter by category and theme.</p>",
+        alignment: "row",
+      },
+      { theme: "light", top: "section", bottom: "0" }
+    ),
+    acf("archive-feed", {
+      post_type: "post",
+      number_of_posts: 9,
+      show_search: 1,
+      search_field_label: "Search",
+      search_field_placeholder: "Search posts",
+      taxonomy_filters: [
+        { label: "Category", placeholder: "All categories", taxonomy: "category", type: "select" },
+        { label: "Theme", placeholder: "All themes", taxonomy: "theme", type: "button" },
+      ],
+      load_more: "pagination",
+      show_post_count: 1,
+      show_reset: 1,
+      update_url: 1,
+    }),
+  ]);
+}
+
+// ---------------------------------------------------------------------------
 // Posts: the archive-feed demo. Core blocks only, each with a category, one or
 // two themes and a featured image. Dated a few days apart, newest first.
 // ---------------------------------------------------------------------------
@@ -713,11 +747,11 @@ const POSTS = [
       h("Before you start"),
       p("Check whether an existing block already does the job with a different theme or padding. Fewer blocks are easier for editors to learn.")]],
   ["colour-themes-without-drift", "Colour themes without colour drift", ["design"], ["accessibility"], "botanic-bloom",
-    "One set of role names, five themes, and no one-off hex values.",
+    "One set of role names, six themes, and no one-off hex values.",
     [p("Components never ask for a colour by name. They ask for a role, such as foreground, surface or accent, and the active theme decides what that means."),
       h("Why roles"),
       ul(["A block looks right on any background without extra code", "Contrast is checked once per theme, not once per component", "A rebrand changes one file"]),
-      p("The cost is discipline: a hard-coded colour in one component will look wrong on four of the five themes.")]],
+      p("The cost is discipline: a hard-coded colour in one component will look wrong on five of the six themes.")]],
   ["core-images-keep-their-ratio", "Core images now keep their natural ratio", ["releases", "engineering"], ["performance"], "arch-sky",
     "Images without saved dimensions no longer fall back to a fixed 4:3 box.",
     [p("The editor does not always save an image's width and height. The front end used to guess, and the guess was often wrong."),
@@ -811,7 +845,7 @@ function posts() {
 
 process.stdout.write(
   JSON.stringify({
-    pages: { home: home(), about: about(), platform: platform(), work: work(), contact: contact() },
+    pages: { home: home(), about: about(), platform: platform(), work: work(), blog: blog(), contact: contact() },
     posts: posts(),
     terms: TERMS,
   })

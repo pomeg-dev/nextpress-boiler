@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Seeds the Nextpress showcase: media, five pages, two menus, the header and
+# Seeds the Nextpress showcase: media, six pages, two menus, the header and
 # footer Templates layouts, and 20 demo posts with their categories and themes.
 #
 #   backend/seed/seed-showcase.sh           seed, or update what a previous run made
@@ -30,7 +30,7 @@ cd "$BACKEND_DIR"
 SITE_URL=${SITE_URL:-http://localhost}
 HOME_ID=2
 FORM_ID=1
-PAGES="about:About platform:Platform work:Work contact:Contact"
+PAGES="about:About platform:Platform work:Work blog:Blog contact:Contact"
 
 RESET=0
 [ "${1:-}" = "--reset" ] && RESET=1
@@ -328,7 +328,7 @@ done
 # ---------------------------------------------------------------------------
 FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
 # shellcheck disable=SC2046 # post-paths: a space-separated list of paths.
-node - "$BACKEND_DIR/../frontend/.env" "$FRONTEND_URL" / /about/ /platform/ /work/ /contact/ $(cat "$OUT_DIR/post-paths") <<'JS' || echo "Frontend not revalidated: restart the dev server to see new content." >&2
+node - "$BACKEND_DIR/../frontend/.env" "$FRONTEND_URL" / /about/ /platform/ /work/ /blog/ /contact/ $(cat "$OUT_DIR/post-paths") <<'JS' || echo "Frontend not revalidated: restart the dev server to see new content." >&2
 const [, , envFile, base, ...paths] = process.argv;
 const fs = require("fs");
 const env = fs.existsSync(envFile) ? fs.readFileSync(envFile, "utf8") : "";
@@ -348,7 +348,7 @@ JS
 # fetch the block list from the frontend (dev server down, or its rate limit or
 # circuit breaker: see CLAUDE.md). Start the frontend, wait 5 minutes, re-run.
 # ---------------------------------------------------------------------------
-for slug in home about platform work contact; do
+for slug in home about platform work blog contact; do
   path=$([ "$slug" = home ] && echo "" || echo "$slug")
   blocks=$(curl -sf "$SITE_URL/wp-json/nextpress/router/$path" | node -e '
     let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => {
