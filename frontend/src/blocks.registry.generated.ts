@@ -25,6 +25,7 @@ export const blocks: BlockRegistry =
       "acf/default--parallax-image": () => import("@themes/default/blocks/parallax-image"),
       "acf/default--post-hero": () => import("@themes/default/blocks/post-hero"),
       "acf/default--process-flow": () => import("@themes/default/blocks/process-flow"),
+      "acf/default--related-posts": () => import("@themes/default/blocks/related-posts"),
       "acf/default--stacked-links": () => import("@themes/default/blocks/stacked-links"),
       "acf/default--stats": () => import("@themes/default/blocks/stats"),
       "acf/default--text-and-image": () => import("@themes/default/blocks/text-and-image"),
