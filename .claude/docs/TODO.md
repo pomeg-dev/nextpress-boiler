@@ -42,3 +42,11 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [ ] Post cards show only image, category and title: posts have no ACF fields, so `acf_data.description` is never set. Options: a post description field (ACF change, needs approval) or a PostCard fallback to `post.excerpt`.
 - [ ] The post hero renders in Templates → Post → Before Content, outside `<main>`, so the skip link lands below the post title. Fix would need the package's `renderMain` slot or a hero inside the post content.
 - [ ] Archive feed `heading`/`description` are read by `Feed.tsx` but not in its `fields.json` (the Blog page uses a text-section instead).
+
+## Performance (2026-11-20)
+- [ ] Plugin `/nextpress/posts` cache key (`generate_cache_key`, `class/api/api-posts.php`) ignores `include_metadata`, `include_content` and `slug_only`. Whichever variant is requested first is served to all of them (seen: `X-Cache: HIT` returned the slim copy to a request that wanted Yoast metadata). Needs a plugin fix; until then the feed's slim requests and full requests can collide.
+- [ ] Package `generateStaticParams` reads `post.slug.full_path`, but `slug_only` returns `{ slug: <id>, full_path }`, so the package prerenders nothing. `app/[[...slug]]/page.tsx` overrides it with its own; fix in nextpress-client and drop the override.
+- [ ] wp-admin has GTM enabled with the placeholder `GTM-XXXXXXX` (88 KB of script for nothing). `CookieManager` now skips `GTM-X…` IDs; set a real ID or turn GTM off.
+- [ ] `css-minimizer-webpack-plugin` is unused since the custom `splitChunks` config was removed from `next.config.js`. Remove the dep (needs approval).
+- [ ] Optional: client feed queries go straight to WordPress (uncached apart from the plugin transient). A Next route handler proxy with the Data Cache would make filtered/paged requests CDN-cacheable. Architectural change, needs approval.
+- [ ] SEO scores 61 locally only because `indexable` needs `VERCEL_ENV=production` (noindex otherwise). Expected.
