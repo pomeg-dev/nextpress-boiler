@@ -574,6 +574,11 @@
   main[data-cpt="post"] {
     padding-block: var(--space-md) var(--space-section);
 
+    // The post hero opens <main> (`templateBeforeInMain`): nothing above it,
+    // and the article starts the usual --space-md below it.
+    &:has(> .post-hero:first-child) { padding-top: 0; }
+    > .post-hero:first-child + * { margin-top: var(--space-md); }
+
     > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, figure, hr, .buttons, .wp-block-buttons, .wp-block-button) {
       width: min(100% - 2 * var(--space-margin), var(--measure));
       margin-inline: max(var(--space-margin), (100% - var(--pagewidth)) / 2 + var(--space-margin)) auto;
@@ -594,7 +599,7 @@
     > :is(ul, ol) > li::marker { color: var(--np-accent-fill); }
   }
 
-  // With a post template, the package wraps <main> in `.content-sidebar.container`,
+  // With sidebar content, the package wraps <main> in `.content-sidebar.container`,
   // which already sets the margins.
   .container > main[data-cpt="post"] > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, figure, hr, .buttons, .wp-block-buttons, .wp-block-button) {
     width: min(100%, var(--measure));

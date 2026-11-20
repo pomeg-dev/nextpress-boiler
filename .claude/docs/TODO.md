@@ -40,15 +40,13 @@ Items found during the redesign that are out of scope or need a decision. Newest
 
 ## Blog (2026-11-20)
 - [x] Post cards fall back to `post.excerpt` when there is no ACF `description` (2026-11-20). The slim feed response keeps the excerpt.
-- [ ] The post hero renders in Templates → Post → Before Content, outside `<main>`, so the skip link lands below the post title. Fix would need the package's `renderMain` slot or a hero inside the post content.
-  - Sent to the nextpress-client session (2026-11-20) with two package bugs: an empty `template.sidebar_content: []` counts as a sidebar (every post gets an empty `<aside>` and `.content-sidebar.container` around `<main>`), and `renderMain` can't receive the template's before-content. Waiting on a package release; then bump and adjust the post CSS (`.container > main[data-cpt="post"]`).
+- [x] Post hero renders inside `<main>` (nextpress-client 0.7.0 `templateBeforeInMain`), so the skip link lands on the post title. 0.7.0 also stopped the empty sidebar wrapper. Post layout pixel-identical at 1280 and 390 (2026-11-20).
 - [x] Archive feed block no longer reads `heading`/`description` (not in its fields.json). A text-section above the feed is the way to add an intro; `Feed` keeps `intro` for category archives (2026-11-20).
 
 ## Performance (2026-11-20)
 - [x] Plugin `/nextpress/posts` cache key now hashes every query arg plus `slug_only`/`include_content`/`include_metadata` (plugin commit on `main`, not pushed, 2026-11-20). Verified: each variant MISSes once, then HITs its own copy.
   - [ ] Push the plugin commit (outward: needs your go-ahead).
-- [ ] Package `generateStaticParams` reads `post.slug.full_path`, but `slug_only` returns `{ slug: <id>, full_path }`, so the package prerenders nothing. `app/[[...slug]]/page.tsx` overrides it with its own; fix in nextpress-client and drop the override.
-  - Sent to the nextpress-client session with the sidebar bugs (2026-11-20).
+- [x] Package `generateStaticParams` reads `full_path` since 0.7.0; the route override is gone (still 35 static pages, 2026-11-20).
 - [x] GTM turned off in wp-admin (`options_google_tag_manager_enabled` = 0, settings transients cleared, 2026-11-20). `CookieManager` also skips `GTM-X…` placeholder IDs. A real site sets its ID and turns it back on.
 - [x] Unused `css-minimizer-webpack-plugin` removed (approved 2026-11-20); prod build passes.
 - [ ] Deferred until the nextpress-client update lands (2026-11-20): client feed queries go straight to WordPress (only the plugin transient caches them). A Next route handler proxy with the Data Cache would make filtered/paged requests CDN-cacheable. Architectural change, needs approval.
