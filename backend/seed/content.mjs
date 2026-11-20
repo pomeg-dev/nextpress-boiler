@@ -829,18 +829,59 @@ const POSTS = [
       p("Both checks pass on the main branch, so any new warning comes from your change.")]],
 ];
 
+// The performance pass (November 2026), newest first. Dated after POSTS, so
+// adding them doesn't move the older posts' dates.
+const PERFORMANCE_POSTS = [
+  ["feed-that-doesnt-wait", "An archive feed that doesn’t wait for WordPress", ["engineering"], ["performance", "headless"], "arch-ribbon",
+    "The first page arrives with the HTML, the next one is already fetched, and WordPress sees one request per query per publish.",
+    [p("The archive feed used to render entirely in the browser. The page loaded, asked WordPress for posts, then pushed the footer down when they arrived. On the blog that layout shift scored 0.594, well past the 0.1 that counts as good."),
+      h("The first page comes with the HTML"),
+      p("The server now fetches the first page of posts while it builds the page, so the cards are in the HTML. Layout shift on the blog is 0."),
+      h("Every click after that"),
+      ul(["Each page and filter is fetched once per visit, so going back is instant", "The next page is fetched while you read this one", "Search waits until you stop typing", "Requests go to the site’s own <code>/api/posts/</code> route, which keeps each answer until a post is published"]),
+      h("What WordPress sees"),
+      p("Three visitors asking for the same filtered page now cost WordPress one request. A cached answer took about 3\u00a0ms on a local production build, against about 95\u00a0ms when the browser asked WordPress directly."),
+      p("Answers carry only what a card shows, which took the blog page’s HTML from 18.7\u00a0KB to 12.4\u00a0KB."),
+      h("Loading without a spinner"),
+      p("If an answer takes longer than 150\u00a0ms, grey cards in the shape of the real ones hold the space. Faster answers swap straight in, so most clicks never show a loading state at all.")]],
+  ["every-page-prebuilt", "Every page is built before anyone asks for it", ["engineering", "releases"], ["performance", "headless"], "arch-column",
+    "Server response times fell from up to 380\u00a0ms to under 10\u00a0ms. Nothing had been prerendered.",
+    [p("Next.js can build each page once, at deploy, and serve the finished HTML to every visitor. The front end asked WordPress for the list of pages to build, then read each path from a field the list didn’t have. The list came back empty, so every page was built on its first visit instead."),
+      h("What changed"),
+      ul(["The client package reads each path from the field WordPress actually sends", "The build prerenders every page and post", "Publishing still rebuilds only the pages it affects"]),
+      h("The numbers"),
+      p("Measured on a local production build, before any CDN:"),
+      ul(["Server response for a page nobody had visited yet: 100–380\u00a0ms before, 4–8\u00a0ms after", "Mobile Lighthouse performance across the main pages: 96 (it was 73–96), as part of the wider performance pass", "Desktop Lighthouse performance: 100 on every page"]),
+      h("One more cache bug"),
+      p("The posts API cached each query without its options. A request for posts without their SEO data and one with it could share a cache entry and get the wrong copy. The cache key now covers every option."),
+      p("Hosting changes the absolute times. It doesn’t change the shape: a visitor gets a finished page, not one built while they wait.")]],
+  ["the-blur-that-cost-five-seconds", "The blurred placeholder that cost five seconds", ["engineering"], ["performance"], "land-dune",
+    "An image preview that could never appear kept the browser busy for five seconds on the home page.",
+    [p("Next.js can show a blurred preview while an image loads. You give it a tiny image as data; it scales and blurs it, and the real image fades in on top."),
+      p("Our components passed the image’s web address instead of the image data. The browser can’t fetch an address from inside that blur, so the preview never appeared. It still painted the blur filter, at full size, for every image on the page."),
+      h("What it cost"),
+      p("On a simulated mobile load of the home page, the browser’s main thread spent 5.1\u00a0seconds on that painting. With the placeholders gone it spends 0.3\u00a0seconds. Nothing visible changed, because the preview had never shown."),
+      h("What stayed"),
+      ul(["Every image still reserves its space, so nothing jumps", "Image sizes match the layout, so phones download smaller files", "Images are served as AVIF where the browser supports it"]),
+      p("To bring blurred previews back, generate the tiny image when the file is uploaded and send it as data. An address won’t do.")]],
+];
+
 function posts() {
-  const newest = Date.UTC(2026, 10, 18, 9);
-  return POSTS.map(([slug, title, category, theme, image, excerpt, body], i) => ({
-    slug,
-    title,
-    excerpt,
-    category,
-    theme,
-    image: img(image),
-    date: new Date(newest - i * 4 * 86400000).toISOString().slice(0, 19).replace("T", " "),
-    content: join(body),
-  }));
+  const dated = (list, newest, gap) =>
+    list.map(([slug, title, category, theme, image, excerpt, body], i) => ({
+      slug,
+      title,
+      excerpt,
+      category,
+      theme,
+      image: img(image),
+      date: new Date(newest - i * gap).toISOString().slice(0, 19).replace("T", " "),
+      content: join(body),
+    }));
+  return [
+    ...dated(PERFORMANCE_POSTS, Date.UTC(2026, 10, 20, 9), 12 * 3600000),
+    ...dated(POSTS, Date.UTC(2026, 10, 18, 9), 4 * 86400000),
+  ];
 }
 
 process.stdout.write(
