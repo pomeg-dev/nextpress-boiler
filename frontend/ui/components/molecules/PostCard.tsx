@@ -19,6 +19,8 @@ const PostCard: React.FC<PostCardProps> = ({
   href,
 }) => {
   const categories = (post.category_names ?? []).filter((category: string) => category !== "Uncategorized");
+  // Posts have no ACF description: their excerpt stands in.
+  const description = post.acf_data?.description || post.excerpt;
 
   return (
     <div className="post-card relative flex h-full w-full flex-col bg-surface-raised text-fg">
@@ -56,9 +58,9 @@ const PostCard: React.FC<PostCardProps> = ({
             {post.acf_data.subtitle}
           </p>
         )}
-        {post.acf_data.description && (
+        {description && (
           <div className="flow text-muted">
-            {Parser(post.acf_data.description)}
+            {Parser(description)}
           </div>
         )}
         {post.acf_data.postscript && (

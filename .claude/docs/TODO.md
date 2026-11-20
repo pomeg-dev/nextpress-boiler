@@ -34,12 +34,12 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] Public site URL: `frontendUrl` in `nextpress.config.ts` reads `NEXT_PUBLIC_SITE_URL` (2026-11-19), so canonical/og:url are absolute. WordPress `frontend_url` stays empty: the plugin uses it for its server-side `/api/blocks` fetch, which fails inside Docker. Optional plugin change: keep separate internal and public URLs.
 - [x] Core image `sizes`: nextpress-client 0.5.0 `coreBlocks.imageSizes`, set in `nextpress.config.ts` to the page container (every alignment renders there; the theme has no alignwide/alignfull styles). Checked on a temp page at 390/1280/1920, deleted afterwards (2026-11-19).
 - [x] Package core image falls back to 800×600 when the saved `<img>` has no dimensions (wrong reserved ratio → CLS; resized images get e.g. 400×600 and a Next warning). Fixed in nextpress-client 0.6.0, which reads `naturalWidth`/`naturalHeight` from the plugin. The boiler is bumped to 0.6.0.
-  - [ ] Push the plugin branch `feat/core-image-natural-dimensions` (38de144) and open its PR. Until it is deployed, images without dimensions keep the 800×600 ratio.
+  - [x] Plugin commit 38de144 (natural dimensions) is on the plugin `main` (pushed with "Added gf fix", 2026-11-19); the branch and PR are no longer needed.
 - [x] Confirm the "Disable REST API" plugin lets anonymous `gf/v2` submissions through. (Yes, after the GF REST API was enabled in wp-admin.)
 - [x] Unused `@react-three/fiber` and `@react-three/drei` removed (approved 2026-11-19).
 
 ## Blog (2026-11-20)
-- [ ] Post cards show only image, category and title: posts have no ACF fields, so `acf_data.description` is never set. Options: a post description field (ACF change, needs approval) or a PostCard fallback to `post.excerpt`.
+- [x] Post cards fall back to `post.excerpt` when there is no ACF `description` (2026-11-20). The slim feed response keeps the excerpt.
 - [ ] The post hero renders in Templates → Post → Before Content, outside `<main>`, so the skip link lands below the post title. Fix would need the package's `renderMain` slot or a hero inside the post content.
 - [ ] Archive feed `heading`/`description` are read by `Feed.tsx` but not in its `fields.json` (the Blog page uses a text-section instead).
 
