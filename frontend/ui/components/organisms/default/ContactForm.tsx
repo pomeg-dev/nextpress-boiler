@@ -1,7 +1,7 @@
 import React from "react";
 import Parser from "html-react-parser";
 import { BlockOptions } from "@pomeg-dev/nextpress-client/types";
-import { GravityForm } from "../forms/GravityForm";
+import { GravityForm } from "../../lazy";
 import BlockWrapper from "./BlockWrapper";
 
 type ContactFormProps = {

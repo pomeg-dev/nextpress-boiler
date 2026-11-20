@@ -2,23 +2,21 @@
 
 import React from "react";
 import classNames from "classnames";
-import { ImageProps, MenuItemsProps } from "@pomeg-dev/nextpress-client/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { linkFilter } from "@pomeg-dev/nextpress-client";
-import Parser from "html-react-parser";
+import { NavItem } from "@ui/utils/nav";
 import { ArrowRight } from "@ui/icons/icon-loader";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type FooterProps = {
   style: "solid" | "image";
   logo?: ImageProps;
   background_image?: ImageProps;
   background_colour?: string;
-  menu_items?: MenuItemsProps[];
-  copyright?: string;
+  menu_items?: NavItem[];
+  // Parsed by the block.
+  copyright?: React.ReactNode;
   className?: string;
 };
 
@@ -54,8 +52,6 @@ const Footer: React.FC<FooterProps> = ({
             alt=""
             sizes="100vw"
             className="h-full w-full object-cover"
-            blurDataURL={background_image!.blurImage ?? undefined}
-            placeholder={background_image!.blurImage ? "blur" : undefined}
           />
         </div>
       )}
@@ -64,8 +60,8 @@ const Footer: React.FC<FooterProps> = ({
         {menu_items && (
           <nav aria-label="Footer" className="md:col-span-7">
             <ul className="footer-nav">
-              {menu_items.map((item: MenuItemsProps, i: number) => {
-                const href = linkFilter(item.url, API_URL);
+              {menu_items.map((item: NavItem, i: number) => {
+                const href = item.url;
                 return (
                   <li key={item.ID ?? i}>
                     <Link
@@ -74,7 +70,7 @@ const Footer: React.FC<FooterProps> = ({
                       aria-current={normalise(href) === pathname ? "page" : undefined}
                       className="footer-nav-link"
                     >
-                      {Parser(item.title)}
+                      {item.title}
                       <ArrowRight width="0.6em" height="0.6em" aria-hidden="true" />
                     </Link>
                   </li>
@@ -86,7 +82,7 @@ const Footer: React.FC<FooterProps> = ({
 
         <div className="flex flex-col justify-between gap-md md:col-span-4 md:col-start-9">
           {copyright && (
-            <div className="flow body-sm text-muted [&_a]:text-fg">{Parser(copyright)}</div>
+            <div className="flow body-sm text-muted [&_a]:text-fg">{copyright}</div>
           )}
           <a href="#header" className="button no-fill w-fit gap-2 text-body-sm">
             Back to top

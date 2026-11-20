@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import PaletteSwitcher from "@ui/components/organisms/default/PaletteSwitcher";
 import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";
+import { PaletteSwitcher } from "@ui/components/lazy";
 
 export function PaletteSwitcherBlock(props: any) {
   const {

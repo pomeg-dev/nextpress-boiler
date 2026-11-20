@@ -78,9 +78,8 @@ const HeroImage: React.FC<HeroImageProps> = ({
                 alt={image.alt ?? ""}
                 fill
                 priority
-                sizes="(min-width: 1024px) 40vw, 100vw"
+                sizes="(min-width: 1080px) 40vw, 92vw"
                 className="object-cover"
-                {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
               />
             </div>
             {label && (

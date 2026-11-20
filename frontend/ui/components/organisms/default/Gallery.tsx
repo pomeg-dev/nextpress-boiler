@@ -14,12 +14,26 @@ type GalleryProps = {
   id?: string;
 };
 
-// Image sizes hint per layout (the grids live in theme.scss `.gallery-*`).
-const SIZES = {
-  mosaic: "(min-width: 1024px) 33vw, 50vw",
-  filmstrip: "(min-width: 1024px) 30vw, 80vw",
-  stagger: "(min-width: 768px) 45vw, 100vw",
-  collage: "(min-width: 1024px) 40vw, 100vw",
+// Image sizes per layout and tile, from the grids in theme.scss `.gallery-*`
+// (container 92vw; md 720px, lg 1080px).
+const sizesFor = (layout: GalleryProps["layout"], index: number) => {
+  switch (layout) {
+    case "filmstrip":
+      // Tile width clamp(15rem, 28vw, 26rem).
+      return "(min-width: 1486px) 416px, (min-width: 857px) 28vw, 240px";
+    case "stagger":
+      return "(min-width: 720px) 45vw, 92vw";
+    case "collage":
+      return index === 0 ? "(min-width: 1080px) 46vw, 92vw" : "(min-width: 1080px) 31vw, 46vw";
+    default: {
+      // Mosaic: tiles 1 and 4 of each six span both mobile columns; on lg,
+      // tiles 1, 4, 5 and 6 span two of the four columns.
+      const n = index % 6;
+      const mobile = n === 0 || n === 3 ? "92vw" : "46vw";
+      const desktop = n === 0 || n >= 3 ? "46vw" : "23vw";
+      return `(min-width: 1080px) ${desktop}, ${mobile}`;
+    }
+  }
 };
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -33,8 +47,10 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   if (images.length === 0) return null;
   const isFilmstrip = layout === "filmstrip";
-  // Header padding means the block opens the page, so it carries the h1.
-  const Heading = blockOptions?.padding_top === "header" ? "h1" : "h2";
+  // Header padding means the block opens the page, so it carries the h1 and
+  // its first images load at once (one of them is the LCP).
+  const opensPage = blockOptions?.padding_top === "header";
+  const Heading = opensPage ? "h1" : "h2";
 
   const items = images.map((image, index) => (
     <figure key={index} className="gallery-item chip">
@@ -43,9 +59,9 @@ const Gallery: React.FC<GalleryProps> = ({
           src={image.src}
           alt={image.alt ?? ""}
           fill
-          sizes={SIZES[layout] ?? SIZES.mosaic}
+          sizes={sizesFor(layout, index)}
+          priority={opensPage && index < 3}
           className="object-cover"
-          {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
         />
       </div>
       {captions[index] && <figcaption className="chip-strip">{captions[index]}</figcaption>}

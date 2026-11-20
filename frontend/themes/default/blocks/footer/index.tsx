@@ -1,7 +1,8 @@
-"use client";
-
 import { getNavItems } from "@pomeg-dev/nextpress-client";
+import Parser from "html-react-parser";
 import Footer from "@ui/components/organisms/default/Footer";
+import { parseNavItems } from "@ui/utils/nav";
+import { acfImage } from "@ui/utils/image";
 
 export function FooterBlock(props: any) {
   const {
@@ -19,23 +20,14 @@ export function FooterBlock(props: any) {
     navItems = getNavItems(footer_nav, menus);
   }
 
-  if (logo) {
-    logo.src = logo.url;
-  }
-
-  if (background_image) {
-    background_image.src = background_image.url;
-    background_image.blurImage = background_image.sizes?.thumbnail ?? undefined;
-  }
-
   return (
     <Footer
       style={style}
-      logo={logo}
-      background_image={background_image}
+      logo={acfImage(logo)}
+      background_image={acfImage(background_image)}
       background_colour={background_colour}
-      menu_items={navItems || undefined}
-      copyright={copyright}
+      menu_items={parseNavItems(navItems)}
+      copyright={copyright ? Parser(copyright) : undefined}
     />
   );
 }

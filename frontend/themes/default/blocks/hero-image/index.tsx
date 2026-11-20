@@ -1,5 +1,3 @@
-"use client";
-
 import classNames from "classnames";
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import HeroImage from "@ui/components/organisms/default/HeroImage";
@@ -23,7 +21,6 @@ export function HeroImageBlock(props: any) {
       imageAtts.alt = image.alt;
       imageAtts.width = image.width;
       imageAtts.height = image.height;
-      imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
     }
 
   return (

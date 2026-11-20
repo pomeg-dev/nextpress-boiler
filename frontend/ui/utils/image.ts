@@ -59,6 +59,5 @@ export function acfImage(image: any): ImageProps | undefined {
     alt: image.alt ?? "",
     width: image.width,
     height: image.height,
-    blurImage: image.sizes?.thumbnail ?? undefined,
   };
 }

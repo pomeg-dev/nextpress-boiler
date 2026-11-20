@@ -86,9 +86,14 @@ const TextAndImage: React.FC<TextAndImageProps> = ({
           src={image.src}
           alt={image.alt ?? ""}
           fill
-          sizes={isCentered ? "100vw" : "(min-width: 768px) 50vw, 100vw"}
+          sizes={
+            isCentered
+              ? "92vw"
+              : style === "card"
+                ? "(min-width: 1080px) 46vw, 92vw"
+                : "(min-width: 720px) 54vw, 92vw"
+          }
           className="object-cover"
-          {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
         />
       </div>
       {hasStrip && (

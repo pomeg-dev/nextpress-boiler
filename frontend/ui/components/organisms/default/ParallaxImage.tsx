@@ -61,7 +61,6 @@ const ParallaxImage: React.FC<ParallaxImageProps> = ({
                 fill
                 sizes="100vw"
                 className="object-cover"
-                {...(image.blurImage && { placeholder: "blur", blurDataURL: image.blurImage })}
               />
             </div>
           )}

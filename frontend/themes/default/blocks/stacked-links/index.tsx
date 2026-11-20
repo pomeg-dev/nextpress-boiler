@@ -1,5 +1,3 @@
-"use client";
-
 import StackedLinks from "@ui/components/organisms/default/StackedLinks";
 import classNames from "classnames";
 import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";

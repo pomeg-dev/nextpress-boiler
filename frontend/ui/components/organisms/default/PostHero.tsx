@@ -85,7 +85,7 @@ const PostHero: React.FC<PostHeroProps> = ({
                 alt=""
                 fill
                 priority
-                sizes="(min-width: 1080px) 40vw, 100vw"
+                sizes="(min-width: 1080px) 40vw, 92vw"
                 className="object-cover"
               />
             </div>

@@ -2,23 +2,20 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { ImageProps, MenuItemsProps } from "@pomeg-dev/nextpress-client/types";
+import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { linkFilter } from "@pomeg-dev/nextpress-client";
-import Parser from "html-react-parser";
+import { NavItem } from "@ui/utils/nav";
 import { ArrowRight } from "@ui/icons/icon-loader";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type HeaderProps = {
   logo?: ImageProps;
-  menu_items?: MenuItemsProps[];
+  menu_items?: NavItem[];
   className?: string;
 };
 
-const isCta = (item: MenuItemsProps) => item.classes?.includes("is-cta");
+const isCta = (item: NavItem) => item.classes?.includes("is-cta");
 
 const normalise = (path: string) => path.replace(/\/+$/, "") || "/";
 
@@ -75,8 +72,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const links = menu_items?.filter((item) => !isCta(item)) ?? [];
   const cta = menu_items?.find(isCta);
-  const href = (item: MenuItemsProps) => linkFilter(item.url, API_URL);
-  const isActive = (item: MenuItemsProps) => normalise(href(item)) === pathname;
+  const isActive = (item: NavItem) => normalise(item.url) === pathname;
 
   const close = useCallback((restoreFocus = true) => {
     setOpen(false);
@@ -140,20 +136,20 @@ const Header: React.FC<HeaderProps> = ({
               {links.map((item, index) => (
                 <li key={item.ID ?? index}>
                   <Link
-                    href={href(item)}
+                    href={item.url}
                     target={item.target || undefined}
                     aria-current={isActive(item) ? "page" : undefined}
                     className="nav-link"
                   >
                     <span className="nav-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                    {Parser(item.title)}
+                    {item.title}
                   </Link>
                 </li>
               ))}
               {cta && (
                 <li>
-                  <Link href={href(cta)} target={cta.target || undefined} className="button gap-2 px-4 text-body-sm">
-                    {Parser(cta.title)}
+                  <Link href={cta.url} target={cta.target || undefined} className="button gap-2 px-4 text-body-sm">
+                    {cta.title}
                     <ArrowRight width="1.1em" height="1.1em" />
                   </Link>
                 </li>
@@ -193,26 +189,26 @@ const Header: React.FC<HeaderProps> = ({
               {links.map((item, i) => (
                 <li key={item.ID ?? i} style={{ "--i": i } as React.CSSProperties}>
                   <Link
-                    href={href(item)}
+                    href={item.url}
                     target={item.target || undefined}
                     aria-current={isActive(item) ? "page" : undefined}
                     className="mobile-menu-link"
                     onClick={() => close(false)}
                   >
                     <span className="nav-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-                    {Parser(item.title)}
+                    {item.title}
                   </Link>
                 </li>
               ))}
             </ul>
             {cta && (
               <Link
-                href={href(cta)}
+                href={cta.url}
                 target={cta.target || undefined}
                 className="button w-full gap-3 px-5 py-4 text-body-lg"
                 onClick={() => close(false)}
               >
-                {Parser(cta.title)}
+                {cta.title}
                 <ArrowRight width="1.2em" height="1.2em" />
               </Link>
             )}

@@ -1,9 +1,7 @@
-"use client";
-
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import { getNavItems } from "@pomeg-dev/nextpress-client";
 import Header from "@ui/components/organisms/default/Header";
-import { useEffect, useState } from "react";
+import { parseNavItems } from "@ui/utils/nav";
 
 export function HeaderBlock(props: any) {
   const {
@@ -28,7 +26,7 @@ export function HeaderBlock(props: any) {
   return (
     <Header
       logo={logoAtts}
-      menu_items={navItems || undefined}
+      menu_items={parseNavItems(navItems)}
       className="w-full"
     />
   );

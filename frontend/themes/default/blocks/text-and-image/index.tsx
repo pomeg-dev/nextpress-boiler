@@ -1,5 +1,3 @@
-"use client";
-
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import TextAndImage from "@ui/components/organisms/default/TextAndImage";
 import classNames from "classnames";
@@ -23,7 +21,6 @@ export function TextAndImageBlock(props: any) {
     imageAtts.alt = image.alt;
     imageAtts.width = image.width;
     imageAtts.height = image.height;
-    imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
   }
 
   return (

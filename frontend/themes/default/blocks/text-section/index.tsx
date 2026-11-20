@@ -1,5 +1,3 @@
-"use client";
-
 import TextSection from "@ui/components/organisms/default/TextSection";
 import classNames from "classnames";
 import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";

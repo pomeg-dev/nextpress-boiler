@@ -42,7 +42,7 @@ const PostCard: React.FC<PostCardProps> = ({
             src={post.image.full}
             alt={post.title}
             fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            sizes="(min-width: 1080px) 30vw, (min-width: 720px) 46vw, 92vw"
             className="object-cover"
           />
         </div>

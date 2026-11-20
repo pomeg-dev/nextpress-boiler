@@ -1,5 +1,3 @@
-"use client";
-
 import Stats from "@ui/components/organisms/default/Stats";
 import classNames from "classnames";
 import { getBlockOptions } from "@ui/components/organisms/default/BlockWrapper";

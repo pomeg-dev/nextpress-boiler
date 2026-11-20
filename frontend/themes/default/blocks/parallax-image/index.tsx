@@ -1,5 +1,3 @@
-"use client";
-
 import { ImageProps } from "@pomeg-dev/nextpress-client/types";
 import ParallaxImage from "@ui/components/organisms/default/ParallaxImage";
 import classNames from "classnames";
@@ -20,7 +18,6 @@ export function ParallaxImageBlock(props: any) {
     imageAtts.alt = image.alt;
     imageAtts.width = image.width;
     imageAtts.height = image.height;
-    imageAtts.blurImage = image.sizes?.thumbnail ?? undefined;
   }
 
   return (
