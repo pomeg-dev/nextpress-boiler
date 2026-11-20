@@ -1,4 +1,3 @@
-import Parser from "html-react-parser";
 import { getPosts, getTaxTerms } from "@/nextpress.config";
 import { Feed } from "@ui/components/lazy";
 import { FeedResult, INITIAL_STATE, feedQuery } from "@ui/components/archive/query";
@@ -26,13 +25,5 @@ export async function ArchiveFeedBlock(props: any) {
   ]);
   if (data.taxonomy_filters) data.taxonomy_filters = taxonomyFilters;
 
-  const { heading, description, ...feedData } = data;
-  const intro = (heading || description) && (
-    <>
-      {heading && <div className="flow">{Parser(heading)}</div>}
-      {description && <p className="body-lg measure text-muted">{Parser(description)}</p>}
-    </>
-  );
-
-  return <Feed data={feedData} first={first} intro={intro} />;
+  return <Feed data={data} first={first} />;
 }

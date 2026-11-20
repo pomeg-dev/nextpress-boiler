@@ -41,7 +41,8 @@ Items found during the redesign that are out of scope or need a decision. Newest
 ## Blog (2026-11-20)
 - [x] Post cards fall back to `post.excerpt` when there is no ACF `description` (2026-11-20). The slim feed response keeps the excerpt.
 - [ ] The post hero renders in Templates → Post → Before Content, outside `<main>`, so the skip link lands below the post title. Fix would need the package's `renderMain` slot or a hero inside the post content.
-- [ ] Archive feed `heading`/`description` are read by `Feed.tsx` but not in its `fields.json` (the Blog page uses a text-section instead).
+  - Sent to the nextpress-client session (2026-11-20) with two package bugs: an empty `template.sidebar_content: []` counts as a sidebar (every post gets an empty `<aside>` and `.content-sidebar.container` around `<main>`), and `renderMain` can't receive the template's before-content. Waiting on a package release; then bump and adjust the post CSS (`.container > main[data-cpt="post"]`).
+- [x] Archive feed block no longer reads `heading`/`description` (not in its fields.json). A text-section above the feed is the way to add an intro; `Feed` keeps `intro` for category archives (2026-11-20).
 
 ## Performance (2026-11-20)
 - [ ] Plugin `/nextpress/posts` cache key (`generate_cache_key`, `class/api/api-posts.php`) ignores `include_metadata`, `include_content` and `slug_only`. Whichever variant is requested first is served to all of them (seen: `X-Cache: HIT` returned the slim copy to a request that wanted Yoast metadata). Needs a plugin fix; until then the feed's slim requests and full requests can collide.
