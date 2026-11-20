@@ -1,0 +1,16 @@
+[
+  {
+    "id": "show_image",
+    "type": "true_false",
+    "ui": 1,
+    "default_value": 1,
+    "instructions": "Show the post's featured image"
+  },
+  {
+    "id": "show_excerpt",
+    "type": "true_false",
+    "ui": 1,
+    "default_value": 1,
+    "instructions": "Show the post's excerpt under the title"
+  }
+]

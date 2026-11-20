@@ -23,6 +23,7 @@ export const blocks: BlockRegistry =
       "acf/default--marquee": () => import("@themes/default/blocks/marquee"),
       "acf/default--palette-switcher": () => import("@themes/default/blocks/palette-switcher"),
       "acf/default--parallax-image": () => import("@themes/default/blocks/parallax-image"),
+      "acf/default--post-hero": () => import("@themes/default/blocks/post-hero"),
       "acf/default--process-flow": () => import("@themes/default/blocks/process-flow"),
       "acf/default--stacked-links": () => import("@themes/default/blocks/stacked-links"),
       "acf/default--stats": () => import("@themes/default/blocks/stats"),

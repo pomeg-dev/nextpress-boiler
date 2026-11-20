@@ -569,6 +569,38 @@
     tab-size: 2;
   }
 
+  // Single posts: bare core blocks read as one article column at the reading
+  // measure, on the container's left edge (in line with the post hero title).
+  main[data-cpt="post"] {
+    padding-block: var(--space-md) var(--space-section);
+
+    > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, figure, hr, .buttons, .wp-block-buttons, .wp-block-button) {
+      width: min(100% - 2 * var(--space-margin), var(--measure));
+      margin-inline: max(var(--space-margin), (100% - var(--pagewidth)) / 2 + var(--space-margin)) auto;
+    }
+
+    > * + * { margin-top: var(--flow-space, 1em); }
+    > * + :is(h2, h3, h4) { --flow-space: 1.5em; }
+    > :is(h2, h3, h4) + * { --flow-space: 0.6em; }
+    > h2 { font-size: var(--fs-heading-lg); }
+    > h3 { font-size: var(--fs-heading-md); }
+    > :is(ul, ol) { padding-left: 1.25em; }
+    > ul { list-style: square; }
+    > ol {
+      padding-left: 2em; // "01." is wider than the square marker.
+      list-style: decimal-leading-zero;
+    }
+    > :is(ul, ol) > li + li { margin-top: 0.4em; }
+    > :is(ul, ol) > li::marker { color: var(--np-accent-fill); }
+  }
+
+  // With a post template, the package wraps <main> in `.content-sidebar.container`,
+  // which already sets the margins.
+  .container > main[data-cpt="post"] > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, figure, hr, .buttons, .wp-block-buttons, .wp-block-button) {
+    width: min(100%, var(--measure));
+    margin-inline: 0 auto;
+  }
+
   // Core groups. Top-level: a full-width section on the page container.
   // Nested with a background: a chip panel inside its parent.
   main > .group-block {
