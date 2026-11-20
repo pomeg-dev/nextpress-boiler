@@ -44,19 +44,20 @@ export const metadata: Metadata = {
 };
 
 async function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings([
-    "enable_user_flow",
-    "enable_custom_cookie_manager",
-    "google_tag_manager_enabled",
-    "google_tag_manager_id",
-    "head_scripts",
-    "body_opening",
-    "body_closing",
-    "default_language",
-    "blogname",
+  const [settings, themes] = await Promise.all([
+    getSettings([
+      "enable_user_flow",
+      "enable_custom_cookie_manager",
+      "google_tag_manager_enabled",
+      "google_tag_manager_id",
+      "head_scripts",
+      "body_opening",
+      "body_closing",
+      "default_language",
+      "blogname",
+    ]),
+    getBlockTheme(),
   ]);
-
-  const themes = await getBlockTheme();
 
   // Add theme atts.
   const themeProps = themes.reduce(
