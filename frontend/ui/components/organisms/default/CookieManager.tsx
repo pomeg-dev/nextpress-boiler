@@ -119,8 +119,9 @@ export function CookieManager({ settings }: CookieManagerProps) {
     // Proceed on production only.
     if (process.env.NODE_ENV !== 'production') return;
 
-    // GTM immediately starts.
-    if (gtmEnabled && gtmId) {
+    // GTM immediately starts. A placeholder ID (GTM-XXXXXXX) would load ~90 KB
+    // of script for a container that doesn't exist.
+    if (gtmEnabled && gtmId && !/^GTM-X+$/i.test(gtmId)) {
       initializeGTM(gtmId, stored);
     }
   }, [gtmEnabled, gtmId]);
