@@ -45,8 +45,10 @@ Items found during the redesign that are out of scope or need a decision. Newest
 - [x] Archive feed block no longer reads `heading`/`description` (not in its fields.json). A text-section above the feed is the way to add an intro; `Feed` keeps `intro` for category archives (2026-11-20).
 
 ## Performance (2026-11-20)
-- [ ] Plugin `/nextpress/posts` cache key (`generate_cache_key`, `class/api/api-posts.php`) ignores `include_metadata`, `include_content` and `slug_only`. Whichever variant is requested first is served to all of them (seen: `X-Cache: HIT` returned the slim copy to a request that wanted Yoast metadata). Needs a plugin fix; until then the feed's slim requests and full requests can collide.
+- [x] Plugin `/nextpress/posts` cache key now hashes every query arg plus `slug_only`/`include_content`/`include_metadata` (plugin commit on `main`, not pushed, 2026-11-20). Verified: each variant MISSes once, then HITs its own copy.
+  - [ ] Push the plugin commit (outward: needs your go-ahead).
 - [ ] Package `generateStaticParams` reads `post.slug.full_path`, but `slug_only` returns `{ slug: <id>, full_path }`, so the package prerenders nothing. `app/[[...slug]]/page.tsx` overrides it with its own; fix in nextpress-client and drop the override.
+  - Sent to the nextpress-client session with the sidebar bugs (2026-11-20).
 - [ ] wp-admin has GTM enabled with the placeholder `GTM-XXXXXXX` (88 KB of script for nothing). `CookieManager` now skips `GTM-X…` IDs; set a real ID or turn GTM off.
 - [ ] `css-minimizer-webpack-plugin` is unused since the custom `splitChunks` config was removed from `next.config.js`. Remove the dep (needs approval).
 - [ ] Optional: client feed queries go straight to WordPress (uncached apart from the plugin transient). A Next route handler proxy with the Data Cache would make filtered/paged requests CDN-cacheable. Architectural change, needs approval.
