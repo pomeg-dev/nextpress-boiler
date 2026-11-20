@@ -22,7 +22,7 @@ export function PostCount({
       ? 1
       : (currentPage === 1 ? currentPage : (currentPage - 1) * parseInt(perPage) + 1);
     const to = totalPages == currentPage ? totalPosts : currentPage * parseInt(perPage);
-    const type = totalPosts == 1 ? pluralize.singular(postType) : postType;
+    const type = pluralize(postType, Number(totalPosts));
     return totalPosts == 0 ? `${totalPosts} ${type} found` : `Showing ${from} to ${to} of ${totalPosts} ${type}`;
   };
 

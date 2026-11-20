@@ -18,7 +18,7 @@ export const SearchBox = ({
   setLoadMore: any;
 }) => {
   return (
-    <div className="filter-search max-w-lg transition-[opacity,transform]">
+    <div className="filter-search w-full transition-[opacity,transform] md:w-80">
       <TextInput
         label={label}
         name="search-box"

@@ -135,13 +135,13 @@ export function Feed({ data, firstPosts }: Props) {
         {data.heading &&
           <div className="flow mb-md">{Parser(data.heading)}</div>
         }
-        <div className="flex flex-col justify-between gap-md border-b border-rule pb-md md:flex-row md:items-end">
-          <div className="max-w-col-10 w-full">
-            {data.description &&
-              <p className="body-lg measure text-muted">{Parser(data.description)}</p>
-            }
-          </div>
-          <div className="archive-filters flex flex-col gap-sm">
+        {/* Description, then one wrapping row of controls (button groups take
+            a line each), then Reset and the count. */}
+        <div className="flex flex-col gap-md border-b border-rule pb-md">
+          {data.description &&
+            <p className="body-lg measure text-muted">{Parser(data.description)}</p>
+          }
+          <div className="archive-filters flex flex-wrap items-end gap-sm">
             {data.show_search && (
               <SearchBox
                 label={data.search_field_label}
@@ -168,33 +168,37 @@ export function Feed({ data, firstPosts }: Props) {
                   setLoadMore={setLoadMore}
                 />
               ))}
-            {data.show_reset && (
-              <div className="filter-reset">
-                <Button
-                  type="button"
-                  style="primary"
-                  size="md"
-                  onClick={() => {
-                    setCurrentPage(1);
-                    setSearchTerm("");
-                    setTaxFilters([]);
-                    setLoadMore(false);
-                  }}
-                >
-                  Reset
-                </Button>
-              </div>
-            )}
           </div>
-          {data.show_post_count && (
-            <PostCount
-              postType={data.post_type}
-              totalPosts={totalPosts}
-              totalPages={totalPages}
-              perPage={data.number_of_posts}
-              currentPage={currentPage}
-              isLoadMore={data.load_more === "load_more"}
-            />
+          {(data.show_reset || data.show_post_count) && (
+            <div className="flex flex-wrap items-center justify-between gap-sm">
+              {data.show_reset && (
+                <div className="filter-reset">
+                  <Button
+                    type="button"
+                    style="no-fill"
+                    size="md"
+                    onClick={() => {
+                      setCurrentPage(1);
+                      setSearchTerm("");
+                      setTaxFilters([]);
+                      setLoadMore(false);
+                    }}
+                  >
+                    Reset filters
+                  </Button>
+                </div>
+              )}
+              {data.show_post_count && (
+                <PostCount
+                  postType={data.post_type}
+                  totalPosts={totalPosts}
+                  totalPages={totalPages}
+                  perPage={data.number_of_posts}
+                  currentPage={currentPage}
+                  isLoadMore={data.load_more === "load_more"}
+                />
+              )}
+            </div>
           )}
         </div>
         {posts && <PostsList posts={posts} />}

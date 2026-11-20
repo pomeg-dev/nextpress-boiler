@@ -74,7 +74,7 @@ const TaxonomyFilterInner = ({
       className={cn(
         `filter-${taxonomy}`,
         "transition-[opacity,transform]",
-        type === 'select' ? "max-w-lg" : "max-w-full"
+        type === 'select' ? "w-full md:w-64" : "basis-full"
       )}
     >
       {(() => {
@@ -96,11 +96,12 @@ const TaxonomyFilterInner = ({
               return (
                 <>
                   {label &&
-                    <label className="mb-2 block font-[500]" htmlFor={taxonomy}>{label}</label>
+                    <p className="field-label mb-2" id={`${taxonomy}-label`}>{label}</p>
                   }
                   <div
-                    className="flex flex-row flex-wrap gap-2 md:justify-end"
-                    id={taxonomy}
+                    className="flex flex-row flex-wrap gap-2"
+                    role="group"
+                    aria-labelledby={label ? `${taxonomy}-label` : undefined}
                   >
                     {terms &&
                       <>
@@ -110,9 +111,10 @@ const TaxonomyFilterInner = ({
                             size="md"
                             style={
                               findTerm(taxFilters) === ''
-                                ? 'primary'
+                                ? 'high-contrast'
                                 : 'secondary'
                             }
+                            pressed={findTerm(taxFilters) === ''}
                             onClick={() => {
                               handleFilterChange("");
                             }}
@@ -126,9 +128,10 @@ const TaxonomyFilterInner = ({
                             size="md"
                             style={
                               findTerm(taxFilters) === term.slug
-                                ? 'primary'
+                                ? 'high-contrast'
                                 : 'secondary'
                             }
+                            pressed={findTerm(taxFilters) === term.slug}
                             key={term.term_id}
                             onClick={() => {
                               handleFilterChange(term.slug);

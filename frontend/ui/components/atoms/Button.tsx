@@ -13,6 +13,8 @@ type ButtonProps = {
   size?: "xl" | "lg" | "md" | "sm";
   style?: "primary" | "secondary" | "tertiary" | "card" | "high-contrast" | "no-fill";
   disabled?: boolean;
+  /** Toggle buttons (type "button"): the selected state, as aria-pressed. */
+  pressed?: boolean;
   circular?: boolean;
   special?: boolean;
   iconLeft?: IconNames;
@@ -28,6 +30,7 @@ const Button: React.FC<ButtonProps> = ({
   size = "xl", 
   style = "primary", 
   disabled = false, 
+  pressed,
   circular = false, 
   special = false, 
   iconLeft,
@@ -130,7 +133,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
     </Link>
   ) : (
-    <button type={type} disabled={disabled} {...commonProps}>
+    <button type={type} disabled={disabled} aria-pressed={pressed} {...commonProps}>
       {!special && IconLeft && 
         <IconLeft width="1.5em" height="1.5em" />
       }
