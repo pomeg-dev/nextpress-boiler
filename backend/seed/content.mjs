@@ -1,9 +1,10 @@
-// Builds the block markup for the five showcase pages.
+// Builds the block markup for the five showcase pages and the demo posts.
 //
 //   node content.mjs <media.json> <site-url>
 //
 // media.json maps image keys (images/sources.json) to attachment IDs, plus
-// `form` (the Gravity Form select value). Prints {slug: post_content} as JSON.
+// `form` (the Gravity Form select value). Prints {pages: {slug: post_content},
+// posts: [...], terms: {taxonomy: {slug: name}}} as JSON.
 // Copy is generic: no invented clients, testimonials or statistics.
 
 import { readFileSync } from "node:fs";
@@ -653,4 +654,165 @@ function contact() {
   ]);
 }
 
-process.stdout.write(JSON.stringify({ home: home(), about: about(), platform: platform(), work: work(), contact: contact() }));
+// ---------------------------------------------------------------------------
+// Posts: the archive-feed demo. Core blocks only, each with a category, one or
+// two themes and a featured image. Dated a few days apart, newest first.
+// ---------------------------------------------------------------------------
+const TERMS = {
+  category: { guides: "Guides", engineering: "Engineering", design: "Design", editorial: "Editorial", releases: "Release notes" },
+  theme: {
+    performance: "Performance",
+    accessibility: "Accessibility",
+    "content-modelling": "Content modelling",
+    headless: "Headless",
+    typography: "Typography",
+    workflow: "Workflow",
+  },
+};
+
+const { heading: h, paragraph: p, list: ul } = core;
+const ol = (items) => ul(items, true);
+
+const POSTS = [
+  ["setting-up-a-local-site", "Setting up a local Nextpress site", ["guides"], ["headless", "workflow"], "studio-desk",
+    "Two folders, two servers and one page to check before you build anything.",
+    [p("A Nextpress project is two apps that talk over HTTP: WordPress in Docker for editing, and Next.js for everything visitors see. Getting both running takes a few commands."),
+      h("What you need"),
+      ul(["Docker, for WordPress and its database", "Node, for the front end", "A copy of the environment file with the client secret"]),
+      h("Start in order"),
+      ol(["Start the backend containers.", "Start the front end dev server.", "Open the home page and check the header and footer load."]),
+      p("If the header is missing, the front end cannot reach WordPress. Check the backend is up before you look anywhere else.")]],
+  ["how-the-block-pipeline-works", "How the block pipeline turns fields into components", ["engineering"], ["headless", "content-modelling"], "arch-stair",
+    "A block starts as a JSON file of fields and ends as a React component. Here is every step in between.",
+    [p("Every custom block has a fields file. WordPress reads it to build the editor form; the front end reads the saved values to render the block."),
+      h("The steps"),
+      ol(["The fields file defines what an editor can enter.", "The plugin registers it as an ACF block.", "The router returns the saved values with the page.", "The front end looks the block up in its registry and renders it."]),
+      p("Because both sides read the same file, a new field shows up in the editor and in the component's data at the same time.")]],
+  ["choosing-a-type-scale", "Choosing a type scale that survives real content", ["design"], ["typography"], "studio-typewriter",
+    "Pick sizes for the longest headline you will get, not the shortest one in the mock-up.",
+    [p("Mock-ups use tidy three-word headlines. Real pages get twelve-word ones, and the scale has to hold up for both."),
+      h("Test with awkward copy"),
+      ul(["A heading that wraps to three lines", "A single long word", "A paragraph with no heading above it"]),
+      p("Fluid sizes help: the scale grows with the viewport between two fixed points, so you set the extremes once and the steps in between follow.")]],
+  ["writing-scannable-headings", "Writing headings people can scan", ["editorial"], ["accessibility", "workflow"], "botanic-lily",
+    "Most readers skim first. Headings decide whether they stay.",
+    [p("A heading is a promise about the section below it. Make it specific enough that a reader can skip the section with confidence."),
+      h("Three checks"),
+      ul(["Does it say what the section is about?", "Does it make sense out of context, in a list of headings?", "Is it in order: no jumping from level two to level four?"]),
+      p("Screen reader users often move between headings to find their place, so a clear outline helps them as much as anyone skimming.")]],
+  ["caching-in-a-headless-stack", "Caching in a headless WordPress stack", ["engineering"], ["performance", "headless"], "arch-rotunda",
+    "There are two caches between the editor and the visitor. Know which one you are looking at.",
+    [p("WordPress caches its API responses, and the front end caches the pages it builds from them. Both make the site fast; both can show you old content."),
+      h("When content looks stale"),
+      ol(["Publishing in the editor clears both caches for that page.", "Changes made outside the editor need the front end told directly.", "If a new block shows no fields, the plugin's cached block list is out of date."]),
+      p("Most “it didn’t update” reports come down to one of those three.")]],
+  ["adding-a-new-block", "Adding a new block in five steps", ["guides"], ["content-modelling", "workflow"], "arch-canopy",
+    "From an empty folder to a block editors can use.",
+    [p("New blocks follow the same shape as the existing ones, so the quickest start is to copy one that is close to what you need."),
+      ol(["Create the block folder with a fields file.", "Write the block's entry component.", "Build the presentational component it renders.", "Regenerate the block registry.", "Clear the plugin's block cache and open the editor."]),
+      h("Before you start"),
+      p("Check whether an existing block already does the job with a different theme or padding. Fewer blocks are easier for editors to learn.")]],
+  ["colour-themes-without-drift", "Colour themes without colour drift", ["design"], ["accessibility"], "botanic-bloom",
+    "One set of role names, five themes, and no one-off hex values.",
+    [p("Components never ask for a colour by name. They ask for a role, such as foreground, surface or accent, and the active theme decides what that means."),
+      h("Why roles"),
+      ul(["A block looks right on any background without extra code", "Contrast is checked once per theme, not once per component", "A rebrand changes one file"]),
+      p("The cost is discipline: a hard-coded colour in one component will look wrong on four of the five themes.")]],
+  ["core-images-keep-their-ratio", "Core images now keep their natural ratio", ["releases", "engineering"], ["performance"], "arch-sky",
+    "Images without saved dimensions no longer fall back to a fixed 4:3 box.",
+    [p("The editor does not always save an image's width and height. The front end used to guess, and the guess was often wrong."),
+      h("What changed"),
+      ul(["The plugin now sends the uploaded file's dimensions with each image block", "The front end uses them when the block has no size of its own", "Resized images keep the size the editor set"]),
+      p("Reserving the right space up front stops the page jumping as images load.")]],
+  ["alt-text-that-does-a-job", "Alt text that does a job", ["editorial"], ["accessibility"], "botanic-succulent",
+    "Describe what the image is for, not every detail in it.",
+    [p("Alt text replaces the image for anyone who cannot see it. Write what they need to follow the page, in a sentence or less."),
+      h("Rules of thumb"),
+      ul(["Skip “image of”: the reader already knows", "If the image is decoration, leave the alt text empty", "If it contains words, include the words"]),
+      p("Write it in the media library once, and every block that uses the image picks it up.")]],
+  ["revalidating-pages-on-publish", "Revalidating pages on publish", ["engineering"], ["performance", "headless"], "arch-tower",
+    "Static pages that still update the moment an editor hits publish.",
+    [p("Pages are built once and served from the cache. When content changes, WordPress asks the front end to rebuild only the pages affected."),
+      h("How the request is trusted"),
+      p("The revalidation request carries a signed token. The front end checks the signature before it drops anything from its cache, so outsiders cannot empty it."),
+      h("Paths matter"),
+      p("The front end matches paths exactly, trailing slash included. A path without one is ignored.")]],
+  ["building-site-menus", "Building the header and footer menus", ["guides"], ["workflow"], "arch-facade",
+    "Menus are ordinary WordPress menus, assigned to two locations.",
+    [p("The header and footer read their links from WordPress menus, so editors manage them in the usual place."),
+      ol(["Create a menu and add pages to it.", "Assign it to the header or footer location.", "Add the call-to-action class to a link to show it as a button."]),
+      p("The layout of the header and footer themselves lives on the Templates page, next to the logo settings.")]],
+  ["spacing-as-a-system", "Spacing as a system, not a slider", ["design"], ["workflow"], "arch-column",
+    "Blocks choose their own spacing. Editors pick from a short list when they need to change it.",
+    [p("Free spacing controls lead to pages where every gap is slightly different. A short scale keeps rhythm without taking control away."),
+      h("How it works here"),
+      ul(["Each block sets a default top and bottom padding", "Editors can override it from a few named sizes", "There is no spacer block"]),
+      p("If a page needs more room, the answer is usually a different block, not a bigger gap.")]],
+  ["plan-the-content-model-first", "Plan the content model before the first block", ["editorial", "guides"], ["content-modelling"], "botanic-cluster",
+    "Decide what content exists before you decide what it looks like.",
+    [p("A content model lists the kinds of content a site holds and the fields each one needs. It is cheaper to change on paper than in code."),
+      h("Start with questions"),
+      ul(["What will editors publish every week?", "What appears in more than one place?", "What needs to be filtered or searched?"]),
+      p("Answers to the last question become taxonomies, like the categories and themes on this post.")]],
+  ["fast-private-forms", "Keeping forms fast and private", ["engineering"], ["performance", "accessibility"], "arch-monolith",
+    "The form loads with the page and posts straight to WordPress.",
+    [p("Form definitions arrive with the page data, so the form renders without a second request. Submissions go directly to the form plugin's API."),
+      h("What stays on the server"),
+      ul(["Notification recipients", "Routing rules", "Anything the browser does not need to draw the form"]),
+      p("Labels, errors and required markers are part of the form markup, so every field is usable with a keyboard and a screen reader.")]],
+  ["archive-filters-read-the-url", "Archive filters now read the URL", ["releases"], ["workflow", "headless"], "arch-ribbon",
+    "Share a filtered list and the person you send it to sees the same list.",
+    [p("The archive feed keeps its search, filters and page number in the address bar. Opening that address restores the same view."),
+      h("Fixed along the way"),
+      ul(["Page two no longer jumps further ahead", "Filters chosen from a link show as selected", "The next button hides on the last page"])]],
+  ["previewing-drafts", "Previewing drafts from the editor", ["guides"], ["workflow", "headless"], "arch-nave",
+    "See a draft in the real front end before anyone else can.",
+    [p("Preview opens the draft on the front end with a short-lived token, so the page renders with the real components and styles."),
+      ol(["Save the draft.", "Choose Preview in the editor.", "Check the page, then return to the editor to publish."]),
+      p("Previews skip the cache, so what you see is the current draft.")]],
+  ["images-that-hold-the-layout", "Images that hold the layout steady", ["design"], ["performance"], "land-dune",
+    "Reserve the space before the pixels arrive.",
+    [p("A page that jumps while images load is hard to read and easy to mis-tap. The fix is to know each image's shape before it downloads."),
+      h("Three habits"),
+      ul(["Give every image a width and height, or a fixed ratio", "Serve sizes that match the layout, not the original upload", "Load images below the fold lazily"]),
+      p("The front end handles the last two. The first depends on the image having its dimensions saved.")]],
+  ["keeping-long-pages-readable", "Keeping long pages readable", ["editorial"], ["typography", "accessibility"], "studio-typewriter",
+    "Short lines, clear breaks and a reason to keep going.",
+    [p("Long pages are fine when the reader always knows where they are. Line length, spacing and headings do most of that work."),
+      h("Checklist"),
+      ul(["Lines of roughly sixty to seventy-five characters", "A heading every few paragraphs", "Lists for anything that is really a list"]),
+      p("If a section needs a lot of scrolling to get through, split it.")]],
+  ["typed-data-from-wordpress", "Typed data from WordPress", ["engineering"], ["content-modelling", "headless"], "arch-facade",
+    "WordPress returns loose JSON. The front end decides what it can trust.",
+    [p("Block data comes back as plain JSON with no schema. Components check for the fields they need and render nothing when a value is missing."),
+      h("Defensive by default"),
+      ul(["Optional fields are optional in the component too", "Empty repeaters render nothing, not an empty box", "Links are checked before they are drawn"]),
+      p("This keeps a half-filled block in the editor from breaking the page.")]],
+  ["checks-on-every-change", "Lint and type checks on every change", ["releases"], ["workflow"], "arch-canopy",
+    "Two commands catch most mistakes before a page ever loads.",
+    [p("The front end now runs the ESLint command line directly, and it covers every folder, including the theme and UI components."),
+      ol(["Run the type checker.", "Run the linter.", "Build, if the change touches routing or config."]),
+      p("Both checks pass on the main branch, so any new warning comes from your change.")]],
+];
+
+function posts() {
+  const newest = Date.UTC(2026, 10, 18, 9);
+  return POSTS.map(([slug, title, category, theme, image, excerpt, body], i) => ({
+    slug,
+    title,
+    excerpt,
+    category,
+    theme,
+    image: img(image),
+    date: new Date(newest - i * 4 * 86400000).toISOString().slice(0, 19).replace("T", " "),
+    content: join(body),
+  }));
+}
+
+process.stdout.write(
+  JSON.stringify({
+    pages: { home: home(), about: about(), platform: platform(), work: work(), contact: contact() },
+    posts: posts(),
+    terms: TERMS,
+  })
+);

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Seeds the Nextpress showcase: media, five pages, two menus, the header and
-# footer Templates layouts.
+# footer Templates layouts, and 20 demo posts with their categories and themes.
 #
 #   backend/seed/seed-showcase.sh           seed, or update what a previous run made
 #   backend/seed/seed-showcase.sh --reset   delete what the seed made and restore what it overwrote
 #
-# Idempotent. Every post, attachment and menu it creates carries the
+# Idempotent. Every post, attachment, menu and term it creates carries the
 # `_np_seed_key` meta, and a second run updates those in place. It never
 # deletes content it did not create. Approved overwrites, backed up on the
 # first run and restored by --reset:
@@ -89,6 +89,7 @@ if [ "$RESET" = 1 ]; then
       case "$key" in
         page:home) ;; # Restored below, never deleted.
         menu:*) echo "wp menu delete $id >/dev/null" ;;
+        category:* | theme:*) echo "wp term delete ${key%%:*} $id >/dev/null" ;;
         *) echo "wp post delete $id --force >/dev/null" ;;
       esac
     done
@@ -172,7 +173,7 @@ SEEDED=$(printf '%s\n%s\n' "$SEEDED" "$(cat "$OUT_DIR/created")")
 echo "Media and pages: $(grep -c . "$OUT_DIR/created" || true) created."
 
 # ---------------------------------------------------------------------------
-# 2. Page content, generated from the attachment IDs.
+# 2. Page and post content, generated from the attachment IDs.
 # ---------------------------------------------------------------------------
 printf '%s\n' "$SEEDED" | node -e '
   const lines = require("fs").readFileSync(0, "utf8").split("\n");
@@ -184,14 +185,46 @@ printf '%s\n' "$SEEDED" | node -e '
   process.stdout.write(JSON.stringify(media));
 ' "form_id_$FORM_ID" > "$OUT_DIR/media.json"
 
-node "$SEED_DIR/content.mjs" "$OUT_DIR/media.json" "$SITE_URL" > "$OUT_DIR/pages.json"
-node -e '
-  const pages = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
-  for (const [slug, html] of Object.entries(pages)) require("fs").writeFileSync(`${process.argv[2]}/${slug}.html`, html);
-' "$OUT_DIR/pages.json" "$OUT_DIR"
+node "$SEED_DIR/content.mjs" "$OUT_DIR/media.json" "$SITE_URL" > "$OUT_DIR/content.json"
+printf '%s\n' "$SEEDED" > "$OUT_DIR/seeded"
+# Writes <slug>.html per page and post-<slug>.html per post, plus posts.sh: the
+# commands that create or update the seeded terms and posts (run in step 3).
+node - "$OUT_DIR" <<'JS'
+const fs = require("fs");
+const out = process.argv[2];
+const { pages, posts, terms } = JSON.parse(fs.readFileSync(`${out}/content.json`, "utf8"));
+const seeded = Object.fromEntries(fs.readFileSync(`${out}/seeded`, "utf8").split("\n").filter(Boolean).map((l) => l.split("=")));
+const q = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
+for (const [slug, html] of Object.entries(pages)) fs.writeFileSync(`${out}/${slug}.html`, html);
+const sh = [];
+// A term with the same slug that the seed did not create is used, never keyed or deleted.
+for (const [tax, list] of Object.entries(terms)) {
+  for (const [slug, name] of Object.entries(list)) {
+    if (seeded[`${tax}:${slug}`]) continue;
+    sh.push(`if ! wp term get ${tax} ${slug} --by=slug --field=term_id >/dev/null 2>&1; then`,
+      `  id=$(wp term create ${tax} ${q(name)} --slug=${slug} --porcelain | id_of)`,
+      `  wp term meta update $id _np_seed_key ${tax}:${slug} >/dev/null`,
+      "fi");
+  }
+}
+for (const post of posts) {
+  const file = `/seed-out/post-${post.slug}.html`;
+  fs.writeFileSync(`${out}/post-${post.slug}.html`, post.content);
+  const args = `--post_title=${q(post.title)} --post_name=${post.slug} --post_excerpt=${q(post.excerpt)} --post_date=${q(post.date)} --post_status=publish`;
+  const id = seeded[`post:${post.slug}`];
+  sh.push(id
+    ? `id=${id}; wp post update $id ${file} ${args} >/dev/null`
+    : `id=$(wp post create ${file} --post_type=post ${args} --porcelain | id_of); wp post meta update $id _np_seed_key post:${post.slug} >/dev/null`);
+  sh.push(`wp post term set $id category ${post.category.join(" ")} --by=slug >/dev/null`,
+    `wp post term set $id theme ${post.theme.join(" ")} --by=slug >/dev/null`,
+    `wp post meta update $id _thumbnail_id ${post.image} >/dev/null`);
+}
+fs.writeFileSync(`${out}/posts.sh`, sh.join("\n") + "\n");
+fs.writeFileSync(`${out}/post-paths`, posts.map((p) => `/blog/${p.slug}/`).join(" "));
+JS
 
 # ---------------------------------------------------------------------------
-# 3. Pages, menus, templates and settings.
+# 3. Pages, posts, menus, templates and settings.
 # ---------------------------------------------------------------------------
 HEADER_MENU=$(lookup "menu:header")
 FOOTER_MENU=$(lookup "menu:footer")
@@ -225,6 +258,9 @@ if [ "\$(sql "SELECT CONCAT('@@', MD5(post_content)) FROM \${P}posts WHERE ID = 
 fi
 SH
   done
+
+  # Posts and their terms.
+  cat "$OUT_DIR/posts.sh"
 
   # Menus: found by term meta, items rebuilt every run.
   for menu in header footer; do
@@ -283,7 +319,8 @@ done
 # ignores a path that is not the route's own.
 # ---------------------------------------------------------------------------
 FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-node - "$BACKEND_DIR/../frontend/.env" "$FRONTEND_URL" / /about/ /platform/ /work/ /contact/ <<'JS' || echo "Frontend not revalidated: restart the dev server to see new content." >&2
+# shellcheck disable=SC2046 # post-paths: a space-separated list of paths.
+node - "$BACKEND_DIR/../frontend/.env" "$FRONTEND_URL" / /about/ /platform/ /work/ /contact/ $(cat "$OUT_DIR/post-paths") <<'JS' || echo "Frontend not revalidated: restart the dev server to see new content." >&2
 const [, , envFile, base, ...paths] = process.argv;
 const fs = require("fs");
 const env = fs.existsSync(envFile) ? fs.readFileSync(envFile, "utf8") : "";
