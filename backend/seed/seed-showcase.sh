@@ -12,7 +12,7 @@
 #   - Home page content (ID 2) → post meta `_np_seed_original_content` (base64)
 #   - header/footer Templates layouts → option `np_seed_backup`
 #   - menu locations: deleting a seeded menu unassigns it
-#   - Templates → Post (post hero), only when it is empty: post-template.php
+#   - Templates → Post (post hero, related posts), only when it is empty: post-template.php
 # It leaves `frontend_url` alone: the plugin also uses that option for its
 # server-side block fetch, and http://localhost:3000 is unreachable from the
 # wordpress container. Empty, the plugin falls back to the Docker host URL.
@@ -261,9 +261,8 @@ fi
 SH
   done
 
-  # Posts and their terms, then the post hero in Templates → Post. The
-  # Templates field groups cache their block layouts: clear it first, so
-  # post-hero is a known layout.
+  # Posts and their terms, then Templates → Post. The Templates field groups
+  # cache their block layouts: clear it first, so new blocks are known layouts.
   cat "$OUT_DIR/posts.sh"
   cat <<'SH'
 clear_transients nextpress_templates_
