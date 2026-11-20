@@ -1,6 +1,6 @@
 import Parser from "html-react-parser";
 import { getPosts, getTaxTerm, getTaxTerms } from "@/nextpress.config";
-import { FeedResult, INITIAL_STATE, feedQuery } from "@ui/components/archive/query";
+import { INITIAL_STATE, feedQuery, toFeedResult } from "@ui/components/archive/query";
 import { notFound } from "next/navigation";
 import { Feed } from "@ui/components/lazy";
 
@@ -32,11 +32,7 @@ export default async function CategoryArchive({
     getTaxTerm(taxonomy, term),
     getTaxTerms(taxonomy),
     getPosts(feedQuery(archiveData, INITIAL_STATE), true)
-      .then(({ posts, headers }: { posts: any[]; headers: Headers }): FeedResult => ({
-        posts,
-        total: Number(headers.get("X-WP-Total") ?? posts.length),
-        totalPages: Number(headers.get("X-WP-TotalPages") ?? 1),
-      }))
+      .then(toFeedResult)
       .catch(() => undefined),
   ]);
   if (!termObject || termObject.length < 1) {

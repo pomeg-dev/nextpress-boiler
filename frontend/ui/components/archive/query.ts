@@ -1,8 +1,9 @@
 import { WPQuery } from "@pomeg-dev/nextpress-client/types";
 
 // The archive feed's query, shared by the server (first page, through the
-// cached `getPosts`) and the browser (every later page, through `fetchPosts`).
-// Both build it here, so the server's first page can seed the browser cache.
+// cached `getPosts`) and the browser (every later page, through `fetchPosts`
+// and the `/api/posts/` route). All build it here, so the server's first page
+// can seed the browser cache.
 
 export type TaxFilter = { taxonomy: string; terms: string };
 
@@ -49,7 +50,59 @@ export function feedQuery(
   return params;
 }
 
-// Same serialisation as the package's `getPosts`.
+// Post types a feed may list. `/api/posts/` refuses any other: WordPress
+// would answer for internal types too (menu items). Add a site's own types.
+const FEED_POST_TYPES = ["post", "page", "resource"];
+const SLUG = /^[a-z0-9_-]+$/;
+// WordPress keeps non-ASCII slugs percent-encoded.
+const TERMS = /^[a-z0-9_%-]+(,[a-z0-9_%-]+)*$/;
+const isInt = (value: number, min: number, max: number) =>
+  Number.isInteger(value) && value >= min && value <= max;
+
+// `/api/posts/`'s query: only what `feedQuery` sends, within limits, else null.
+// Search is normalised so equivalent searches share a cache entry.
+export function parseFeedQuery(params: URLSearchParams): WPQuery | null {
+  const postType = params.get("post_type") ?? "post";
+  const page = Number(params.get("page") ?? 1);
+  const perPage = Number(params.get("per_page") ?? 12);
+  if (!FEED_POST_TYPES.includes(postType) || !isInt(page, 1, 100) || !isInt(perPage, 1, 50)) {
+    return null;
+  }
+
+  const query: WPQuery = { post_type: postType, page, per_page: perPage, include_metadata: false };
+  for (const [key, value] of Array.from(params.entries())) {
+    if (key.startsWith("filter_")) {
+      const taxonomy = key.slice("filter_".length);
+      if (!SLUG.test(taxonomy) || !TERMS.test(value)) return null;
+      query[`filter_${taxonomy}`] = value;
+    } else if (key === "search") {
+      const search = value.trim().replace(/\s+/g, " ").toLowerCase().slice(0, 100);
+      if (search) query.search = search;
+    } else if (!["post_type", "page", "per_page", "include_metadata"].includes(key)) {
+      return null;
+    }
+  }
+  return query;
+}
+
+// What a feed card renders (PostCard): about a fifth of the post's JSON.
+export const toFeedPost = ({ id, title, path, excerpt, category_names, image, acf_data }: any) => ({
+  id,
+  title,
+  path,
+  excerpt,
+  category_names,
+  image: image ? { full: image.full } : image,
+  acf_data,
+});
+
+// `getPosts(query, true)`'s response as the feed's result.
+export const toFeedResult = ({ posts, headers }: { posts: any[]; headers: Headers }): FeedResult => ({
+  posts: posts.map(toFeedPost),
+  total: Number(headers.get("X-WP-Total") ?? posts.length),
+  totalPages: Number(headers.get("X-WP-TotalPages") ?? 1),
+});
+
 function postsUrl(params: WPQuery) {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -57,7 +110,7 @@ function postsUrl(params: WPQuery) {
     if (typeof value === "boolean") query.append(key, value ? "1" : "0");
     else query.append(key, Array.isArray(value) ? value.join(",") : String(value));
   });
-  return `${process.env.NEXT_PUBLIC_API_URL}/wp-json/nextpress/posts?${query}`;
+  return `/api/posts/?${query}`;
 }
 
 // Responses by URL for this page view: revisiting a page or filter, or
@@ -72,11 +125,7 @@ export function fetchPosts(params: WPQuery): Promise<FeedResult> {
     request = fetch(url)
       .then((response) => {
         if (!response.ok) throw new Error(`Posts request failed: ${response.status}`);
-        return response.json().then((posts) => ({
-          posts,
-          total: Number(response.headers.get("X-WP-Total") ?? posts.length),
-          totalPages: Number(response.headers.get("X-WP-TotalPages") ?? 1),
-        }));
+        return response.json() as Promise<FeedResult>;
       })
       .then((result) => {
         settled.set(url, result);

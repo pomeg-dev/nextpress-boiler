@@ -137,6 +137,8 @@ export function Feed({ data, first, intro }: Props) {
     setFailed(false);
     const timer = setTimeout(() => current && setShowSkeleton(true), SKELETON_DELAY);
     fetchPosts(params)
+      // A response inside the delay must not bring the skeletons back after it.
+      .finally(() => clearTimeout(timer))
       .then((response) => current && show(response))
       .catch(() => {
         if (!current) return;
