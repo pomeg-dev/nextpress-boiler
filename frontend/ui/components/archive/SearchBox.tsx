@@ -5,30 +5,22 @@ import TextInput from "@ui/components/molecules/TextInput";
 export const SearchBox = ({
   label,
   placeholder,
-  searchTerm,
-  setSearchTerm,
-  setCurrentPage,
-  setLoadMore,
+  value,
+  onChange,
 } : {
   label: string;
   placeholder: string;
-  searchTerm: string;
-  setSearchTerm: any;
-  setCurrentPage: any;
-  setLoadMore: any;
+  value: string;
+  onChange: (value: string) => void;
 }) => {
   return (
     <div className="filter-search w-full transition-[opacity,transform] md:w-80">
       <TextInput
         label={label}
         name="search-box"
-        value={searchTerm}
+        value={value}
         placeholder={placeholder}
-        onChange={event => {
-          setSearchTerm(event.target.value);
-          setCurrentPage(1);
-          setLoadMore(false);
-        }}
+        onChange={event => onChange(event.target.value)}
       />
     </div>
   );

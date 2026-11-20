@@ -1,8 +1,8 @@
-import { getTaxTerm, getTaxTerms } from "@/nextpress.config";
-import { Feed } from "@ui/components/archive/Feed";
-import Loader from "@ui/components/atoms/Loader";
+import Parser from "html-react-parser";
+import { getPosts, getTaxTerm, getTaxTerms } from "@/nextpress.config";
+import { FeedResult, INITIAL_STATE, feedQuery } from "@ui/components/archive/query";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Feed } from "@ui/components/lazy";
 
 export default async function CategoryArchive({
   taxonomy,
@@ -11,13 +11,6 @@ export default async function CategoryArchive({
   taxonomy: string;
   term: string;
 }) {
-  const termObject = await getTaxTerm(taxonomy, term);
-  if (!termObject || termObject.length < 1) {
-    notFound();
-  }
-
-  const allTerms = await getTaxTerms(taxonomy);
-
   const archiveData = {
     post_type: 'post',
     number_of_posts: '12',
@@ -30,11 +23,28 @@ export default async function CategoryArchive({
     show_reset: false,
     update_url: false,
     redirect_on_filter: true,
-    heading: `<h1><span className="text-heading-xl">${termObject.name}</span></h1>`,
-    description: termObject.description,
     tax_query: [
       { taxonomy: taxonomy, term: term }
     ],
+  };
+
+  const [termObject, allTerms, first] = await Promise.all([
+    getTaxTerm(taxonomy, term),
+    getTaxTerms(taxonomy),
+    getPosts(feedQuery(archiveData, INITIAL_STATE), true)
+      .then(({ posts, headers }: { posts: any[]; headers: Headers }): FeedResult => ({
+        posts,
+        total: Number(headers.get("X-WP-Total") ?? posts.length),
+        totalPages: Number(headers.get("X-WP-TotalPages") ?? 1),
+      }))
+      .catch(() => undefined),
+  ]);
+  if (!termObject || termObject.length < 1) {
+    notFound();
+  }
+
+  const feedData = {
+    ...archiveData,
     taxonomy_filters: [
       {
         label: "",
@@ -47,10 +57,21 @@ export default async function CategoryArchive({
   };
 
   return (
-    <Suspense fallback={<Loader isLoading={true} />}>
-      <main id="main" data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
-        <Feed data={archiveData} />
-      </main>
-    </Suspense>
+    <main id="main" data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
+      <Feed
+        data={feedData}
+        first={first}
+        intro={
+          <>
+            <div className="flow">
+              <h1><span className="text-heading-xl">{termObject.name}</span></h1>
+            </div>
+            {termObject.description && (
+              <p className="body-lg measure text-muted">{Parser(termObject.description)}</p>
+            )}
+          </>
+        }
+      />
+    </main>
   );
 }

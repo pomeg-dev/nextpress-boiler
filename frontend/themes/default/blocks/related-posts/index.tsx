@@ -28,6 +28,8 @@ export async function RelatedPostsBlock(props: any) {
   const base: WPQuery = {
     post_type: current?.type?.id || "post",
     per_page: POOL,
+    // Cards need no Yoast head: it is ~85% of each post's JSON.
+    include_metadata: false,
     ...(current?.id && { post__not_in: [current.id] }),
   };
   const categories = (current?.categories ?? []).map((term: { slug: string }) => term.slug);

@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SearchBox } from "./SearchBox";
 import { TaxonomyFilter } from "./TaxonomyFilter";
 import { PostsList } from "./PostsList";
 import { Pagination } from "./Pagination";
 import { PostCount } from "./PostCount";
-import { getPosts } from "@/nextpress.config";
-import { WPQuery } from "@pomeg-dev/nextpress-client/types";
+import {
+  FeedResult,
+  FeedState,
+  INITIAL_STATE,
+  cachedPosts,
+  feedQuery,
+  fetchPosts,
+  seedPosts,
+} from "./query";
 import Button from "@ui/components/atoms/Button";
-import Parser from "html-react-parser";
-import Loader from "../atoms/Loader";
 import BlockWrapper, { getBlockOptions } from "../organisms/default/BlockWrapper";
 
 type Props = {
@@ -28,99 +33,171 @@ type Props = {
     show_reset: boolean;
     update_url: boolean;
     redirect_on_filter?: boolean;
-    heading?: string;
-    description?: string;
     tax_query?: any;
   };
-  firstPosts?: any[];
+  // The first page, rendered on the server.
+  first?: FeedResult;
+  // Heading and description, parsed on the server.
+  intro?: React.ReactNode;
 };
 
-export function Feed({ data, firstPosts }: Props) {
-  // The URL query (written by `update_url`) sets the starting page, search and filters.
-  const urlParams = useSearchParams();
-  const [totalPosts, setTotalPosts] = useState(data.number_of_posts);
-  const [totalPages, setTotalPages] = useState(1);
-  const [posts, setPosts] = useState(firstPosts);
-  const [currentPage, setCurrentPage] = useState(() => {
-    const page = parseInt(urlParams.get("page") ?? "");
-    return data.load_more === "pagination" && page > 1 ? page : 1;
-  });
-  const [searchTerm, setSearchTerm] = useState(() =>
-    (data.show_search && urlParams.get("search")) || ""
-  );
-  const [taxFilters, setTaxFilters] = useState<any>(() => {
-    if (!data.taxonomy_filters?.length) return [];
-    return Array.from(urlParams.entries())
-      .filter(([key]) => key.includes("filter_"))
-      .map(([key, value]) => ({ taxonomy: key.replace("filter_", ""), terms: value }));
-  });
-  const [loadMore, setLoadMore] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+// Wait this long before swapping posts for skeletons: a quick response
+// replaces the posts without a flash.
+const SKELETON_DELAY = 150;
+const SEARCH_DEBOUNCE = 300;
+
+// The server renders the first page. The URL query (written by `update_url`)
+// is read after hydration: reading it during render would make Next render
+// the whole feed in the browser only. Pages and filters already fetched, and
+// the next page (prefetched), show at once.
+export function Feed({ data, first, intro }: Props) {
   const router = useRouter();
-  const { post_type, number_of_posts, load_more, update_url, redirect_on_filter, tax_query } = data;
+  const isPagination = data.load_more === "pagination";
+  const isLoadMore = data.load_more === "load_more";
+  const perPage = Number(data.number_of_posts) || 12;
 
+  const [state, setState] = useState<FeedState>(INITIAL_STATE);
+  const [searchInput, setSearchInput] = useState("");
+  const [result, setResult] = useState<FeedResult | undefined>(() => {
+    if (first) seedPosts(feedQuery(data, INITIAL_STATE), first);
+    return first;
+  });
+  const [posts, setPosts] = useState<any[]>(first?.posts ?? []);
+  const [loading, setLoading] = useState(!first);
+  const [showSkeleton, setShowSkeleton] = useState(!first);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  // True when the visitor changed the state; false when it came from the URL.
+  const userChange = useRef(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const params = useMemo(() => feedQuery(data, state), [data, state]);
+
+  // Visitor changes. Any change but the page starts again from page 1.
+  const update = useCallback((change: Partial<FeedState>) => {
+    userChange.current = true;
+    setState((current) => ({ ...current, page: 1, ...change }));
+  }, []);
+
+  // URL → state, after hydration and on back/forward.
   useEffect(() => {
-    setIsLoading(true);
+    const fromUrl = () => {
+      const url = new URLSearchParams(window.location.search);
+      const page = parseInt(url.get("page") ?? "");
+      const search = (data.show_search && url.get("search")) || "";
+      userChange.current = false;
+      setSearchInput(search);
+      setState({
+        page: isPagination && page > 1 ? page : 1,
+        search,
+        filters: data.taxonomy_filters?.length
+          ? Array.from(url.entries())
+              .filter(([key]) => key.startsWith("filter_"))
+              .map(([key, value]) => ({ taxonomy: key.replace("filter_", ""), terms: value }))
+          : [],
+      });
+    };
+    if (window.location.search) fromUrl();
+    window.addEventListener("popstate", fromUrl);
+    return () => window.removeEventListener("popstate", fromUrl);
+  }, [data.show_search, data.taxonomy_filters, isPagination]);
 
-    // Redirect if true.
-    if (redirect_on_filter && taxFilters && taxFilters.length > 0) {
-      const currentUrl = window.location.href;
-      const filterTarget = taxFilters[0].terms;
-      const newUrl = currentUrl.replace(/\/[^/]*\/$/, `/${filterTarget}/`);
-      router.push(newUrl);
+  // Search → state, once typing pauses.
+  useEffect(() => {
+    if (searchInput === state.search) return;
+    const timer = setTimeout(() => update({ search: searchInput }), SEARCH_DEBOUNCE);
+    return () => clearTimeout(timer);
+  }, [searchInput, state.search, update]);
+
+  // State → posts.
+  useEffect(() => {
+    // Load more adds each page to the posts already shown.
+    const append = isLoadMore && state.page > 1;
+    const show = (response: FeedResult) => {
+      setResult(response);
+      setPosts((current) => (append ? [...current, ...response.posts] : response.posts));
+      setLoading(false);
+      setShowSkeleton(false);
+      setFailed(false);
+      // Warm the next page while the visitor reads this one.
+      if ((isPagination || isLoadMore) && state.page < response.totalPages) {
+        const next = feedQuery(data, { ...state, page: state.page + 1 });
+        setTimeout(() => fetchPosts(next).catch(() => {}), 500);
+      }
+    };
+
+    const cached = cachedPosts(params);
+    if (cached) {
+      show(cached);
       return;
     }
 
-    const params: WPQuery = {
-      post_type,
-      page: currentPage,
-      per_page: parseInt(number_of_posts),
-      include_content: true,
-    };
-
-    if (taxFilters.length < 1 && tax_query && tax_query.length > 0) {
-      tax_query.map((filter: any) => {
-        params[`filter_${filter.taxonomy}`] = filter.term;
+    let current = true;
+    setLoading(true);
+    setFailed(false);
+    const timer = setTimeout(() => current && setShowSkeleton(true), SKELETON_DELAY);
+    fetchPosts(params)
+      .then((response) => current && show(response))
+      .catch(() => {
+        if (!current) return;
+        setLoading(false);
+        setShowSkeleton(false);
+        setFailed(true);
       });
-    }
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+    // `params` is derived from `data` and `state`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, attempt]);
 
-    if (searchTerm) {
-      params.search = searchTerm.replace(/-|  /g, "+");
-    }
+  // State → URL, for the visitor's changes only.
+  useEffect(() => {
+    if (!userChange.current) return;
 
-    taxFilters.forEach((filter: any) => {
-      if (filter.taxonomy !== undefined && filter.terms) {
-        params[`filter_${filter.taxonomy}`] = filter.terms;
-      }
+    if (data.redirect_on_filter && state.filters.length) {
+      const target = state.filters[0].terms;
+      router.push(window.location.href.replace(/\/[^/]*\/$/, `/${target}/`));
+      return;
+    }
+    if (!data.update_url) return;
+
+    const query = new URLSearchParams();
+    if (state.search) query.set("search", state.search);
+    state.filters.forEach((filter) => filter.terms && query.set(`filter_${filter.taxonomy}`, filter.terms));
+    if (isPagination && state.page > 1) query.set("page", String(state.page));
+    const url = window.location.pathname + (query.size ? `?${query}` : "");
+    if (url === window.location.pathname + window.location.search) return;
+
+    // Typing replaces the history entry; pages and filters add one each.
+    // The native history API skips the server request a router push makes.
+    const typing = new URLSearchParams(window.location.search).get("search") !== (state.search || null);
+    window.history[typing ? "replaceState" : "pushState"](null, "", url);
+  }, [state, data.redirect_on_filter, data.update_url, isPagination, router]);
+
+  const filterValue = (taxonomy: string) =>
+    state.filters.find((filter) => filter.taxonomy === taxonomy)?.terms ??
+    data.tax_query?.find((filter: any) => filter.taxonomy === taxonomy)?.term ??
+    "";
+
+  const setFilter = (taxonomy: string, terms: string) =>
+    update({
+      filters: [
+        ...state.filters.filter((filter) => filter.taxonomy !== taxonomy),
+        ...(terms ? [{ taxonomy, terms }] : []),
+      ],
     });
 
-    if (update_url) {
-      const urlQuery: Record<string, any> = { ...params };
-      delete urlQuery.post_type;
-      delete urlQuery.per_page;
-      delete urlQuery.exclude;
-      delete urlQuery.include_content;
-      if (urlQuery.page === 1 || loadMore) {
-        delete urlQuery.page;
-      }
-      router.push("?" + new URLSearchParams(urlQuery).toString(), { scroll: false });
-    }
+  const goToPage = (page: number) => {
+    update({ page });
+    // The new page replaces this one: bring its top into view.
+    const top = listRef.current?.getBoundingClientRect().top ?? 0;
+    if (top < 0) listRef.current?.scrollIntoView({ block: "start" });
+  };
 
-    getPosts(params, true)
-      .then((response) => {
-        const totalPosts =
-          response.headers.get("X-WP-Total") ?? number_of_posts;
-        const totalPages = Number(response.headers.get("X-WP-TotalPages") ?? 1);
-        setTotalPosts(totalPosts);
-        setTotalPages(totalPages);
-        setPosts((current) =>
-          load_more && loadMore ? current?.concat(response.posts) : response.posts
-        );
-        setIsLoading(false);
-      })
-      .catch((err) => console.log(err));
-    // loadMore only ever changes together with currentPage or a filter.
-  }, [currentPage, taxFilters, searchTerm, loadMore, post_type, number_of_posts, load_more, update_url, redirect_on_filter, tax_query, router]);
+  const total = result?.total ?? 0;
+  const totalPages = result?.totalPages ?? 1;
 
   return (
     <BlockWrapper
@@ -130,26 +207,18 @@ export function Feed({ data, firstPosts }: Props) {
       style={{ paddingTop: "var(--space-xl)", paddingBottom: "var(--space-xl)" }}
     >
     <div className="container">
-      <Loader isLoading={isLoading} />
       <div className="archive-container relative">
-        {data.heading &&
-          <div className="flow mb-md">{Parser(data.heading)}</div>
-        }
-        {/* Description, then one wrapping row of controls (button groups take
-            a line each), then Reset and the count. */}
+        {/* Intro, then one wrapping row of controls (button groups take a line
+            each), then Reset and the count. */}
         <div className="flex flex-col gap-md border-b border-rule pb-md">
-          {data.description &&
-            <p className="body-lg measure text-muted">{Parser(data.description)}</p>
-          }
+          {intro}
           <div className="archive-filters flex flex-wrap items-end gap-sm">
             {data.show_search && (
               <SearchBox
                 label={data.search_field_label}
                 placeholder={data.search_field_placeholder}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                setCurrentPage={setCurrentPage}
-                setLoadMore={setLoadMore}
+                value={searchInput}
+                onChange={setSearchInput}
               />
             )}
             {data.taxonomy_filters &&
@@ -158,14 +227,11 @@ export function Feed({ data, firstPosts }: Props) {
                   key={index}
                   taxonomy={item.taxonomy}
                   terms={item.terms}
-                  tax_query={data.tax_query}
                   label={item.label}
                   placeholder={item.placeholder}
                   type={item.type}
-                  taxFilters={taxFilters}
-                  setTaxFilters={setTaxFilters}
-                  setCurrentPage={setCurrentPage}
-                  setLoadMore={setLoadMore}
+                  value={filterValue(item.taxonomy)}
+                  onChange={(term) => setFilter(item.taxonomy, term)}
                 />
               ))}
           </div>
@@ -178,47 +244,59 @@ export function Feed({ data, firstPosts }: Props) {
                     style="no-fill"
                     size="md"
                     onClick={() => {
-                      setCurrentPage(1);
-                      setSearchTerm("");
-                      setTaxFilters([]);
-                      setLoadMore(false);
+                      setSearchInput("");
+                      update({ search: "", filters: [] });
                     }}
                   >
                     Reset filters
                   </Button>
                 </div>
               )}
-              {data.show_post_count && (
+              {data.show_post_count && result && (
                 <PostCount
                   postType={data.post_type}
-                  totalPosts={totalPosts}
+                  totalPosts={total}
                   totalPages={totalPages}
-                  perPage={data.number_of_posts}
-                  currentPage={currentPage}
-                  isLoadMore={data.load_more === "load_more"}
+                  perPage={perPage}
+                  currentPage={state.page}
+                  isLoadMore={isLoadMore}
                 />
               )}
             </div>
           )}
         </div>
-        {posts && <PostsList posts={posts} />}
-        {data.load_more === "pagination" && (
+        <div ref={listRef} className="scroll-mt-[var(--header-h)]">
+          {failed ? (
+            <div role="alert" className="my-lg flex flex-wrap items-center gap-sm">
+              <p>The posts didn&rsquo;t load.</p>
+              <Button type="button" size="md" style="secondary" onClick={() => setAttempt((n) => n + 1)}>
+                Try again
+              </Button>
+            </div>
+          ) : (
+            <PostsList
+              // Load more keeps the posts shown and adds skeletons after them.
+              posts={showSkeleton && !(isLoadMore && state.page > 1) ? [] : posts}
+              skeletons={showSkeleton ? perPage : 0}
+              pending={loading}
+            />
+          )}
+        </div>
+        {isPagination && (
           <Pagination
             totalPages={totalPages}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
+            currentPage={state.page}
+            setCurrentPage={goToPage}
           />
         )}
-        {data.load_more === "load_more" && currentPage != totalPages && (
+        {isLoadMore && state.page < totalPages && (
           <div className="archive-load-more flex justify-center">
             <Button
               type="button"
               size="md"
               style="primary"
-              onClick={() => {
-                setCurrentPage(currentPage + 1);
-                setLoadMore(true);
-              }}
+              disabled={loading}
+              onClick={() => update({ page: state.page + 1 })}
             >
               {data.load_more_text}
             </Button>

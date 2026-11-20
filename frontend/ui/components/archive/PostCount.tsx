@@ -27,7 +27,7 @@ export function PostCount({
   };
 
   return (
-    <div className="archive-count label flex flex-row text-muted">
+    <div className="archive-count label flex flex-row text-muted" aria-live="polite">
       {calculateCount()}
     </div>
   );

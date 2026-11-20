@@ -1,55 +1,38 @@
-import dynamic from 'next/dynamic';
+import Parser from "html-react-parser";
 import { getPosts, getTaxTerms } from "@/nextpress.config";
-import { WPQuery } from "@pomeg-dev/nextpress-client/types";
+import { Feed } from "@ui/components/lazy";
+import { FeedResult, INITIAL_STATE, feedQuery } from "@ui/components/archive/query";
 
-const Feed = dynamic(
-  () => import("../../../../ui/components/archive/Feed").then(mod => ({ default: mod.Feed })),
-  {
-    loading: () => <div className="animate-pulse rounded bg-black/50" />,
-  }
-);
-
+// The first page and the filter terms load in parallel, through the cached
+// `getPosts`, so the feed is in the server HTML.
 export async function ArchiveFeedBlock(props: any) {
-  let data = { ...props.data };
+  const data = { ...props.data };
 
-  const params: WPQuery = {
-    page: 1,
-    post_type: data?.post_type || 'post',
-    per_page: data?.number_of_posts || 12,
-    include_content: true,
-  };
+  const [first, taxonomyFilters] = await Promise.all([
+    getPosts(feedQuery(data, INITIAL_STATE), true)
+      .then(({ posts, headers }: { posts: any[]; headers: Headers }): FeedResult => ({
+        posts,
+        total: Number(headers.get("X-WP-Total") ?? posts.length),
+        totalPages: Number(headers.get("X-WP-TotalPages") ?? 1),
+      }))
+      // The feed fetches in the browser instead.
+      .catch(() => undefined),
+    Promise.all(
+      (data.taxonomy_filters || []).map(async (taxItem: { taxonomy: string; categories?: any[] }) => ({
+        ...taxItem,
+        terms: taxItem.categories ?? (await getTaxTerms(taxItem.taxonomy)),
+      }))
+    ),
+  ]);
+  if (data.taxonomy_filters) data.taxonomy_filters = taxonomyFilters;
 
-  if (data?.tax_query && data.tax_query.length > 0) {
-    data.tax_query.map((filter: any) => {
-      params[`filter_${filter.taxonomy}`] = filter.term;
-    });
-  }
-
-  const firstPosts = await getPosts(params).catch(() => ({
-    default: () => <div>Posts not found</div>,
-  }));
-
-  if (data.taxonomy_filters) {
-    const updatedTaxonomyFilters = await Promise.all(
-      data.taxonomy_filters.map(async (taxItem: { taxonomy: string, categories?: any[] }) => {
-        if (taxItem?.categories) {
-          return {
-            ...taxItem,
-            terms: taxItem.categories
-          }
-        } else {
-          const terms = await getTaxTerms(taxItem.taxonomy);
-          return {
-            ...taxItem,
-            terms: terms
-          };
-        }
-      })
-    );
-    data.taxonomy_filters = updatedTaxonomyFilters;
-  }
-
-  return (
-    <Feed data={data} firstPosts={firstPosts} />
+  const { heading, description, ...feedData } = data;
+  const intro = (heading || description) && (
+    <>
+      {heading && <div className="flow">{Parser(heading)}</div>}
+      {description && <p className="body-lg measure text-muted">{Parser(description)}</p>}
+    </>
   );
+
+  return <Feed data={feedData} first={first} intro={intro} />;
 }

@@ -1238,6 +1238,22 @@
     outline-offset: 3px;
   }
 
+  // Archive feed: a card's shape while its post loads. Opacity only, so the
+  // pulse runs on the compositor; static under reduced motion.
+  .skeleton-block {
+    background: var(--rule);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .post-card-skeleton {
+      animation: np-skeleton var(--dur-beat) var(--motion-ease-in-out) infinite alternate;
+    }
+  }
+
+  @keyframes np-skeleton {
+    to { opacity: 0.5; }
+  }
+
   // deck-hero: chips riveted at their bottom-left corner. The top chip stands
   // upright; the ones under it fan clockwise across `--spread`. From lg the
   // deck runs on into the page margin.
