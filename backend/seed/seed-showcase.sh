@@ -12,6 +12,7 @@
 #   - Home page content (ID 2) → post meta `_np_seed_original_content` (base64)
 #   - header/footer Templates layouts → option `np_seed_backup`
 #   - menu locations: deleting a seeded menu unassigns it
+#   - Templates → Post (post hero), only when it is empty: post-template.php
 # It leaves `frontend_url` alone: the plugin also uses that option for its
 # server-side block fetch, and http://localhost:3000 is unreachable from the
 # wordpress container. Empty, the plugin falls back to the Docker host URL.
@@ -102,6 +103,7 @@ sql "SELECT CONCAT('@@', option_value) FROM \${P}options WHERE option_name = 'np
   wp db query "UPDATE \${P}options SET option_value = FROM_BASE64('\$value') WHERE option_name = '\$name'" >/dev/null
 done
 wp option delete np_seed_backup >/dev/null 2>&1 || true
+wp eval-file /seed/post-template.php reset
 clear_content_cache
 wp cache flush >/dev/null
 SH
@@ -259,8 +261,14 @@ fi
 SH
   done
 
-  # Posts and their terms.
+  # Posts and their terms, then the post hero in Templates → Post. The
+  # Templates field groups cache their block layouts: clear it first, so
+  # post-hero is a known layout.
   cat "$OUT_DIR/posts.sh"
+  cat <<'SH'
+clear_transients nextpress_templates_
+wp eval-file /seed/post-template.php
+SH
 
   # Menus: found by term meta, items rebuilt every run.
   for menu in header footer; do
