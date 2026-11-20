@@ -14,7 +14,6 @@ const nextConfig = {
   
   // PERFORMANCE OPTIMIZATIONS
   experimental: {
-    optimizePackageImports: ['framer-motion', 'gsap', '@react-three/fiber'],
     cssChunking: true,
     webpackBuildWorker: true,
   },
@@ -39,133 +38,11 @@ const nextConfig = {
     ]
   },
   
-  webpack(config, { dev, isServer }) {
-    // CSS optimization for production
-    if (!dev && !isServer) {
-      // Enable CSS minification
-      const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-      
-      if (!config.optimization.minimizer) {
-        config.optimization.minimizer = [];
-      }
-      
-      config.optimization.minimizer.push(
-        new CssMinimizerPlugin({
-          minimizerOptions: {
-            preset: [
-              'default',
-              {
-                discardComments: { removeAll: true },
-                normalizeWhitespace: true,
-                colormin: true,
-                convertValues: true,
-                discardDuplicates: true,
-                discardEmpty: true,
-                discardOverridden: true,
-                discardUnused: true,
-                mergeIdents: false,
-                mergeRules: true,
-                minifyFontValues: true,
-                minifyParams: true,
-                minifySelectors: true,
-                normalizeCharset: true,
-                normalizeDisplayValues: true,
-                normalizePositions: true,
-                normalizeRepeatStyle: true,
-                normalizeTimingFunctions: true,
-                normalizeUnicode: true,
-                normalizeUrl: true,
-                orderedValues: true,
-                reduceIdents: false,
-                reduceInitial: true,
-                reduceTransforms: true,
-                svgo: true,
-                uniqueSelectors: true,
-              },
-            ],
-          },
-        })
-      );
-
-      // Optimize CSS extraction
-      const MiniCssExtractPlugin = config.plugins.find(
-        plugin => plugin.constructor.name === 'MiniCssExtractPlugin'
-      );
-      if (MiniCssExtractPlugin) {
-        MiniCssExtractPlugin.options.ignoreOrder = true;
-      }
-
-      // Enable CSS and JavaScript code splitting
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          ...config.optimization.splitChunks,
-          chunks: 'all',
-          cacheGroups: {
-            ...config.optimization.splitChunks?.cacheGroups,
-            // CSS splitting
-            styles: {
-              name: 'styles',
-              test: /\.(css|scss)$/,
-              chunks: 'async',
-              enforce: true,
-              priority: 10,
-            },
-            // Heavy animation libraries - defer loading
-            animations: {
-              name: 'animations',
-              test: /[\\/]node_modules[\\/](framer-motion|gsap|swiper)[\\/]/,
-              chunks: 'async',
-              priority: 20,
-              minChunks: 2,
-              minSize: 20000,
-            },
-            // Form libraries - defer loading
-            forms: {
-              name: 'forms',
-              test: /[\\/]node_modules[\\/](react-hook-form|@hookform)[\\/]/,
-              chunks: 'async',
-              priority: 15,
-              minChunks: 2,
-              minSize: 20000,
-            },
-            // Large UI libraries - defer loading
-            ui: {
-              name: 'ui-libs',
-              test: /[\\/]node_modules[\\/](leaflet|three|@react-three)[\\/]/,
-              chunks: 'async',
-              priority: 15,
-              minChunks: 2,
-              minSize: 20000,
-            },
-            // Theme blocks - split by block type
-            defaultBlocks: {
-              name: 'default-blocks',
-              test: /[\\/]themes[\\/]default[\\/]blocks[\\/]/,
-              chunks: 'async',
-              priority: 25,
-              maxAsyncRequests: 10,
-              maxInitialRequests: 5,
-            },
-            // Core WordPress blocks
-            coreBlocks: {
-              name: 'core-blocks',
-              test: /[\\/]src[\\/]ui[\\/]wordpress[\\/]blocks[\\/]/,
-              chunks: 'async',
-              priority: 24,
-            },
-            // Component organisms (heavy components)
-            organisms: {
-              name: 'organisms',
-              test: /[\\/]ui[\\/]components[\\/]organisms[\\/]/,
-              chunks: 'async',
-              priority: 23,
-            },
-          },
-        },
-      };
-    }
-
+  // Next's own chunking and CSS minification are tuned for the App Router:
+  // each client component loads only on the routes that render it. A custom
+  // splitChunks config merged every client component into chunks that load on
+  // every page.
+  webpack(config) {
     // SVG optimization
     config.module.rules.push({
       test: /\.svg$/,
@@ -199,7 +76,8 @@ const nextConfig = {
   images: {
     deviceSizes: [320, 390, 640, 720, 1080, 1440, 1720, 2000],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/webp', 'image/avif'],
+    // First match wins: AVIF is 20–30% smaller than WebP at the same quality.
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
