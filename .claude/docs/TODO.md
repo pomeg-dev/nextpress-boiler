@@ -49,7 +49,7 @@ Items found during the redesign that are out of scope or need a decision. Newest
   - [ ] Push the plugin commit (outward: needs your go-ahead).
 - [ ] Package `generateStaticParams` reads `post.slug.full_path`, but `slug_only` returns `{ slug: <id>, full_path }`, so the package prerenders nothing. `app/[[...slug]]/page.tsx` overrides it with its own; fix in nextpress-client and drop the override.
   - Sent to the nextpress-client session with the sidebar bugs (2026-11-20).
-- [ ] wp-admin has GTM enabled with the placeholder `GTM-XXXXXXX` (88 KB of script for nothing). `CookieManager` now skips `GTM-X…` IDs; set a real ID or turn GTM off.
-- [ ] `css-minimizer-webpack-plugin` is unused since the custom `splitChunks` config was removed from `next.config.js`. Remove the dep (needs approval).
-- [ ] Optional: client feed queries go straight to WordPress (uncached apart from the plugin transient). A Next route handler proxy with the Data Cache would make filtered/paged requests CDN-cacheable. Architectural change, needs approval.
-- [ ] SEO scores 61 locally only because `indexable` needs `VERCEL_ENV=production` (noindex otherwise). Expected.
+- [x] GTM turned off in wp-admin (`options_google_tag_manager_enabled` = 0, settings transients cleared, 2026-11-20). `CookieManager` also skips `GTM-X…` placeholder IDs. A real site sets its ID and turns it back on.
+- [x] Unused `css-minimizer-webpack-plugin` removed (approved 2026-11-20); prod build passes.
+- [ ] Deferred until the nextpress-client update lands (2026-11-20): client feed queries go straight to WordPress (only the plugin transient caches them). A Next route handler proxy with the Data Cache would make filtered/paged requests CDN-cacheable. Architectural change, needs approval.
+- [x] SEO scores 61 locally only because `indexable` needs `VERCEL_ENV=production` (noindex otherwise). Expected; no action.
